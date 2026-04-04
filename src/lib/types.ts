@@ -15,6 +15,8 @@ export interface Product {
   thumbnail_url?: string;
   description_ko?: string;
   sort_order?: number;
+  original_price?: number;
+  discount_percent?: number;
 }
 
 export function formatPrice(price: number): string {

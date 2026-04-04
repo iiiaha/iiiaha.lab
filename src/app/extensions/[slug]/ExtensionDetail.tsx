@@ -41,7 +41,7 @@ export default function ExtensionDetail({ product }: { product: Product }) {
     { label: "Name", value: product.display_name },
     { label: "Version", value: product.version },
     { label: "Compatible", value: product.compatibility },
-    { label: "Price", value: formatPrice(product.price) },
+    { label: "Price", value: null },
   ];
 
   return (
@@ -79,6 +79,21 @@ export default function ExtensionDetail({ product }: { product: Product }) {
               </div>
             )
         )}
+        {/* Price */}
+        <div className="flex border-b border-[#ddd] py-3">
+          <span className="w-[140px] shrink-0 text-[13px] text-[#666]">Price</span>
+          <div className="flex items-center gap-2">
+            {(product.discount_percent ?? 0) > 0 && product.original_price ? (
+              <>
+                <span className="text-[13px] text-[#999] line-through">{formatPrice(product.original_price)}</span>
+                <span className="text-[14px] font-bold text-red-600">{formatPrice(product.price)}</span>
+                <span className="text-[11px] text-red-600 font-bold">-{product.discount_percent}%</span>
+              </>
+            ) : (
+              <span className="text-[14px]">{formatPrice(product.price)}</span>
+            )}
+          </div>
+        </div>
         {/* Description */}
         {product.description && (
           <div className="border-b border-[#ddd] py-4">

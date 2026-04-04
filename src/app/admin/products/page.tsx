@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { createClient } from "@/lib/supabase";
 import { Product } from "@/lib/types";
 
@@ -27,6 +27,13 @@ export default function AdminProducts() {
   const [newProduct, setNewProduct] = useState<Partial<Product>>(EMPTY_PRODUCT);
   const [message, setMessage] = useState("");
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
+  const [platformTab, setPlatformTab] = useState<"all" | "sketchup" | "autocad" | "course">("all");
+
+  const filteredProducts = useMemo(() => {
+    if (platformTab === "all") return products;
+    if (platformTab === "course") return products.filter(p => p.type === "course");
+    return products.filter(p => p.platform === platformTab);
+  }, [products, platformTab]);
 
   const load = async () => {
     const { data } = await supabase
@@ -153,6 +160,25 @@ export default function AdminProducts() {
           </button>
         </div>
       </div>
+      {/* Platform tabs */}
+      <div className="flex gap-4 mb-0 text-[12px]">
+        {([
+          { key: "all", label: "All" },
+          { key: "sketchup", label: "SketchUp" },
+          { key: "autocad", label: "AutoCAD" },
+          { key: "course", label: "Courses" },
+        ] as const).map(({ key, label }) => (
+          <button
+            key={key}
+            onClick={() => setPlatformTab(key)}
+            className={`pb-2 border-0 bg-transparent cursor-pointer text-[12px] tracking-[0.05em] hover:underline ${
+              platformTab === key ? "font-bold text-[#111]" : "text-[#999]"
+            }`}
+          >
+            {label} ({key === "all" ? products.length : key === "course" ? products.filter(p => p.type === "course").length : products.filter(p => p.platform === key).length})
+          </button>
+        ))}
+      </div>
       <div className="border-t border-[#111] mb-6" />
 
       {adding && (
@@ -178,7 +204,7 @@ export default function AdminProducts() {
       {viewMode === "grid" && (
         <div className="mb-8">
           <div className="grid grid-cols-3 gap-x-10 gap-y-10">
-            {products.map((p, i) => (
+            {filteredProducts.map((p, i) => (
               <div key={p.id} className="group relative">
                 {/* Thumbnail with reorder buttons */}
                 <div className="relative aspect-square bg-[#f5f5f5] border border-[#ddd] mb-3 overflow-hidden flex items-center justify-center p-14">
@@ -193,7 +219,7 @@ export default function AdminProducts() {
                     <svg width="6" height="10" viewBox="0 0 6 10" fill="none"><path d="M5 1L1 5L5 9" stroke="#111" strokeWidth="1.2"/></svg>
                   </button>
                   {/* Right arrow */}
-                  <button onClick={() => moveProduct(i, "down")} disabled={i === products.length - 1}
+                  <button onClick={() => moveProduct(i, "down")} disabled={i === filteredProducts.length - 1}
                     className="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center bg-white border border-[#ddd] cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity disabled:hidden hover:border-[#111]">
                     <svg width="6" height="10" viewBox="0 0 6 10" fill="none"><path d="M1 1L5 5L1 9" stroke="#111" strokeWidth="1.2"/></svg>
                   </button>
@@ -208,7 +234,7 @@ export default function AdminProducts() {
 
       {/* List View */}
       <div className="border-t border-[#ddd]">
-        {products.map((p, i) => (
+        {filteredProducts.map((p, i) => (
           <div key={p.id}>
             {editing === p.id ? (
               <div className="border border-[#111] p-4 my-2">
@@ -252,7 +278,7 @@ export default function AdminProducts() {
                       className="bg-transparent border-0 p-0 cursor-pointer disabled:opacity-15 disabled:cursor-default hover:opacity-60">
                       <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 5L5 1L9 5" stroke="#999" strokeWidth="1.2"/></svg>
                     </button>
-                    <button onClick={() => moveProduct(i, "down")} disabled={i === products.length - 1}
+                    <button onClick={() => moveProduct(i, "down")} disabled={i === filteredProducts.length - 1}
                       className="bg-transparent border-0 p-0 cursor-pointer disabled:opacity-15 disabled:cursor-default hover:opacity-60">
                       <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1L5 5L9 1" stroke="#999" strokeWidth="1.2"/></svg>
                     </button>
@@ -269,8 +295,44 @@ export default function AdminProducts() {
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-[13px] text-[#666]">₩{p.price.toLocaleString()}</span>
-                  <span className="text-[11px] text-[#999] border border-[#ddd] px-2 py-0.5">{p.platform}</span>
+                  {/* Inline price editing */}
+                  <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-0.5">
+                      <span className="text-[10px] text-[#999]">₩</span>
+                      <input
+                        type="number"
+                        defaultValue={p.original_price ?? p.price}
+                        onBlur={async (e) => {
+                          const val = parseInt(e.target.value) || 0;
+                          const disc = p.discount_percent ?? 0;
+                          const finalPrice = disc > 0 ? Math.round(val * (1 - disc / 100)) : val;
+                          await supabase.from("products").update({ original_price: val, price: finalPrice }).eq("id", p.id);
+                          load();
+                        }}
+                        className="w-[70px] border border-[#ddd] px-1.5 py-0.5 text-[12px] text-right outline-none focus:border-[#111]"
+                      />
+                    </div>
+                    <div className="flex items-center gap-0.5">
+                      <input
+                        type="number"
+                        defaultValue={p.discount_percent ?? 0}
+                        min={0}
+                        max={99}
+                        onBlur={async (e) => {
+                          const disc = parseInt(e.target.value) || 0;
+                          const orig = p.original_price ?? p.price;
+                          const finalPrice = disc > 0 ? Math.round(orig * (1 - disc / 100)) : orig;
+                          await supabase.from("products").update({ discount_percent: disc, price: finalPrice }).eq("id", p.id);
+                          load();
+                        }}
+                        className="w-[36px] border border-[#ddd] px-1 py-0.5 text-[12px] text-right outline-none focus:border-[#111]"
+                      />
+                      <span className="text-[10px] text-[#999]">%</span>
+                    </div>
+                    {(p.discount_percent ?? 0) > 0 && (
+                      <span className="text-[12px] font-bold text-red-600">₩{p.price.toLocaleString()}</span>
+                    )}
+                  </div>
                   <button onClick={() => startEdit(p)} className="text-[11px] text-[#111] bg-transparent border border-[#ddd] px-3 py-1 cursor-pointer hover:bg-[#f5f5f5]">Edit</button>
                   <button onClick={() => deleteProduct(p.id, p.display_name)} className="text-[11px] text-red-600 bg-transparent border border-[#ddd] px-3 py-1 cursor-pointer hover:bg-red-50">Delete</button>
                 </div>
