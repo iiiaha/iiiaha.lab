@@ -42,12 +42,12 @@ export default function Header() {
             <img src="/profile.png" alt="" className="w-9 h-9 rounded-full object-cover" />
             <span className="text-[18px] font-bold tracking-[0.05em]">iiiaha.lab</span>
           </Link>
-          <nav className="flex gap-8">
+          <nav className="flex gap-5">
             {navItems.map(({ href, label }) => (
               <Link
                 key={href}
                 href={href}
-                className={`text-[13px] tracking-[0.1em] no-underline hover:underline ${
+                className={`text-[12px] tracking-[0.02em] no-underline hover:underline ${
                   pathname.startsWith(href) ? "font-bold" : ""
                 }`}
               >
