@@ -28,13 +28,6 @@ interface Comment {
 
 const STATUS_OPTIONS = ["open", "in_progress", "resolved", "closed"];
 
-const statusStyle = (s: string) => {
-  if (s === "open") return "text-[#111] border-[#111]";
-  if (s === "in_progress") return "text-yellow-600 border-yellow-400";
-  if (s === "resolved") return "text-green-600 border-green-400";
-  return "text-[#999] border-[#ddd]";
-};
-
 export default function PostDetailPage() {
   const params = useParams();
   const router = useRouter();
@@ -48,6 +41,9 @@ export default function PostDetailPage() {
   const [admin, setAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [commenting, setCommenting] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [editTitle, setEditTitle] = useState("");
+  const [editDesc, setEditDesc] = useState("");
 
   const load = async () => {
     const { data: p } = await supabase
@@ -84,14 +80,12 @@ export default function PostDetailPage() {
   const addComment = async () => {
     if (!newComment.trim() || !userId) return;
     setCommenting(true);
-
     await supabase.from("comments").insert({
       post_id: postId,
       user_id: userId,
       content: newComment.trim(),
       is_admin: admin,
     });
-
     setNewComment("");
     setCommenting(false);
     load();
@@ -102,64 +96,109 @@ export default function PostDetailPage() {
     load();
   };
 
+  const startEdit = () => {
+    if (!post) return;
+    setEditTitle(post.title);
+    setEditDesc(post.description);
+    setEditing(true);
+  };
+
+  const saveEdit = async () => {
+    await supabase.from("posts").update({
+      title: editTitle.trim(),
+      description: editDesc.trim(),
+    }).eq("id", postId);
+    setEditing(false);
+    load();
+  };
+
   if (loading || !post) {
     return <div className="pt-20 text-center text-[14px] text-[#999]">Loading...</div>;
   }
 
+  const isAuthor = userId === post.user_id;
+
   return (
     <div className="pt-10">
-      <Link href="/community" className="text-[12px] text-[#999] hover:underline mb-6 inline-block">
-        Back to Community
+      <Link href="/community" className="flex items-center gap-1.5 text-[12px] text-[#999] no-underline hover:underline mb-6">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6L8 10" stroke="#999" strokeWidth="1.2"/></svg>
+        Community
       </Link>
 
       {/* Header */}
-      <h1 className="text-[16px] font-bold tracking-[0.03em] mb-3">{post.title}</h1>
-      <div className="flex items-center gap-3 text-[11px] text-[#999] mb-6">
-        <span>{post.category === "idea" ? "Idea" : "Q&A / Bug"}</span>
-        {post.products && (
-          <>
+      {editing ? (
+        <div className="mb-6">
+          <input
+            value={editTitle}
+            onChange={(e) => setEditTitle(e.target.value)}
+            className="w-full text-[16px] font-bold border border-[#ddd] px-3 py-2 mb-3 outline-none focus:border-[#111]"
+          />
+          <textarea
+            value={editDesc}
+            onChange={(e) => setEditDesc(e.target.value)}
+            rows={6}
+            className="w-full border border-[#ddd] px-3 py-2 text-[14px] outline-none focus:border-[#111] resize-y font-[inherit] mb-3"
+          />
+          <div className="flex gap-2">
+            <button onClick={saveEdit} className="text-[12px] bg-[#111] text-white px-4 py-1.5 border-0 cursor-pointer hover:bg-[#333]">Save</button>
+            <button onClick={() => setEditing(false)} className="text-[12px] text-[#111] px-4 py-1.5 border border-[#ddd] bg-white cursor-pointer hover:bg-[#f5f5f5]">Cancel</button>
+          </div>
+        </div>
+      ) : (
+        <>
+          <div className="flex items-start justify-between gap-4 mb-3">
+            <h1 className="text-[16px] font-bold tracking-[0.03em]">{post.title}</h1>
+            {(isAuthor || admin) && (
+              <button onClick={startEdit} className="text-[11px] text-[#999] bg-transparent border-0 cursor-pointer hover:underline shrink-0">
+                Edit
+              </button>
+            )}
+          </div>
+          <div className="flex items-center gap-3 text-[11px] text-[#999] mb-6">
+            <span>{post.category === "idea" ? "Idea" : "Q&A / Bug"}</span>
+            {post.products && (
+              <>
+                <span>·</span>
+                <span>{post.products.display_name}</span>
+              </>
+            )}
             <span>·</span>
-            <span>{post.products.display_name}</span>
-          </>
-        )}
-        <span>·</span>
-        <span>
-          {new Date(post.created_at).toLocaleDateString("en-US", {
-            year: "numeric", month: "short", day: "numeric",
-          })}
-        </span>
-        <span>·</span>
-        <span className={statusStyle(post.status).split(" ")[0]}>
-          {post.status}
-        </span>
-      </div>
+            <span>
+              {new Date(post.created_at).toLocaleDateString("en-US", {
+                year: "numeric", month: "short", day: "numeric",
+              })}
+            </span>
+          </div>
+        </>
+      )}
 
       <div className="border-t border-[#111] mb-8" />
 
       {/* Body */}
-      <div className="mb-8">
-        <p className="text-[14px] leading-[1.8] whitespace-pre-wrap">{post.description}</p>
-        {post.image_url && (
-          <div className="mt-6">
-            <a href={post.image_url} target="_blank" rel="noopener noreferrer">
-              <img src={post.image_url} alt="attachment" className="max-w-full max-h-[500px] object-contain border border-[#eee]" />
-            </a>
-          </div>
-        )}
-      </div>
+      {!editing && (
+        <div className="mb-8">
+          <p className="text-[14px] leading-[1.8] whitespace-pre-wrap">{post.description}</p>
+          {post.image_url && (
+            <div className="mt-6">
+              <a href={post.image_url} target="_blank" rel="noopener noreferrer">
+                <img src={post.image_url} alt="attachment" className="max-w-full max-h-[500px] object-contain border border-[#eee]" />
+              </a>
+            </div>
+          )}
+        </div>
+      )}
 
-      {/* Admin: status change */}
-      {admin && (
-        <div className="flex items-center gap-2 mb-6 pb-6 border-b border-[#ddd]">
-          <span className="text-[11px] text-[#999]">Status:</span>
+      {/* Admin: status change — compact, inline */}
+      {admin && !editing && (
+        <div className="flex items-center gap-2 mb-8">
           {STATUS_OPTIONS.map((s) => (
             <button
               key={s}
               onClick={() => updateStatus(s)}
-              className={`text-[11px] px-2 py-0.5 border cursor-pointer ${
+              className={`text-[10px] px-2 py-0.5 border cursor-pointer ${
                 post.status === s
                   ? "bg-[#111] text-white border-[#111]"
-                  : "bg-white text-[#666] border-[#ddd] hover:border-[#111]"
+                  : "bg-white text-[#999] border-[#ddd] hover:border-[#111]"
               }`}
             >
               {s}
@@ -167,6 +206,8 @@ export default function PostDetailPage() {
           ))}
         </div>
       )}
+
+      <div className="border-t border-[#ddd] mb-6" />
 
       {/* Comments */}
       <h2 className="text-[12px] font-bold text-[#999] tracking-[0.05em] uppercase mb-4">
