@@ -131,8 +131,8 @@ export default function MyPage() {
     );
 
   return (
-    <div className="pt-10">
-      <div className="flex items-baseline justify-between mb-8">
+    <div>
+      <div className="flex items-center justify-between mb-6">
         <h1 className="text-[16px] font-bold tracking-[0.03em]">My Page</h1>
         <button
           onClick={handleSignOut}
@@ -141,7 +141,7 @@ export default function MyPage() {
           Logout
         </button>
       </div>
-      <div className="border-t border-[#111] mb-8" />
+      <div className="border-b border-[#111] mb-8" />
       <p className="text-[13px] text-[#666] mb-8">{email}</p>
 
       <h2 className="text-[12px] font-bold text-[#999] tracking-[0.05em] uppercase mb-4">

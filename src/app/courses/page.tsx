@@ -25,10 +25,8 @@ export default function CoursesPage() {
 
   return (
     <div>
-      <div className="flex gap-6 mb-0 text-[13px] tracking-[0.05em]">
-        <span className="pb-3 font-bold">Courses</span>
-      </div>
-      <div className="border-b border-[#111] mb-10" />
+      <h1 className="text-[16px] font-bold tracking-[0.03em] mb-6">Courses</h1>
+      <div className="border-b border-[#111] mb-8" />
       {loading ? (
         <p className="text-[14px] text-[#999]">Loading...</p>
       ) : courses.length === 0 ? (

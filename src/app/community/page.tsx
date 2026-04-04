@@ -143,7 +143,7 @@ export default function CommunityPage() {
           </button>
         ))}
       </div>
-      <div className="border-b border-[#111] mb-6" />
+      <div className="border-b border-[#111] mb-8" />
 
       {/* Posts */}
       {loading ? (

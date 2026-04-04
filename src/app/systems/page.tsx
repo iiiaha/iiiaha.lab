@@ -48,7 +48,7 @@ export default function SystemsPage() {
           </Link>
         )}
       </div>
-      <div className="border-b border-[#111] mb-10" />
+      <div className="border-b border-[#111] mb-8" />
 
       {loading ? (
         <p className="text-[14px] text-[#999]">Loading...</p>
