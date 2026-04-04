@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { getUser } from "@/lib/auth";
@@ -12,6 +12,14 @@ interface ProductOption {
 }
 
 export default function NewPostPage() {
+  return (
+    <Suspense fallback={<div className="pt-20 text-center text-[14px] text-[#999]">Loading...</div>}>
+      <NewPostForm />
+    </Suspense>
+  );
+}
+
+function NewPostForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const supabase = createClient();
