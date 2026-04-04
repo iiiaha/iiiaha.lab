@@ -227,9 +227,9 @@ export default function CommunityPage() {
                         })}
                       </span>
                       <span
-                        className={`text-[10px] font-bold uppercase border px-1.5 py-0.5 w-[80px] text-center ${statusStyle(post.status)}`}
+                        className={`text-[10px] font-bold border px-1.5 py-0.5 w-[80px] text-center ${statusStyle(post.status)}`}
                       >
-                        {post.status === "in_progress" ? "WORKING" : post.status}
+                        {post.status === "in_progress" ? "Working" : post.status.charAt(0).toUpperCase() + post.status.slice(1)}
                       </span>
                     </div>
                   )}
