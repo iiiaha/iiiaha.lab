@@ -84,17 +84,23 @@ export default function DeleteAccountPage() {
 
       {/* Warning */}
       <div className="border border-red-200 bg-red-50 p-5 mb-8">
-        <p className="text-[14px] font-bold text-red-600 mb-3">
+        <p className="text-[14px] font-bold text-red-600 mb-2">
           This action is permanent and cannot be undone.
         </p>
-        <p className="text-[13px] text-[#666] leading-relaxed">
+        <p className="text-[12px] text-red-500">
+          이 작업은 영구적이며 되돌릴 수 없습니다.
+        </p>
+        <p className="text-[13px] text-[#666] leading-relaxed mt-3">
           Once you delete your account, all of your data will be permanently
           removed. This includes:
+        </p>
+        <p className="text-[12px] text-[#999]">
+          계정을 삭제하면 모든 데이터가 영구적으로 제거됩니다. 여기에는 다음이 포함됩니다:
         </p>
       </div>
 
       {/* What will be lost */}
-      <div className="flex flex-col gap-3 mb-8">
+      <div className="flex flex-col gap-4 mb-8">
         <div className="flex items-start gap-2">
           <span className="text-[13px] text-red-500 mt-px">×</span>
           <div>
@@ -102,8 +108,10 @@ export default function DeleteAccountPage() {
               {productCount} extension license{productCount !== 1 ? "s" : ""}
             </p>
             <p className="text-[12px] text-[#999]">
-              All purchased extension licenses and download access will be
-              permanently revoked.
+              All purchased extension licenses and download access will be permanently revoked.
+            </p>
+            <p className="text-[12px] text-[#bbb]">
+              구매한 모든 익스텐션 라이선스와 다운로드 권한이 영구적으로 취소됩니다.
             </p>
           </div>
         </div>
@@ -114,8 +122,10 @@ export default function DeleteAccountPage() {
               {courseCount} course{courseCount !== 1 ? "s" : ""}
             </p>
             <p className="text-[12px] text-[#999]">
-              All purchased courses, progress, and viewing access will be
-              permanently removed.
+              All purchased courses, progress, and viewing access will be permanently removed.
+            </p>
+            <p className="text-[12px] text-[#bbb]">
+              구매한 모든 강의, 시청 진도, 열람 권한이 영구적으로 삭제됩니다.
             </p>
           </div>
         </div>
@@ -124,8 +134,10 @@ export default function DeleteAccountPage() {
           <div>
             <p className="text-[13px] font-bold">Account data</p>
             <p className="text-[12px] text-[#999]">
-              Your email ({email}), order history, and all associated data will
-              be deleted.
+              Your email ({email}), order history, and all associated data will be deleted.
+            </p>
+            <p className="text-[12px] text-[#bbb]">
+              이메일({email}), 주문 내역 및 모든 관련 데이터가 삭제됩니다.
             </p>
           </div>
         </div>
@@ -134,8 +146,10 @@ export default function DeleteAccountPage() {
           <div>
             <p className="text-[13px] font-bold">No refunds</p>
             <p className="text-[12px] text-[#999]">
-              Deleting your account does not entitle you to a refund for any
-              purchases.
+              Deleting your account does not entitle you to a refund for any purchases.
+            </p>
+            <p className="text-[12px] text-[#bbb]">
+              계정 삭제 시 기존 구매에 대한 환불은 제공되지 않습니다.
             </p>
           </div>
         </div>
