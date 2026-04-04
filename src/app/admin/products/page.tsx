@@ -150,8 +150,85 @@ export default function AdminProducts() {
     </div>
   );
 
+  const discountOn = !!(editData as Record<string, unknown>)._discountOn;
+  const origPrice = editData.original_price ?? editData.price ?? 0;
+  const discPercent = editData.discount_percent ?? 0;
+  const finalPrice = discountOn && discPercent > 0 ? Math.round(origPrice * (1 - discPercent / 100)) : origPrice;
+
+  const editPanel = editing ? (
+    <div className="w-[320px] shrink-0 border-l border-[#ddd] pl-6 overflow-y-auto max-h-[80vh] sticky top-20">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-[13px] font-bold">Edit</h2>
+        <button onClick={() => setEditing(null)} className="text-[11px] text-[#999] bg-transparent border-0 cursor-pointer hover:underline">Close</button>
+      </div>
+
+      <div className="flex flex-col gap-2 text-[12px]">
+        <div><label className="text-[10px] text-[#999] uppercase block mb-0.5">Slug</label><input value={editData.slug ?? ""} onChange={(e) => setEditData({...editData, slug: e.target.value})} className="w-full border border-[#ddd] px-2 py-1 text-[12px] outline-none focus:border-[#111]" /></div>
+        <div><label className="text-[10px] text-[#999] uppercase block mb-0.5">Name</label><input value={editData.name ?? ""} onChange={(e) => setEditData({...editData, name: e.target.value})} className="w-full border border-[#ddd] px-2 py-1 text-[12px] outline-none focus:border-[#111]" /></div>
+        <div><label className="text-[10px] text-[#999] uppercase block mb-0.5">Display Name</label><input value={editData.display_name ?? ""} onChange={(e) => setEditData({...editData, display_name: e.target.value})} className="w-full border border-[#ddd] px-2 py-1 text-[12px] outline-none focus:border-[#111]" /></div>
+
+        {/* Pricing */}
+        <div className="border border-[#eee] p-2.5 mt-1">
+          <p className="text-[10px] text-[#999] font-bold uppercase mb-2">Pricing</p>
+          <div className="flex items-center gap-1.5 mb-2">
+            <span className="text-[10px] text-[#999] w-[50px] shrink-0">Price</span>
+            <span className="text-[11px] text-[#999]">₩</span>
+            <input type="text" inputMode="numeric" value={origPrice} onChange={(e) => setEditData({...editData, original_price: parseInt(e.target.value) || 0})} className="w-[70px] border border-[#ddd] px-1.5 py-0.5 text-[12px] text-right outline-none focus:border-[#111]" />
+          </div>
+          <div className="flex items-center gap-1.5 mb-2">
+            <span className="text-[10px] text-[#999] w-[50px] shrink-0">Sale</span>
+            <button type="button" onClick={() => setEditData((prev) => ({...prev, _discountOn: !discountOn} as Partial<Product>))} className={`w-7 h-4 rounded-full relative transition-colors shrink-0 ${discountOn ? "bg-[#111]" : "bg-[#ddd]"}`}><span className={`absolute top-[2px] w-3 h-3 rounded-full bg-white transition-all ${discountOn ? "left-[13px]" : "left-[2px]"}`} /></button>
+            {discountOn && (
+              <>
+                <input type="text" inputMode="numeric" value={discPercent} onChange={(e) => setEditData({...editData, discount_percent: parseInt(e.target.value) || 0})} className="w-[32px] border border-[#ddd] px-1 py-0.5 text-[12px] text-right outline-none focus:border-[#111]" />
+                <span className="text-[10px] text-[#999]">%</span>
+              </>
+            )}
+          </div>
+          {discountOn && (
+            <div className="mb-2">
+              <div className="flex items-center gap-1.5 mb-1">
+                <span className="text-[10px] text-[#999] w-[50px] shrink-0">From</span>
+                <input type="datetime-local" value={editData.discount_start ? new Date(editData.discount_start).toISOString().slice(0,16) : ""} onChange={(e) => setEditData({...editData, discount_start: e.target.value ? new Date(e.target.value).toISOString() : undefined} as Partial<Product>)} className="flex-1 border border-[#ddd] px-1 py-0.5 text-[11px] outline-none focus:border-[#111]" />
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] text-[#999] w-[50px] shrink-0">To</span>
+                <input type="datetime-local" value={editData.discount_end ? new Date(editData.discount_end).toISOString().slice(0,16) : ""} onChange={(e) => setEditData({...editData, discount_end: e.target.value ? new Date(e.target.value).toISOString() : undefined} as Partial<Product>)} className="flex-1 border border-[#ddd] px-1 py-0.5 text-[11px] outline-none focus:border-[#111]" />
+              </div>
+              <p className="text-[9px] text-[#ccc] mt-1">Leave empty = always active</p>
+            </div>
+          )}
+          <div className="border-t border-[#eee] pt-2 mt-1 flex items-center gap-1.5">
+            <span className="text-[10px] text-[#999] w-[50px] shrink-0">Final</span>
+            {discountOn && discPercent > 0 ? (
+              <><span className="text-[11px] text-[#ccc] line-through">₩{origPrice.toLocaleString()}</span><span className="text-[13px] font-bold text-red-600">₩{finalPrice.toLocaleString()}</span><span className="text-[10px] text-red-500">-{discPercent}%</span></>
+            ) : (
+              <span className="text-[13px] font-bold">₩{origPrice.toLocaleString()}</span>
+            )}
+          </div>
+        </div>
+
+        <div><label className="text-[10px] text-[#999] uppercase block mb-0.5">Version</label><input value={editData.version ?? ""} onChange={(e) => setEditData({...editData, version: e.target.value})} className="w-full border border-[#ddd] px-2 py-1 text-[12px] outline-none focus:border-[#111]" /></div>
+        <div><label className="text-[10px] text-[#999] uppercase block mb-0.5">Compatibility</label><input value={editData.compatibility ?? ""} onChange={(e) => setEditData({...editData, compatibility: e.target.value})} className="w-full border border-[#ddd] px-2 py-1 text-[12px] outline-none focus:border-[#111]" /></div>
+        <div><label className="text-[10px] text-[#999] uppercase block mb-0.5">Desc (EN)</label><textarea value={editData.description ?? ""} onChange={(e) => setEditData({...editData, description: e.target.value})} rows={4} className="w-full border border-[#ddd] px-2 py-1 text-[12px] outline-none focus:border-[#111] resize-y font-[inherit]" /></div>
+        <div><label className="text-[10px] text-[#999] uppercase block mb-0.5">Desc (KR)</label><textarea value={editData.description_ko ?? ""} onChange={(e) => setEditData({...editData, description_ko: e.target.value})} rows={4} className="w-full border border-[#ddd] px-2 py-1 text-[12px] outline-none focus:border-[#111] resize-y font-[inherit]" /></div>
+        <div><label className="text-[10px] text-[#999] uppercase block mb-0.5">Thumbnail URL</label><input value={editData.thumbnail_url ?? ""} onChange={(e) => setEditData({...editData, thumbnail_url: e.target.value})} className="w-full border border-[#ddd] px-2 py-1 text-[12px] outline-none focus:border-[#111]" /></div>
+        <div className="flex items-center gap-2">
+          <input type="file" accept="image/*" onChange={(e) => { const f = e.target.files?.[0]; if (f && editing) { const ep = filteredProducts.find(p=>p.id===editing); if(ep) uploadThumbnail(f, ep.slug, "edit"); }}} className="text-[11px]" />
+          {editData.thumbnail_url && <img src={editData.thumbnail_url} alt="" className="w-6 h-6 object-contain border border-[#ddd]" />}
+        </div>
+
+        <div className="flex gap-2 mt-3 justify-end">
+          <button onClick={() => setEditing(null)} className="text-[11px] text-[#111] px-3 py-1.5 border border-[#ddd] bg-white cursor-pointer hover:bg-[#f5f5f5]">Cancel</button>
+          <button onClick={saveEdit} className="text-[11px] text-white bg-[#111] px-3 py-1.5 border-0 cursor-pointer hover:bg-[#333]">Save</button>
+        </div>
+      </div>
+    </div>
+  ) : null;
+
   return (
-    <div>
+    <div className="flex gap-0">
+      <div className={editing ? "flex-1 min-w-0 pr-6" : "flex-1"}>
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <h1 className="text-[16px] font-bold tracking-[0.03em]">Products</h1>
@@ -168,7 +245,7 @@ export default function AdminProducts() {
             onClick={() => { setAdding(true); setEditing(null); }}
             className="bg-[#111] text-white text-[12px] font-bold px-4 py-2 border-0 cursor-pointer hover:bg-[#333]"
           >
-            + Add Product
+            + Add
           </button>
         </div>
       </div>
@@ -244,89 +321,6 @@ export default function AdminProducts() {
       <div className="border-t border-[#ddd]">
         {filteredProducts.map((p, i) => (
           <div key={p.id}>
-            {editing === p.id ? (
-              <div className="border border-[#111] p-4 my-2">
-                <Field label="Slug" value={editData.slug ?? ""} onChange={(v) => setEditData({ ...editData, slug: v })} />
-                <Field label="Name" value={editData.name ?? ""} onChange={(v) => setEditData({ ...editData, name: v })} />
-                <Field label="Display Name" value={editData.display_name ?? ""} onChange={(v) => setEditData({ ...editData, display_name: v })} />
-                {/* Pricing section */}
-                <div className="border border-[#ddd] p-3 mb-3">
-                  <p className="text-[11px] text-[#999] font-bold uppercase tracking-[0.05em] mb-3">Pricing</p>
-                  <div className="flex items-center gap-2 mb-2">
-                    <label className="w-[80px] shrink-0 text-[11px] text-[#666]">Regular price</label>
-                    <span className="text-[12px] text-[#999]">₩</span>
-                    <input type="text" inputMode="numeric" value={editData.original_price ?? editData.price ?? 0}
-                      onChange={(e) => setEditData({ ...editData, original_price: parseInt(e.target.value) || 0 })}
-                      className="w-[80px] border border-[#ddd] px-2 py-1 text-[13px] text-right outline-none focus:border-[#111]" />
-                  </div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <label className="w-[80px] shrink-0 text-[11px] text-[#666]">Discount</label>
-                    <button type="button" onClick={() => {
-                      setEditData((prev) => ({ ...prev, _discountOn: !(prev as Record<string,unknown>)._discountOn } as Partial<Product>));
-                    }} className={`w-8 h-[18px] rounded-full relative transition-colors shrink-0 ${!!(editData as Record<string,unknown>)._discountOn ? "bg-[#111]" : "bg-[#ddd]"}`}>
-                      <span className={`absolute top-[2px] w-[14px] h-[14px] rounded-full bg-white transition-all ${!!(editData as Record<string,unknown>)._discountOn ? "left-[14px]" : "left-[2px]"}`} />
-                    </button>
-                    {!!(editData as Record<string,unknown>)._discountOn && (
-                      <>
-                        <input type="text" inputMode="numeric" value={editData.discount_percent ?? 0}
-                          onChange={(e) => setEditData({ ...editData, discount_percent: parseInt(e.target.value) || 0 })}
-                          className="w-[40px] border border-[#ddd] px-1 py-1 text-[13px] text-right outline-none focus:border-[#111]" />
-                        <span className="text-[11px] text-[#999]">%</span>
-                      </>
-                    )}
-                  </div>
-                  {!!(editData as Record<string,unknown>)._discountOn && (
-                    <>
-                      <div className="flex items-center gap-2 mb-2">
-                        <label className="w-[80px] shrink-0 text-[11px] text-[#666]">Schedule</label>
-                        <input type="datetime-local" value={editData.discount_start ? new Date(editData.discount_start).toISOString().slice(0,16) : ""}
-                          onChange={(e) => setEditData({ ...editData, discount_start: e.target.value ? new Date(e.target.value).toISOString() : undefined } as Partial<Product>)}
-                          className="border border-[#ddd] px-1 py-0.5 text-[11px] outline-none focus:border-[#111]" />
-                        <span className="text-[11px] text-[#999]">~</span>
-                        <input type="datetime-local" value={editData.discount_end ? new Date(editData.discount_end).toISOString().slice(0,16) : ""}
-                          onChange={(e) => setEditData({ ...editData, discount_end: e.target.value ? new Date(e.target.value).toISOString() : undefined } as Partial<Product>)}
-                          className="border border-[#ddd] px-1 py-0.5 text-[11px] outline-none focus:border-[#111]" />
-                      </div>
-                      <p className="text-[10px] text-[#bbb] ml-[88px] mb-2">Leave empty for no schedule (always active)</p>
-                    </>
-                  )}
-                  {/* Final price preview */}
-                  <div className="flex items-center gap-2 mt-3 pt-3 border-t border-[#eee]">
-                    <label className="w-[80px] shrink-0 text-[11px] text-[#666]">Final price</label>
-                    {!!(editData as Record<string,unknown>)._discountOn && (editData.discount_percent ?? 0) > 0 ? (
-                      <div className="flex items-center gap-2">
-                        <span className="text-[12px] text-[#ccc] line-through">₩{(editData.original_price ?? editData.price ?? 0).toLocaleString()}</span>
-                        <span className="text-[14px] font-bold text-red-600">₩{Math.round((editData.original_price ?? editData.price ?? 0) * (1 - (editData.discount_percent ?? 0) / 100)).toLocaleString()}</span>
-                        <span className="text-[11px] text-red-500">-{editData.discount_percent}%</span>
-                      </div>
-                    ) : (
-                      <span className="text-[14px] font-bold">₩{(editData.original_price ?? editData.price ?? 0).toLocaleString()}</span>
-                    )}
-                  </div>
-                </div>
-                <Field label="Version" value={editData.version ?? ""} onChange={(v) => setEditData({ ...editData, version: v })} />
-                <Field label="Compatibility" value={editData.compatibility ?? ""} onChange={(v) => setEditData({ ...editData, compatibility: v })} />
-                <div className="flex gap-2 mb-2">
-                  <label className="w-[100px] shrink-0 text-[11px] text-[#999] font-bold uppercase tracking-[0.05em] pt-1">Desc (EN)</label>
-                  <textarea value={editData.description ?? ""} onChange={(e) => setEditData({ ...editData, description: e.target.value })}
-                    rows={5} className="flex-1 border border-[#ddd] px-2 py-1.5 text-[13px] outline-none focus:border-[#111] resize-y font-[inherit]" />
-                </div>
-                <div className="flex gap-2 mb-2">
-                  <label className="w-[100px] shrink-0 text-[11px] text-[#999] font-bold uppercase tracking-[0.05em] pt-1">Desc (KR)</label>
-                  <textarea value={editData.description_ko ?? ""} onChange={(e) => setEditData({ ...editData, description_ko: e.target.value })}
-                    rows={5} className="flex-1 border border-[#ddd] px-2 py-1.5 text-[13px] outline-none focus:border-[#111] resize-y font-[inherit]" />
-                </div>
-                <Field label="Thumbnail URL" value={editData.thumbnail_url ?? ""} onChange={(v) => setEditData({ ...editData, thumbnail_url: v })} />
-                <div className="flex items-center gap-2 mb-3">
-                  <label className="w-[100px] shrink-0 text-[11px] text-[#999] font-bold uppercase tracking-[0.05em]">Upload</label>
-                  <input type="file" accept="image/*" onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadThumbnail(f, p.slug, "edit"); }} className="text-[12px]" />
-                  {editData.thumbnail_url && <img src={editData.thumbnail_url} alt="preview" className="w-8 h-8 object-contain border border-[#ddd]" />}
-                </div>
-                <div className="flex gap-2">
-                  <button onClick={saveEdit} className="bg-[#111] text-white text-[12px] font-bold px-4 py-2 border-0 cursor-pointer hover:bg-[#333]">Save</button>
-                  <button onClick={() => setEditing(null)} className="bg-white text-[#111] text-[12px] font-bold px-4 py-2 border border-[#ddd] cursor-pointer hover:bg-[#f5f5f5]">Cancel</button>
-                </div>
-              </div>
             ) : (
               <div className="flex items-center border-b border-[#ddd] py-2 gap-2">
                 <div className="flex gap-0.5 shrink-0">
@@ -347,13 +341,14 @@ export default function AdminProducts() {
                     <span className="text-[#666]">₩{p.price.toLocaleString()}</span>
                   )}
                 </div>
-                <button onClick={() => startEdit(p)} className="text-[10px] text-[#999] bg-transparent border border-[#ddd] px-2 py-0.5 cursor-pointer hover:bg-[#f5f5f5] shrink-0">Edit</button>
+                <button onClick={() => startEdit(p)} className={`text-[10px] bg-transparent border px-2 py-0.5 cursor-pointer shrink-0 ${editing === p.id ? "text-[#111] border-[#111] font-bold" : "text-[#999] border-[#ddd] hover:bg-[#f5f5f5]"}`}>Edit</button>
                 <button onClick={() => deleteProduct(p.id, p.display_name)} className="text-[10px] text-red-500 bg-transparent border border-[#ddd] px-2 py-0.5 cursor-pointer hover:bg-red-50 shrink-0">Del</button>
               </div>
-            )}
           </div>
         ))}
       </div>
+      </div>
+      {editPanel}
     </div>
   );
 }
