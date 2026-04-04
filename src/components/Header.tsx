@@ -38,9 +38,8 @@ export default function Header() {
     <header className="sticky top-0 z-50 bg-white">
       <div className="max-w-[800px] mx-auto px-10 max-sm:px-5">
         <div className="flex items-center justify-between py-8">
-          <Link href="/" className="flex items-center gap-2.5 no-underline hover:no-underline">
+          <Link href="/" className="no-underline hover:no-underline">
             <img src="/profile.png" alt="" className="w-[80px] h-[80px] rounded-full object-cover" />
-            <span className="text-[18px] font-bold tracking-[0.05em]">iiiaha.lab</span>
           </Link>
           <nav className="flex gap-5">
             {navItems.map(({ href, label }) => (

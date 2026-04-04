@@ -111,7 +111,7 @@ export default function CommunityPage() {
           {loggedIn && (
             <Link href={`/community/new${filter === "bug" ? "?category=bug" : "?category=idea"}`}
               className="text-[12px] text-[#999] no-underline hover:underline">
-              New Post
+              + New Post
             </Link>
           )}
         </div>
