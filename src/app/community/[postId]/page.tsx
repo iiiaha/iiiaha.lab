@@ -207,7 +207,10 @@ export default function PostDetailPage() {
             {!admin && (
               <>
                 <span>·</span>
-                <span className={statusStyle(post.status).split(" ")[0]}>
+                <span className={
+                  post.status === "resolved" ? "text-green-600" :
+                  post.status === "closed" ? "text-[#ccc]" : "text-[#999]"
+                }>
                   {post.status}
                 </span>
               </>
