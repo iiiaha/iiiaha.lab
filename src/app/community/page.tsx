@@ -146,6 +146,27 @@ export default function CommunityPage() {
         <p className="text-[14px] text-[#999]">Loading...</p>
       ) : (
         <div className="border-t border-[#ddd]">
+          {admin && paged.length > 0 && (
+            <div className="flex items-center border-b border-[#ddd] py-2">
+              <input
+                type="checkbox"
+                checked={paged.length > 0 && paged.every((p) => selected.has(p.id))}
+                onChange={() => {
+                  const allSelected = paged.every((p) => selected.has(p.id));
+                  setSelected((prev) => {
+                    const next = new Set(prev);
+                    paged.forEach((p) => {
+                      if (allSelected) next.delete(p.id);
+                      else next.add(p.id);
+                    });
+                    return next;
+                  });
+                }}
+                className="mr-3 cursor-pointer"
+              />
+              <span className="text-[11px] text-[#999]">Select all</span>
+            </div>
+          )}
           {paged.length === 0 ? (
             <p className="text-[14px] text-[#999] py-6">No posts yet.</p>
           ) : (
