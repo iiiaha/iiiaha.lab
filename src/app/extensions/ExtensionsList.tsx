@@ -22,13 +22,14 @@ export default function ExtensionsList({
 
   return (
     <div>
-      <h1 className="text-[16px] font-bold tracking-[0.03em] mb-6">Extensions</h1>
-      <div className="flex gap-6 text-[13px] tracking-[0.05em]">
+      <h1 className="text-[16px] font-bold tracking-[0.03em] mb-4">Extensions</h1>
+      <div className="border-b border-[#111] mb-6" />
+      <div className="flex gap-6 text-[13px] tracking-[0.05em] mb-8">
         {FILTERS.map(({ key, label, value }) => (
           <button
             key={key}
             onClick={() => setFilter(value)}
-            className={`pb-3 border-0 bg-transparent cursor-pointer text-[13px] tracking-[0.05em] hover:underline ${
+            className={`border-0 bg-transparent cursor-pointer text-[13px] tracking-[0.05em] hover:underline ${
               filter === value ? "font-bold" : "text-[#666]"
             }`}
           >
@@ -36,7 +37,6 @@ export default function ExtensionsList({
           </button>
         ))}
       </div>
-      <div className="border-b border-[#111] mb-8" />
       <div className="grid grid-cols-3 gap-x-10 gap-y-12 max-md:grid-cols-2 max-sm:grid-cols-1">
         {filtered.map((product) => (
           <ProductCard

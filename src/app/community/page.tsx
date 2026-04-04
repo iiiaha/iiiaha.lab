@@ -98,7 +98,7 @@ export default function CommunityPage() {
   const paged = filtered.slice(page * PER_PAGE, (page + 1) * PER_PAGE);
 
   const header = (
-    <div className="flex items-center justify-between mb-6">
+    <div className="flex items-center justify-between mb-4">
       <h1 className="text-[16px] font-bold tracking-[0.03em]">Community</h1>
       <div className="flex items-center gap-2">
         {admin && selected.size > 0 && (
@@ -124,9 +124,10 @@ export default function CommunityPage() {
   return (
     <div>
       {header}
+      <div className="border-b border-[#111] mb-6" />
 
       {/* Filter tabs */}
-      <div className="flex gap-6 text-[13px] tracking-[0.05em]">
+      <div className="flex gap-6 text-[13px] tracking-[0.05em] mb-8">
         {([
           { key: "all", label: "All" },
           { key: "idea", label: "Ideas" },
@@ -135,7 +136,7 @@ export default function CommunityPage() {
           <button
             key={key}
             onClick={() => { setFilter(key); setPage(0); }}
-            className={`pb-3 border-0 bg-transparent cursor-pointer text-[13px] tracking-[0.05em] hover:underline ${
+            className={`border-0 bg-transparent cursor-pointer text-[13px] tracking-[0.05em] hover:underline ${
               filter === key ? "font-bold" : "text-[#666]"
             }`}
           >
@@ -143,7 +144,6 @@ export default function CommunityPage() {
           </button>
         ))}
       </div>
-      <div className="border-b border-[#111] mb-8" />
 
       {/* Posts */}
       {loading ? (

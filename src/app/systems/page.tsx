@@ -37,7 +37,7 @@ export default function SystemsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-4">
         <h1 className="text-[16px] font-bold tracking-[0.03em]">Systems</h1>
         {admin && (
           <Link
@@ -57,11 +57,9 @@ export default function SystemsPage() {
       ) : (
         <div className="grid grid-cols-3 gap-x-10 gap-y-12 max-md:grid-cols-2 max-sm:grid-cols-1">
           {items.map((item) => (
-            <a
+            <Link
               key={item.id}
-              href={item.link_url ?? "#"}
-              target={item.link_url ? "_blank" : undefined}
-              rel="noopener noreferrer"
+              href={`/systems/${item.id}`}
               className="group no-underline"
             >
               <div className="aspect-square bg-[#f5f5f5] border border-[#ddd] mb-3 overflow-hidden flex items-center justify-center">
@@ -83,7 +81,7 @@ export default function SystemsPage() {
                   {item.description}
                 </p>
               )}
-            </a>
+            </Link>
           ))}
         </div>
       )}
