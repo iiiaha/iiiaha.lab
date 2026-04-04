@@ -148,7 +148,7 @@ function SystemForm() {
 
         <div>
           <label className="block text-[12px] text-[#666] font-bold mb-1 tracking-[0.05em] uppercase">Description</label>
-          <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={48} placeholder="Brief description..."
+          <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={30} placeholder="Brief description..."
             className="w-full border border-[#ddd] px-3 py-2.5 text-[14px] outline-none focus:border-[#111] transition-colors resize-y font-[inherit]" />
         </div>
 
