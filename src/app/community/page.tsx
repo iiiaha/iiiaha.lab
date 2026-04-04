@@ -161,7 +161,7 @@ export default function CommunityPage() {
                   )}
                   <Link
                     href={`/community/${post.id}`}
-                    className="flex items-center gap-2 flex-1 min-w-0 no-underline hover:bg-[#fafafa] transition-colors"
+                    className="flex items-center gap-2 flex-1 min-w-0 no-underline group/link"
                   >
                     <span className={`text-[10px] font-bold text-white px-1.5 py-0.5 shrink-0 ${
                       post.category === "idea"
@@ -170,7 +170,7 @@ export default function CommunityPage() {
                     }`}>
                       {post.category === "idea" ? "Idea" : "Q&A"}
                     </span>
-                    <span className="text-[14px] font-bold truncate ml-1">
+                    <span className="text-[14px] font-bold truncate ml-1 group-hover/link:underline">
                       {post.title}
                     </span>
                     {post.comment_count > 0 && (

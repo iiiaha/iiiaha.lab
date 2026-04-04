@@ -186,9 +186,22 @@ export default function PostDetailPage() {
                 </div>
               )}
               {(isAuthor || admin) && (
-                <button onClick={startEdit} className="text-[11px] text-[#999] bg-transparent border-0 cursor-pointer hover:underline">
-                  Edit
-                </button>
+                <div className="flex gap-1">
+                  <button onClick={startEdit} className="text-[11px] text-[#111] border border-[#ddd] bg-white px-3 py-1 cursor-pointer hover:bg-[#f5f5f5]">
+                    Edit
+                  </button>
+                  <button
+                    onClick={async () => {
+                      if (!confirm("Delete this post?")) return;
+                      await supabase.from("comments").delete().eq("post_id", postId);
+                      await supabase.from("posts").delete().eq("id", postId);
+                      router.push("/community");
+                    }}
+                    className="text-[11px] text-red-600 border border-[#ddd] bg-white px-3 py-1 cursor-pointer hover:bg-red-50"
+                  >
+                    Delete
+                  </button>
+                </div>
               )}
             </div>
           </div>
