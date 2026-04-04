@@ -259,6 +259,31 @@ export default function MyPage() {
           })
         )}
       </div>
+
+      {/* Delete account */}
+      <div className="mt-16 pt-8 border-t border-[#ddd]">
+        <button
+          onClick={async () => {
+            if (
+              !confirm(
+                "Are you sure you want to delete your account?\nThis action cannot be undone."
+              )
+            )
+              return;
+            const res = await fetch("/api/account/delete", { method: "POST" });
+            if (res.ok) {
+              await signOut();
+              router.push("/");
+            } else {
+              const data = await res.json();
+              alert(data.error || "Failed to delete account");
+            }
+          }}
+          className="text-[12px] text-[#999] bg-transparent border-0 cursor-pointer hover:text-red-600 hover:underline"
+        >
+          Delete account
+        </button>
+      </div>
     </div>
   );
 }
