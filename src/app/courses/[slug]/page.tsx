@@ -76,7 +76,7 @@ export default function CourseDetailPage() {
       <div className="flex items-baseline justify-between mb-[10px]">
         <Link href="/courses" className="flex items-center gap-1.5 text-[16px] font-bold tracking-[0.03em] no-underline hover:no-underline">
           Courses
-          <svg width="14" height="14" viewBox="0 0 12 12" fill="none"><path d="M4 2L8 6L4 10" stroke="#111" strokeWidth="1.5"/></svg>
+          <svg width="14" height="14" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6L8 10" stroke="#111" strokeWidth="1.5"/></svg>
         </Link>
       </div>
       <div className="border-b border-[#111] mb-[72px] sticky-divider" />
