@@ -25,7 +25,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col">
         <Header />
-        <main className="flex-1 w-full max-w-[800px] mx-auto px-10 py-8 max-sm:px-5">
+        <main className="flex-1 w-full max-w-[800px] mx-auto px-10 py-5 max-sm:px-5">
           {children}
         </main>
         <Footer />

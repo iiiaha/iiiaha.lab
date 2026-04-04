@@ -124,10 +124,10 @@ export default function CommunityPage() {
   return (
     <div>
       {header}
-      <div className="border-b border-[#111] mb-5" />
+      <div className="border-b border-[#111] mb-3" />
 
       {/* Filter tabs */}
-      <div className="flex gap-6 text-[13px] tracking-[0.05em] mb-6">
+      <div className="flex gap-6 text-[13px] tracking-[0.05em] mb-4">
         {([
           { key: "all", label: "All" },
           { key: "idea", label: "Ideas" },
