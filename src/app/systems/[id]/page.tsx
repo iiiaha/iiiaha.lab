@@ -55,7 +55,7 @@ export default function SystemDetailPage() {
     <div>
       {/* Header */}
       <div className="flex items-baseline justify-between mb-[10px]">
-        <Link href="/systems" className="flex items-center gap-1.5 text-[16px] font-bold tracking-[0.03em] no-underline hover:no-underline">
+        <Link href="/systems" className="flex items-center gap-1.5 text-[16px] font-bold tracking-[0.03em] no-underline hover:underline">
           Systems
           <svg width="14" height="14" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6L8 10" stroke="#111" strokeWidth="1.5"/></svg>
         </Link>
