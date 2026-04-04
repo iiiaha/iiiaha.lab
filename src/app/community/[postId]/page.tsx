@@ -113,39 +113,40 @@ export default function PostDetailPage() {
       </Link>
 
       {/* Header */}
-      <div className="flex items-center gap-2 mb-3">
-        <span className={`text-[10px] font-bold uppercase border px-1.5 py-0.5 ${statusStyle(post.status)}`}>
+      <h1 className="text-[16px] font-bold tracking-[0.03em] mb-3">{post.title}</h1>
+      <div className="flex items-center gap-3 text-[11px] text-[#999] mb-6">
+        <span>{post.category === "idea" ? "Idea" : "Q&A / Bug"}</span>
+        {post.products && (
+          <>
+            <span>·</span>
+            <span>{post.products.display_name}</span>
+          </>
+        )}
+        <span>·</span>
+        <span>
+          {new Date(post.created_at).toLocaleDateString("en-US", {
+            year: "numeric", month: "short", day: "numeric",
+          })}
+        </span>
+        <span>·</span>
+        <span className={statusStyle(post.status).split(" ")[0]}>
           {post.status}
         </span>
-        <span className="text-[10px] text-[#999] border border-[#ddd] px-1.5 py-0.5">
-          {post.category === "idea" ? "Idea" : "Q&A / Bug"}
-        </span>
-        {post.products && (
-          <span className="text-[10px] text-[#999]">{post.products.display_name}</span>
-        )}
       </div>
 
-      <h1 className="text-[16px] font-bold tracking-[0.03em] mb-2">{post.title}</h1>
-      <p className="text-[12px] text-[#999] mb-6">
-        {new Date(post.created_at).toLocaleDateString("en-US", {
-          year: "numeric", month: "short", day: "numeric",
-        })}
-      </p>
-
-      <div className="border-t border-[#111] mb-6" />
+      <div className="border-t border-[#111] mb-8" />
 
       {/* Body */}
-      <div className="mb-6">
-        <p className="text-[14px] leading-relaxed whitespace-pre-wrap">{post.description}</p>
+      <div className="mb-8">
+        <p className="text-[14px] leading-[1.8] whitespace-pre-wrap">{post.description}</p>
+        {post.image_url && (
+          <div className="mt-6">
+            <a href={post.image_url} target="_blank" rel="noopener noreferrer">
+              <img src={post.image_url} alt="attachment" className="max-w-full max-h-[500px] object-contain border border-[#eee]" />
+            </a>
+          </div>
+        )}
       </div>
-
-      {post.image_url && (
-        <div className="mb-6">
-          <a href={post.image_url} target="_blank" rel="noopener noreferrer">
-            <img src={post.image_url} alt="attachment" className="max-w-full max-h-[400px] object-contain border border-[#ddd]" />
-          </a>
-        </div>
-      )}
 
       {/* Admin: status change */}
       {admin && (

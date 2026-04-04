@@ -9,17 +9,19 @@ interface Post {
   id: string;
   category: string;
   title: string;
+  description: string;
+  image_url: string | null;
   status: string;
   created_at: string;
   products: { display_name: string } | null;
   comment_count: number;
 }
 
-const statusStyle = (s: string) => {
-  if (s === "open") return "text-[#111] border-[#111]";
-  if (s === "in_progress") return "text-yellow-600 border-yellow-400";
-  if (s === "resolved") return "text-green-600 border-green-400";
-  return "text-[#999] border-[#ddd]";
+const statusDot = (s: string) => {
+  if (s === "open") return "bg-[#111]";
+  if (s === "in_progress") return "bg-yellow-500";
+  if (s === "resolved") return "bg-green-500";
+  return "bg-[#ccc]";
 };
 
 export default function CommunityPage() {
@@ -36,11 +38,10 @@ export default function CommunityPage() {
 
       const { data } = await supabase
         .from("posts")
-        .select("id, category, title, status, created_at, products(display_name)")
+        .select("id, category, title, description, image_url, status, created_at, products(display_name)")
         .order("created_at", { ascending: false });
 
       if (data) {
-        // 댓글 수 조회
         const withCounts = await Promise.all(
           data.map(async (p) => {
             const { count } = await supabase
@@ -66,7 +67,7 @@ export default function CommunityPage() {
         {loggedIn && (
           <Link
             href="/community/new"
-            className="text-[12px] text-white bg-[#111] border border-[#111] px-4 py-2 no-underline hover:bg-[#333] transition-colors font-bold"
+            className="text-[12px] text-[#111] border border-[#111] px-4 py-2 no-underline hover:bg-[#111] hover:text-white transition-colors font-bold"
           >
             New Post
           </Link>
@@ -91,54 +92,78 @@ export default function CommunityPage() {
           </button>
         ))}
       </div>
-      <div className="border-b border-[#111] mb-6" />
+      <div className="border-b border-[#111] mb-8" />
 
       {/* Posts */}
       {loading ? (
         <p className="text-[14px] text-[#999]">Loading...</p>
+      ) : filtered.length === 0 ? (
+        <p className="text-[14px] text-[#999] py-6">No posts yet.</p>
       ) : (
-        <div className="border-t border-[#ddd]">
-          {filtered.length === 0 ? (
-            <p className="text-[14px] text-[#999] py-6">No posts yet.</p>
-          ) : (
-            filtered.map((post) => (
+        <div className="flex flex-col gap-0">
+          {filtered.map((post) => {
+            const preview = post.description.length > 120
+              ? post.description.slice(0, 120) + "..."
+              : post.description;
+
+            return (
               <Link
                 key={post.id}
                 href={`/community/${post.id}`}
-                className="flex items-center justify-between border-b border-[#ddd] py-3 no-underline hover:bg-[#fafafa] transition-colors"
+                className="block no-underline border-b border-[#ddd] py-5 hover:bg-[#fafafa] transition-colors -mx-4 px-4"
               >
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span
-                      className={`text-[10px] font-bold uppercase border px-1.5 py-0.5 ${statusStyle(post.status)}`}
-                    >
-                      {post.status}
-                    </span>
-                    <span className="text-[10px] text-[#999] border border-[#ddd] px-1.5 py-0.5">
-                      {post.category === "idea" ? "Idea" : "Q&A / Bug"}
-                    </span>
-                    {post.products && (
-                      <span className="text-[10px] text-[#999]">
-                        {post.products.display_name}
-                      </span>
+                {/* Title row */}
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <span className={`w-2 h-2 rounded-full shrink-0 ${statusDot(post.status)}`} />
+                      <h3 className="text-[14px] font-bold truncate">{post.title}</h3>
+                    </div>
+                    <p className="text-[13px] text-[#999] leading-relaxed mb-2">{preview}</p>
+
+                    {/* Image thumbnail */}
+                    {post.image_url && (
+                      <div className="mb-2">
+                        <img
+                          src={post.image_url}
+                          alt=""
+                          className="h-16 object-cover border border-[#eee]"
+                        />
+                      </div>
                     )}
+
+                    {/* Meta */}
+                    <div className="flex items-center gap-3 text-[11px] text-[#bbb]">
+                      <span className="text-[#999]">
+                        {post.category === "idea" ? "Idea" : "Q&A"}
+                      </span>
+                      {post.products && (
+                        <>
+                          <span>·</span>
+                          <span>{post.products.display_name}</span>
+                        </>
+                      )}
+                      <span>·</span>
+                      <span>
+                        {new Date(post.created_at).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </span>
+                      {post.comment_count > 0 && (
+                        <>
+                          <span>·</span>
+                          <span className="text-[#666]">
+                            {post.comment_count} {post.comment_count === 1 ? "reply" : "replies"}
+                          </span>
+                        </>
+                      )}
+                    </div>
                   </div>
-                  <p className="text-[14px] font-bold">{post.title}</p>
-                </div>
-                <div className="flex items-center gap-4 shrink-0 text-[11px] text-[#999]">
-                  {post.comment_count > 0 && (
-                    <span>{post.comment_count} replies</span>
-                  )}
-                  <span>
-                    {new Date(post.created_at).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                    })}
-                  </span>
                 </div>
               </Link>
-            ))
-          )}
+            );
+          })}
         </div>
       )}
     </div>
