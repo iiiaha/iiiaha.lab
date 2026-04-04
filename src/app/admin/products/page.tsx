@@ -91,7 +91,9 @@ export default function AdminProducts() {
   // Add
   const saveNew = async () => {
     const maxOrder = products.reduce((max, p) => Math.max(max, p.sort_order ?? 0), -1);
-    const { error } = await supabase.from("products").insert([{ ...newProduct, sort_order: maxOrder + 1 }]);
+    const type = platformTab === "course" ? "course" : "extension";
+    const platform = platformTab === "course" ? null : (platformTab === "all" ? "sketchup" : platformTab);
+    const { error } = await supabase.from("products").insert([{ ...newProduct, sort_order: maxOrder + 1, type, platform }]);
     if (error) { showMessage(`Error: ${error.message}`); return; }
     setAdding(false);
     setNewProduct(EMPTY_PRODUCT);
@@ -186,10 +188,6 @@ export default function AdminProducts() {
           <Field label="Slug" value={newProduct.slug ?? ""} onChange={(v) => setNewProduct({ ...newProduct, slug: v })} />
           <Field label="Name" value={newProduct.name ?? ""} onChange={(v) => setNewProduct({ ...newProduct, name: v })} />
           <Field label="Display Name" value={newProduct.display_name ?? ""} onChange={(v) => setNewProduct({ ...newProduct, display_name: v })} />
-          <Field label="Type" value={newProduct.type ?? "extension"} onChange={(v) => setNewProduct({ ...newProduct, type: v as Product["type"] })}
-            options={[{ label: "Extension", value: "extension" }, { label: "Course", value: "course" }]} />
-          <Field label="Platform" value={newProduct.platform ?? "sketchup"} onChange={(v) => setNewProduct({ ...newProduct, platform: v as Product["platform"] })}
-            options={[{ label: "SketchUp", value: "sketchup" }, { label: "AutoCAD", value: "autocad" }]} />
           <Field label="Price" value={newProduct.price ?? 0} type="number" onChange={(v) => setNewProduct({ ...newProduct, price: parseInt(v) || 0 })} />
           <Field label="Version" value={newProduct.version ?? ""} onChange={(v) => setNewProduct({ ...newProduct, version: v })} />
           <Field label="Compatibility" value={newProduct.compatibility ?? ""} onChange={(v) => setNewProduct({ ...newProduct, compatibility: v })} />
@@ -241,10 +239,6 @@ export default function AdminProducts() {
                 <Field label="Slug" value={editData.slug ?? ""} onChange={(v) => setEditData({ ...editData, slug: v })} />
                 <Field label="Name" value={editData.name ?? ""} onChange={(v) => setEditData({ ...editData, name: v })} />
                 <Field label="Display Name" value={editData.display_name ?? ""} onChange={(v) => setEditData({ ...editData, display_name: v })} />
-                <Field label="Type" value={editData.type ?? "extension"} onChange={(v) => setEditData({ ...editData, type: v as Product["type"] })}
-                  options={[{ label: "Extension", value: "extension" }, { label: "Course", value: "course" }]} />
-                <Field label="Platform" value={editData.platform ?? "sketchup"} onChange={(v) => setEditData({ ...editData, platform: v as Product["platform"] })}
-                  options={[{ label: "SketchUp", value: "sketchup" }, { label: "AutoCAD", value: "autocad" }]} />
                 <Field label="Price" value={editData.original_price ?? editData.price ?? 0} type="number" onChange={(v) => {
                   const orig = parseInt(v) || 0;
                   const disc = editData.discount_percent ?? 0;
