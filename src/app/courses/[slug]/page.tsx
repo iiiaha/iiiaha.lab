@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase";
 import { Product, formatPrice } from "@/lib/types";
 import { getUser } from "@/lib/auth";
@@ -72,15 +73,21 @@ export default function CourseDetailPage() {
 
   return (
     <div>
-      <div className="aspect-video bg-[#f5f5f5] border border-[#ddd] mb-10 flex items-center justify-center text-[#999]">
+      <div className="flex items-baseline justify-between mb-[10px]">
+        <Link href="/courses" className="flex items-center gap-1.5 text-[16px] font-bold tracking-[0.03em] no-underline hover:no-underline">
+          <svg width="14" height="14" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6L8 10" stroke="#111" strokeWidth="1.5"/></svg>
+          Courses
+        </Link>
+      </div>
+      <div className="border-b border-[#111] mb-5 sticky-divider" />
+
+      <div className="aspect-video bg-[#f5f5f5] border border-[#ddd] mb-5 flex items-center justify-center text-[#999]">
         {product.thumbnail_url ? (
           <img src={product.thumbnail_url} alt={product.display_name} className="max-h-full max-w-full object-contain" />
         ) : (
           product.display_name
         )}
       </div>
-
-      <div className="border-b border-[#111] mb-5" />
 
       <h1 className="text-[16px] font-bold tracking-[0.03em] mb-2">{product.display_name}</h1>
       <p className="text-[14px] text-[#666] mb-8">{product.description}</p>
