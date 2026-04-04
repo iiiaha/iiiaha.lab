@@ -122,18 +122,11 @@ export default function PostDetailPage() {
           </Link>
         )}
       </div>
-      <div className="border-b border-[#111] mb-8" />
+      <div className="border-b border-[#111] mb-4" />
 
-      {/* Title row */}
-      <div className="flex items-center justify-between gap-4 mb-2">
-        <div className="flex items-center gap-2 min-w-0">
-          <span className={`text-[10px] font-bold text-white px-1.5 py-0.5 shrink-0 ${
-            post.category === "notice" ? "bg-[#00C864]" : post.category === "idea" ? "bg-[#0096D7]" : "bg-[#DC0A7D]"
-          }`}>
-            {post.category === "notice" ? "Notice" : post.category === "idea" ? "Idea" : "Q&A"}
-          </span>
-          <h1 className="text-[16px] font-bold tracking-[0.03em] truncate">{post.title}</h1>
-        </div>
+      {/* Title + actions */}
+      <div className="flex items-center justify-between gap-4 mb-3">
+        <h1 className="text-[15px] font-bold tracking-[0.03em] truncate">{post.title}</h1>
         <div className="flex items-center gap-2 shrink-0">
           {admin && (
             <div className="flex gap-1">
@@ -144,7 +137,7 @@ export default function PostDetailPage() {
                       ? "bg-[#111] text-white border-[#111]"
                       : "bg-white text-[#ccc] border-[#ddd] hover:border-[#111] hover:text-[#111]"
                   }`}>
-                  {s === "in_progress" ? "WORKING" : s.charAt(0).toUpperCase() + s.slice(1)}
+                  {s === "in_progress" ? "Working" : s.charAt(0).toUpperCase() + s.slice(1)}
                 </button>
               ))}
             </div>
@@ -168,49 +161,50 @@ export default function PostDetailPage() {
         </div>
       </div>
 
-      {/* Meta */}
-      <div className="flex items-center gap-3 text-[11px] text-[#999] mb-6">
-        {authorName && <span>{authorName}</span>}
-        {authorName && <span>·</span>}
+      {/* Info table */}
+      <div className="border-t border-[#ddd]">
+        <div className="flex border-b border-[#ddd] py-2">
+          <span className="w-[140px] shrink-0 text-[13px] text-[#666]">Category</span>
+          <span className={`text-[10px] font-bold text-white px-1.5 py-0.5 ${
+            post.category === "notice" ? "bg-[#00C864]" : post.category === "idea" ? "bg-[#0096D7]" : "bg-[#DC0A7D]"
+          }`}>
+            {post.category === "notice" ? "Notice" : post.category === "idea" ? "Idea" : "Q&A"}
+          </span>
+        </div>
         {post.products && (
-          <>
-            <span>{post.products.display_name}</span>
-            <span>·</span>
-          </>
+          <div className="flex border-b border-[#ddd] py-2">
+            <span className="w-[140px] shrink-0 text-[13px] text-[#666]">Extension</span>
+            <span className="text-[13px]">{post.products.display_name}</span>
+          </div>
         )}
-        <span>
-          {new Date(post.created_at).toLocaleDateString("en-US", {
-            year: "numeric", month: "short", day: "numeric",
-          })}
-        </span>
-        {!admin && (
-          <>
-            <span>·</span>
-            <span className={
-              post.status === "resolved" ? "text-green-600" :
-              post.status === "closed" ? "text-[#ccc]" : "text-[#999]"
-            }>
-              {post.status}
-            </span>
-          </>
-        )}
+        <div className="flex border-b border-[#ddd] py-2">
+          <span className="w-[140px] shrink-0 text-[13px] text-[#666]">Author</span>
+          <span className="text-[13px]">{authorName || "—"}</span>
+        </div>
+        <div className="flex border-b border-[#ddd] py-2">
+          <span className="w-[140px] shrink-0 text-[13px] text-[#666]">Date</span>
+          <span className="text-[13px]">{new Date(post.created_at).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}</span>
+        </div>
+        <div className="flex border-b border-[#ddd] py-2">
+          <span className="w-[140px] shrink-0 text-[13px] text-[#666]">Status</span>
+          <span className={`text-[13px] ${post.status === "resolved" ? "text-green-600" : post.status === "closed" ? "text-[#ccc]" : ""}`}>{post.status.charAt(0).toUpperCase() + post.status.slice(1)}</span>
+        </div>
       </div>
 
-      <div className="border-t border-[#ddd] mb-6" />
-
-      {/* Body */}
-      <div className="mb-6">
-        <p className="text-[14px] leading-[1.8] whitespace-pre-wrap">{post.description}</p>
+      {/* Description */}
+      <div className="border-b border-[#ddd] py-2.5">
+        <div className="flex mb-2">
+          <span className="w-[140px] shrink-0 text-[13px] text-[#666]">Description</span>
+        </div>
+        <p className="text-[13px] leading-relaxed whitespace-pre-wrap">{post.description}</p>
         {post.image_url && (
-          <div className="mt-4">
+          <div className="mt-3">
             <a href={post.image_url} target="_blank" rel="noopener noreferrer">
-              <img src={post.image_url} alt="attachment" className="max-w-full max-h-[500px] object-contain border border-[#eee]" />
+              <img src={post.image_url} alt="attachment" className="max-w-full max-h-[400px] object-contain border border-[#eee]" />
             </a>
           </div>
         )}
       </div>
-
-      <div className="border-t border-[#ddd] mb-6" />
 
       {/* Comments */}
       <h2 className="text-[12px] font-bold text-[#999] tracking-[0.05em] uppercase mb-4">
