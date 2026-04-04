@@ -7,8 +7,10 @@ import { getUser } from "@/lib/auth";
 
 interface Post {
   id: string;
+  user_id: string;
   category: string;
   title: string;
+  image_url: string | null;
   status: string;
   created_at: string;
   products: { display_name: string } | null;
@@ -29,6 +31,8 @@ export default function CommunityPage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [filter, setFilter] = useState<"all" | "idea" | "bug">("all");
   const [loggedIn, setLoggedIn] = useState(false);
+  const [admin, setAdmin] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState("");
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
 
@@ -36,10 +40,15 @@ export default function CommunityPage() {
     const load = async () => {
       const user = await getUser();
       setLoggedIn(!!user);
+      if (user) {
+        setCurrentUserId(user.id);
+        const { isAdmin: checkAdmin } = await import("@/lib/admin");
+        setAdmin(await checkAdmin());
+      }
 
       const { data } = await supabase
         .from("posts")
-        .select("id, category, title, status, created_at, products(display_name)")
+        .select("id, user_id, category, title, image_url, status, created_at, products(display_name)")
         .order("created_at", { ascending: false });
 
       if (data) {
@@ -109,45 +118,83 @@ export default function CommunityPage() {
           {paged.length === 0 ? (
             <p className="text-[14px] text-[#999] py-6">No posts yet.</p>
           ) : (
-            paged.map((post) => (
-              <Link
-                key={post.id}
-                href={`/community/${post.id}`}
-                className="flex items-center justify-between border-b border-[#ddd] py-3 no-underline hover:bg-[#fafafa] transition-colors"
-              >
-                <div className="flex items-center gap-2 flex-1 min-w-0">
-                  <span className="text-[10px] text-[#999] border border-[#ddd] px-1.5 py-0.5 shrink-0">
-                    {post.category === "idea" ? "Idea" : "Q&A"}
-                  </span>
-                  <span className="text-[14px] font-bold truncate">
-                    {post.title}
+            paged.map((post) => {
+              const canEdit = currentUserId === post.user_id || admin;
+              const canDelete = admin || currentUserId === post.user_id;
+
+              return (
+                <div key={post.id} className="flex items-center justify-between border-b border-[#ddd] py-3 group">
+                  <Link
+                    href={`/community/${post.id}`}
+                    className="flex items-center gap-2 flex-1 min-w-0 no-underline"
+                  >
+                    <span className={`text-[10px] font-bold border px-1.5 py-0.5 shrink-0 ${
+                      post.category === "idea"
+                        ? "text-blue-600 border-blue-300 bg-blue-50"
+                        : "text-orange-600 border-orange-300 bg-orange-50"
+                    }`}>
+                      {post.category === "idea" ? "Idea" : "Q&A"}
+                    </span>
+                    <span className="text-[14px] font-bold truncate">
+                      {post.title}
+                    </span>
                     {post.comment_count > 0 && (
-                      <span className="text-[12px] text-[#999] font-normal ml-1">
+                      <span className="text-[12px] text-[#999] font-normal shrink-0">
                         ({post.comment_count})
                       </span>
                     )}
-                  </span>
-                </div>
-                <div className="flex items-center gap-4 shrink-0 text-[11px] text-[#999] ml-4">
-                  {post.products && (
-                    <span className="text-[11px] text-[#bbb]">
-                      {post.products.display_name}
+                    {post.image_url && (
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#bbb" strokeWidth="1.5" className="shrink-0">
+                        <rect x="3" y="3" width="18" height="18" rx="1" />
+                        <circle cx="8.5" cy="8.5" r="1.5" />
+                        <path d="M21 15l-5-5L5 21" />
+                      </svg>
+                    )}
+                  </Link>
+                  <div className="flex items-center gap-3 shrink-0 text-[11px] text-[#999] ml-4">
+                    {/* Edit/Delete — visible on hover */}
+                    {canEdit && (
+                      <Link
+                        href={`/community/${post.id}`}
+                        className="text-[10px] text-[#ccc] no-underline hover:text-[#111] opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        edit
+                      </Link>
+                    )}
+                    {canDelete && (
+                      <button
+                        onClick={async (e) => {
+                          e.preventDefault();
+                          if (!confirm("Delete this post?")) return;
+                          await supabase.from("comments").delete().eq("post_id", post.id);
+                          await supabase.from("posts").delete().eq("id", post.id);
+                          setPosts((prev) => prev.filter((p) => p.id !== post.id));
+                        }}
+                        className="text-[10px] text-[#ccc] bg-transparent border-0 cursor-pointer hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        delete
+                      </button>
+                    )}
+                    {post.products && (
+                      <span className="text-[11px] text-[#bbb]">
+                        {post.products.display_name}
+                      </span>
+                    )}
+                    <span className="w-[45px] text-right">
+                      {new Date(post.created_at).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                      })}
                     </span>
-                  )}
-                  <span className="w-[45px] text-right">
-                    {new Date(post.created_at).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                    })}
-                  </span>
-                  <span
-                    className={`text-[10px] font-bold uppercase border px-1.5 py-0.5 w-[55px] text-center ${statusStyle(post.status)}`}
-                  >
-                    {post.status === "in_progress" ? "WIP" : post.status}
-                  </span>
+                    <span
+                      className={`text-[10px] font-bold uppercase border px-1.5 py-0.5 w-[55px] text-center ${statusStyle(post.status)}`}
+                    >
+                      {post.status === "in_progress" ? "WIP" : post.status}
+                    </span>
+                  </div>
                 </div>
-              </Link>
-            ))
+              );
+            })
           )}
         </div>
       )}
