@@ -113,8 +113,9 @@ function NewPostForm() {
 
   return (
     <div className="pt-10">
-      <Link href="/community" className="text-[12px] text-[#999] hover:underline mb-6 inline-block">
-        Back to Community
+      <Link href="/community" className="flex items-center gap-1.5 text-[12px] text-[#999] no-underline hover:underline mb-6">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6L8 10" stroke="#999" strokeWidth="1.2"/></svg>
+        Community
       </Link>
 
       <h1 className="text-[16px] font-bold tracking-[0.03em] mb-6">New Post</h1>
@@ -249,7 +250,13 @@ function NewPostForm() {
         </div>
 
         {/* Submit */}
-        <div className="flex gap-3 mt-2">
+        <div className="flex gap-3 mt-2 justify-end">
+          <Link
+            href="/community"
+            className="text-[#111] text-[13px] font-bold px-6 py-3 border border-[#ddd] no-underline hover:bg-[#f5f5f5] transition-colors flex items-center"
+          >
+            Cancel
+          </Link>
           <button
             type="submit"
             disabled={loading}
@@ -257,12 +264,6 @@ function NewPostForm() {
           >
             {loading ? "Posting..." : "Submit"}
           </button>
-          <Link
-            href="/community"
-            className="text-[#111] text-[13px] font-bold px-6 py-3 border border-[#ddd] no-underline hover:bg-[#f5f5f5] transition-colors flex items-center"
-          >
-            Cancel
-          </Link>
         </div>
       </form>
     </div>

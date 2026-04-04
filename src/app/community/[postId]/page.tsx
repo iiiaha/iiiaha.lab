@@ -139,9 +139,9 @@ export default function PostDetailPage() {
             rows={6}
             className="w-full border border-[#ddd] px-3 py-2 text-[14px] outline-none focus:border-[#111] resize-y font-[inherit] mb-3"
           />
-          <div className="flex gap-2">
-            <button onClick={saveEdit} className="text-[12px] bg-[#111] text-white px-4 py-1.5 border-0 cursor-pointer hover:bg-[#333]">Save</button>
+          <div className="flex gap-2 justify-end">
             <button onClick={() => setEditing(false)} className="text-[12px] text-[#111] px-4 py-1.5 border border-[#ddd] bg-white cursor-pointer hover:bg-[#f5f5f5]">Cancel</button>
+            <button onClick={saveEdit} className="text-[12px] bg-[#111] text-white px-4 py-1.5 border-0 cursor-pointer hover:bg-[#333]">Save</button>
           </div>
         </div>
       ) : (
@@ -248,13 +248,15 @@ export default function PostDetailPage() {
             rows={3}
             className="w-full border border-[#ddd] px-3 py-2.5 text-[14px] outline-none focus:border-[#111] transition-colors resize-y font-[inherit] mb-3"
           />
-          <button
-            onClick={addComment}
-            disabled={commenting || !newComment.trim()}
-            className="bg-[#111] text-white text-[13px] font-bold px-6 py-2.5 border-0 cursor-pointer hover:bg-[#333] transition-colors disabled:opacity-40"
-          >
-            {commenting ? "Posting..." : "Reply"}
-          </button>
+          <div className="flex justify-end">
+            <button
+              onClick={addComment}
+              disabled={commenting || !newComment.trim()}
+              className="bg-[#111] text-white text-[13px] font-bold px-6 py-2.5 border-0 cursor-pointer hover:bg-[#333] transition-colors disabled:opacity-40"
+            >
+              {commenting ? "Posting..." : "Reply"}
+            </button>
+          </div>
         </div>
       ) : (
         <p className="mt-6 text-[13px] text-[#999]">
