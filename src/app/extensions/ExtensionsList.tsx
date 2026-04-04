@@ -22,9 +22,9 @@ export default function ExtensionsList({
 
   return (
     <div>
-      <h1 className="text-[16px] font-bold tracking-[0.03em] mb-2">Extensions</h1>
-      <div className="border-b border-[#111] mb-3" />
-      <div className="flex gap-6 text-[13px] tracking-[0.05em] mb-4">
+      <h1 className="text-[16px] font-bold tracking-[0.03em] mb-6">Extensions</h1>
+      <div className="border-b border-[#111] mb-4" />
+      <div className="flex gap-6 text-[13px] tracking-[0.05em] mb-6">
         {FILTERS.map(({ key, label, value }) => (
           <button
             key={key}
@@ -37,7 +37,7 @@ export default function ExtensionsList({
           </button>
         ))}
       </div>
-      <div className="grid grid-cols-3 gap-x-6 gap-y-8 max-md:grid-cols-2 max-sm:grid-cols-1">
+      <div className="grid grid-cols-3 gap-x-8 gap-y-10 max-md:grid-cols-2 max-sm:grid-cols-1">
         {filtered.map((product) => (
           <ProductCard
             key={product.slug}

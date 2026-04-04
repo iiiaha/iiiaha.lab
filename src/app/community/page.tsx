@@ -98,7 +98,7 @@ export default function CommunityPage() {
   const paged = filtered.slice(page * PER_PAGE, (page + 1) * PER_PAGE);
 
   const header = (
-    <div className="flex items-center justify-between mb-4">
+    <div className="flex items-center justify-between mb-6">
       <h1 className="text-[16px] font-bold tracking-[0.03em]">Community</h1>
       <div className="flex items-center gap-2">
         {admin && selected.size > 0 && (
@@ -124,10 +124,10 @@ export default function CommunityPage() {
   return (
     <div>
       {header}
-      <div className="border-b border-[#111] mb-3" />
+      <div className="border-b border-[#111] mb-4" />
 
       {/* Filter tabs */}
-      <div className="flex gap-6 text-[13px] tracking-[0.05em] mb-4">
+      <div className="flex gap-6 text-[13px] tracking-[0.05em] mb-6">
         {([
           { key: "all", label: "All" },
           { key: "idea", label: "Ideas" },

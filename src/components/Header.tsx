@@ -37,7 +37,7 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 bg-white">
       <div className="max-w-[800px] mx-auto px-10 max-sm:px-5">
-        <div className="flex items-center justify-between py-2.5">
+        <div className="flex items-center justify-between py-4">
           <Link href="/" className="flex items-center gap-2.5 no-underline hover:no-underline">
             <img src="/profile.png" alt="" className="w-9 h-9 rounded-full object-cover" />
             <span className="text-[18px] font-bold tracking-[0.05em]">iiiaha.lab</span>

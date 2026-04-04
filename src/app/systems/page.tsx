@@ -48,14 +48,14 @@ export default function SystemsPage() {
           </Link>
         )}
       </div>
-      <div className="border-b border-[#111] mb-4" />
+      <div className="border-b border-[#111] mb-6" />
 
       {loading ? (
         <p className="text-[14px] text-[#999]">Loading...</p>
       ) : items.length === 0 ? (
         <p className="text-[14px] text-[#999]">Coming soon.</p>
       ) : (
-        <div className="grid grid-cols-3 gap-x-6 gap-y-8 max-md:grid-cols-2 max-sm:grid-cols-1">
+        <div className="grid grid-cols-3 gap-x-8 gap-y-10 max-md:grid-cols-2 max-sm:grid-cols-1">
           {items.map((item) => (
             <Link
               key={item.id}

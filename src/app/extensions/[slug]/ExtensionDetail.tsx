@@ -46,7 +46,7 @@ export default function ExtensionDetail({ product }: { product: Product }) {
 
   return (
     <div>
-      <div className="aspect-video bg-[#f5f5f5] border border-[#ddd] mb-3 flex items-center justify-center text-[#999]">
+      <div className="aspect-video bg-[#f5f5f5] border border-[#ddd] mb-5 flex items-center justify-center text-[#999]">
         {product.thumbnail_url ? (
           <img
             src={product.thumbnail_url}
@@ -58,9 +58,9 @@ export default function ExtensionDetail({ product }: { product: Product }) {
         )}
       </div>
 
-      <div className="border-b border-[#111] mb-2" />
+      <div className="border-b border-[#111] mb-4" />
 
-      <h1 className="text-[15px] font-bold tracking-[0.03em] mb-2">
+      <h1 className="text-[15px] font-bold tracking-[0.03em] mb-3">
         {product.name}
       </h1>
 
@@ -159,7 +159,7 @@ export default function ExtensionDetail({ product }: { product: Product }) {
       </div>
 
       {/* Purchase / Purchased */}
-      <div className="mt-3">
+      <div className="mt-6">
         {loading ? (
           <div className="w-full py-4 text-center text-[14px] text-[#999]">
             ...
