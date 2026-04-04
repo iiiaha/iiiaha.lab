@@ -99,7 +99,7 @@ export default function CommunityPage() {
 
   return (
     <div>
-      <h1 className="text-[16px] font-bold tracking-[0.03em] mb-1">Community</h1>
+      <h1 className="text-[16px] font-bold tracking-[0.03em] mb-[10px]">Community</h1>
       <div className="border-b border-[#111] mb-4" />
 
       {/* Actions + Filter tabs */}

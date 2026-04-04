@@ -22,7 +22,7 @@ export default function ExtensionsList({
 
   return (
     <div>
-      <h1 className="text-[16px] font-bold tracking-[0.03em] mb-1">Extensions</h1>
+      <h1 className="text-[16px] font-bold tracking-[0.03em] mb-[10px]">Extensions</h1>
       <div className="border-b border-[#111] mb-4" />
       <div className="flex items-center min-h-[32px] gap-6 text-[13px] tracking-[0.05em] mb-6">
         {FILTERS.map(({ key, label, value }) => (
