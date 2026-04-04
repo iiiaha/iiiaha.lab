@@ -80,10 +80,7 @@ export default function CourseDetailPage() {
         )}
       </div>
 
-      <div className="flex items-center gap-0 mb-10">
-        <div className="w-2.5 h-2.5 bg-[#111]" />
-        <div className="flex-1 border-b border-[#111]" />
-      </div>
+      <div className="border-b border-[#111] mb-5" />
 
       <h1 className="text-[16px] font-bold tracking-[0.03em] mb-2">{product.display_name}</h1>
       <p className="text-[14px] text-[#666] mb-8">{product.description}</p>
