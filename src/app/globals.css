@@ -36,6 +36,14 @@ a, button, [role="button"], input[type="submit"], select {
   cursor: url("/cursor.png") 9 6, pointer;
 }
 
+/* Sticky divider — sticks to bottom of header on scroll */
+.sticky-divider {
+  position: sticky;
+  top: 144px; /* header: py-8(32px)*2 + logo 80px */
+  z-index: 40;
+  background: white;
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-thumb { background: #ccc; }

@@ -43,7 +43,7 @@ export default function SystemsPage() {
           <Link href="/systems/new" className="text-[12px] text-[#999] no-underline hover:underline">+ Add</Link>
         )}
       </div>
-      <div className="border-b border-[#111] mb-4" />
+      <div className="border-b border-[#111] mb-4 sticky-divider" />
       <div className="min-h-[32px] mb-6" />
 
       {loading ? (

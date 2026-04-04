@@ -72,7 +72,7 @@ export default function SystemDetailPage() {
           </div>
         )}
       </div>
-      <div className="border-b border-[#111] mb-5" />
+      <div className="border-b border-[#111] mb-5 sticky-divider" />
 
       {/* Image */}
       <div className="aspect-video bg-[#f5f5f5] border border-[#ddd] mb-5 flex items-center justify-center overflow-hidden">

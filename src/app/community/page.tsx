@@ -116,7 +116,7 @@ export default function CommunityPage() {
           )}
         </div>
       </div>
-      <div className="border-b border-[#111] mb-4" />
+      <div className="border-b border-[#111] mb-4 sticky-divider" />
 
       {/* Filter tabs */}
       <div className="flex items-center min-h-[32px] gap-6 text-[13px] tracking-[0.05em] mb-6">

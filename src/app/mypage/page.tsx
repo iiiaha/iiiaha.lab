@@ -141,7 +141,7 @@ export default function MyPage() {
           Logout
         </button>
       </div>
-      <div className="border-b border-[#111] mb-4" />
+      <div className="border-b border-[#111] mb-4 sticky-divider" />
       <div className="flex items-center min-h-[32px] mb-6">
         <p className="text-[13px] text-[#666]">{email}</p>
       </div>
