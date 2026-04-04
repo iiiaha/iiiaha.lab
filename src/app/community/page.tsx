@@ -175,7 +175,7 @@ export default function CommunityPage() {
             <p className="text-[14px] text-[#999] py-6">No posts yet.</p>
           ) : (
             paged.map((post) => (
-                <div key={post.id} className="flex items-center border-b border-[#ddd] py-3">
+                <div key={post.id} className={`flex items-center border-b border-[#ddd] py-3 ${post.category === "notice" ? "bg-[#f5f5f5]" : ""}`}>
                   {admin && (
                     <input
                       type="checkbox"
@@ -188,7 +188,7 @@ export default function CommunityPage() {
                     href={`/community/${post.id}`}
                     className="flex items-center gap-2 flex-1 min-w-0 no-underline group/link"
                   >
-                    <span className={`text-[10px] font-bold text-white px-1.5 py-0.5 shrink-0 ${
+                    <span className={`text-[10px] font-bold text-white px-1.5 py-0.5 shrink-0 w-[46px] text-center ${
                       post.category === "notice"
                         ? "bg-[#00C864]"
                         : post.category === "idea"
@@ -213,24 +213,26 @@ export default function CommunityPage() {
                       </svg>
                     )}
                   </Link>
-                  <div className="flex items-center gap-3 shrink-0 text-[11px] text-[#999] ml-4">
-                    {post.products && (
-                      <span className="text-[11px] text-[#bbb]">
-                        {post.products.display_name}
+                  {post.category !== "notice" && (
+                    <div className="flex items-center gap-3 shrink-0 text-[11px] text-[#999] ml-4">
+                      {post.products && (
+                        <span className="text-[11px] text-[#bbb]">
+                          {post.products.display_name}
+                        </span>
+                      )}
+                      <span className="w-[45px] text-right">
+                        {new Date(post.created_at).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                        })}
                       </span>
-                    )}
-                    <span className="w-[45px] text-right">
-                      {new Date(post.created_at).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                      })}
-                    </span>
-                    <span
-                      className={`text-[10px] font-bold uppercase border px-1.5 py-0.5 w-[70px] text-center ${statusStyle(post.status)}`}
-                    >
-                      {post.status === "in_progress" ? "WIP" : post.status}
-                    </span>
-                  </div>
+                      <span
+                        className={`text-[10px] font-bold uppercase border px-1.5 py-0.5 w-[70px] text-center ${statusStyle(post.status)}`}
+                      >
+                        {post.status === "in_progress" ? "WIP" : post.status}
+                      </span>
+                    </div>
+                  )}
                 </div>
             ))
           )}
