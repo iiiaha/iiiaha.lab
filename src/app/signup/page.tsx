@@ -12,6 +12,7 @@ export default function SignUpPage() {
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [sent, setSent] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,13 +22,32 @@ export default function SignUpPage() {
     setLoading(true);
     try {
       await signUp(email, password);
-      router.push("/mypage");
+      setSent(true);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Sign up failed");
     } finally {
       setLoading(false);
     }
   };
+
+  if (sent) {
+    return (
+      <div className="max-w-[360px] mx-auto pt-20 text-center">
+        <h1 className="text-[16px] font-bold tracking-[0.03em] mb-6">Check your email</h1>
+        <div className="border-t border-[#111] mb-8" />
+        <p className="text-[14px] text-[#666] mb-2">
+          We sent a confirmation link to
+        </p>
+        <p className="text-[14px] font-bold mb-6">{email}</p>
+        <p className="text-[13px] text-[#999]">
+          Click the link in the email to activate your account, then come back and log in.
+        </p>
+        <a href="/login" className="inline-block mt-8 text-[13px] text-[#111] border border-[#111] px-6 py-2 no-underline hover:bg-[#111] hover:text-white transition-colors">
+          Go to Login
+        </a>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-[360px] mx-auto pt-20">
