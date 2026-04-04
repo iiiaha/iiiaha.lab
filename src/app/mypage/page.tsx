@@ -234,27 +234,27 @@ export default function MyPage() {
                   </div>
 
                   {/* Right: price + buttons */}
-                  <div className="flex flex-col items-end gap-2 shrink-0">
+                  <div className="flex flex-col items-end gap-2 shrink-0 w-[130px]">
                     <span className="text-[13px] text-[#666]">
                       {formatPrice(order.amount)}
                     </span>
                     <a
                       href={`/api/download/${slug}`}
-                      className="text-[12px] text-[#111] border border-[#111] px-4 py-1.5 no-underline hover:bg-[#111] hover:text-white transition-colors text-center"
+                      className="w-full text-[12px] text-[#111] border border-[#111] px-4 py-1.5 no-underline hover:bg-[#111] hover:text-white transition-colors text-center"
                     >
                       Download .rbz
                     </a>
                     {ver?.hasUpdate && (
                       <a
                         href={`/api/download/${slug}`}
-                        className="text-[12px] text-white bg-[#111] border border-[#111] px-4 py-1.5 no-underline hover:bg-[#333] transition-colors text-center"
+                        className="w-full text-[12px] text-white bg-[#111] border border-[#111] px-4 py-1.5 no-underline hover:bg-[#333] transition-colors text-center"
                       >
                         Update to v{ver.latest}
                       </a>
                     )}
                     <Link
                       href={`/mypage/report/${slug}`}
-                      className="text-[12px] text-[#111] border border-[#111] px-4 py-1.5 no-underline hover:bg-[#111] hover:text-white transition-colors text-center"
+                      className="w-full text-[12px] text-[#111] border border-[#111] px-4 py-1.5 no-underline hover:bg-[#111] hover:text-white transition-colors text-center"
                     >
                       Report bug
                     </Link>
