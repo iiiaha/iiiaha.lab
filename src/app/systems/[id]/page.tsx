@@ -71,11 +71,13 @@ export default function SystemDetailPage() {
       </div>
 
       {/* Image */}
-      {item.image_url && (
-        <div className="aspect-video bg-[#f5f5f5] border border-[#ddd] mb-5 flex items-center justify-center overflow-hidden">
+      <div className="aspect-video bg-[#f5f5f5] border border-[#ddd] mb-5 flex items-center justify-center overflow-hidden">
+        {item.image_url ? (
           <img src={item.image_url} alt={item.title} className="w-full h-full object-cover" />
-        </div>
-      )}
+        ) : (
+          <span className="text-[#999] text-[13px]">{item.title}</span>
+        )}
+      </div>
 
       <div className="border-b border-[#111] mb-4" />
 

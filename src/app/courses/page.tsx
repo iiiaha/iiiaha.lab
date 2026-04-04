@@ -25,7 +25,9 @@ export default function CoursesPage() {
 
   return (
     <div>
-      <h1 className="text-[16px] font-bold tracking-[0.03em] mb-4">Courses</h1>
+      <div className="flex items-center justify-between min-h-[36px] mb-4">
+        <h1 className="text-[16px] font-bold tracking-[0.03em]">Courses</h1>
+      </div>
       <div className="border-b border-[#111] mb-6" />
       {loading ? (
         <p className="text-[14px] text-[#999]">Loading...</p>

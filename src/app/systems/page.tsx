@@ -37,7 +37,7 @@ export default function SystemsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between min-h-[36px] mb-4">
         <h1 className="text-[16px] font-bold tracking-[0.03em]">Systems</h1>
         {admin && (
           <Link

@@ -132,7 +132,7 @@ export default function MyPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between min-h-[36px] mb-4">
         <h1 className="text-[16px] font-bold tracking-[0.03em]">My Page</h1>
         <button
           onClick={handleSignOut}

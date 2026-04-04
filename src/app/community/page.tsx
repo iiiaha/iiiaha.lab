@@ -98,7 +98,7 @@ export default function CommunityPage() {
   const paged = filtered.slice(page * PER_PAGE, (page + 1) * PER_PAGE);
 
   const header = (
-    <div className="flex items-center justify-between mb-6">
+    <div className="flex items-center justify-between min-h-[36px] mb-4">
       <h1 className="text-[16px] font-bold tracking-[0.03em]">Community</h1>
       <div className="flex items-center gap-2">
         {admin && selected.size > 0 && (
