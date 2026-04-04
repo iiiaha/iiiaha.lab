@@ -46,7 +46,7 @@ export default function ExtensionDetail({ product }: { product: Product }) {
 
   return (
     <div>
-      <div className="aspect-video bg-[#f5f5f5] border border-[#ddd] mb-10 flex items-center justify-center text-[#999]">
+      <div className="aspect-video bg-[#f5f5f5] border border-[#ddd] mb-5 flex items-center justify-center text-[#999]">
         {product.thumbnail_url ? (
           <img
             src={product.thumbnail_url}
@@ -58,9 +58,9 @@ export default function ExtensionDetail({ product }: { product: Product }) {
         )}
       </div>
 
-      <div className="border-b border-[#111] mb-10" />
+      <div className="border-b border-[#111] mb-4" />
 
-      <h1 className="text-[16px] font-bold tracking-[0.03em] mb-6">
+      <h1 className="text-[15px] font-bold tracking-[0.03em] mb-3">
         {product.name}
       </h1>
 
@@ -68,7 +68,7 @@ export default function ExtensionDetail({ product }: { product: Product }) {
         {info.map(
           ({ label, value }) =>
             value && (
-              <div key={label} className="flex border-b border-[#ddd] py-3">
+              <div key={label} className="flex border-b border-[#ddd] py-2">
                 <span className="w-[140px] shrink-0 text-[13px] text-[#666]">
                   {label}
                 </span>
@@ -77,7 +77,7 @@ export default function ExtensionDetail({ product }: { product: Product }) {
             )
         )}
         {/* Price */}
-        <div className="flex border-b border-[#ddd] py-3">
+        <div className="flex border-b border-[#ddd] py-2">
           <span className="w-[140px] shrink-0 text-[13px] text-[#666]">Price</span>
           <div className="flex items-center gap-2">
             {(product.discount_percent ?? 0) > 0 && product.original_price ? (
@@ -93,13 +93,13 @@ export default function ExtensionDetail({ product }: { product: Product }) {
         </div>
         {/* Description */}
         {product.description && (
-          <div className="border-b border-[#ddd] py-4">
+          <div className="border-b border-[#ddd] py-2.5">
             <div className="flex mb-3">
               <span className="w-[140px] shrink-0 text-[13px] text-[#666]">
                 Description
               </span>
             </div>
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2">
               {product.description.split("\n").map((line, i) => {
                 const match = line.match(/^[•]\s*(.+?)\s*[—]\s*(.+)$/);
                 if (match) {
@@ -124,8 +124,8 @@ export default function ExtensionDetail({ product }: { product: Product }) {
             </div>
             {product.description_ko && (
               <>
-                <div className="border-t border-[#eee] my-5" />
-                <div className="flex flex-col gap-3">
+                <div className="border-t border-[#eee] my-3" />
+                <div className="flex flex-col gap-2">
                   {product.description_ko.split("\n").map((line, i) => {
                     const match = line.match(/^[•]\s*(.+?)\s*[—]\s*(.+)$/);
                     if (match) {
@@ -159,7 +159,7 @@ export default function ExtensionDetail({ product }: { product: Product }) {
       </div>
 
       {/* Purchase / Purchased */}
-      <div className="mt-10">
+      <div className="mt-5">
         {loading ? (
           <div className="w-full py-4 text-center text-[14px] text-[#999]">
             ...
@@ -185,7 +185,7 @@ export default function ExtensionDetail({ product }: { product: Product }) {
             )}
           </div>
         ) : (
-          <button className="w-full bg-[#111] text-white text-[14px] font-bold tracking-[0.05em] py-4 border-0 cursor-pointer hover:bg-[#333] transition-colors duration-200">
+          <button className="w-full bg-[#111] text-white text-[14px] font-bold tracking-[0.05em] py-3 border-0 cursor-pointer hover:bg-[#333] transition-colors duration-200">
             Purchase &mdash; {formatPrice(product.price)}
           </button>
         )}
