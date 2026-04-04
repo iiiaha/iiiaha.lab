@@ -263,10 +263,10 @@ export default function AdminProducts() {
                     <label className="w-[80px] shrink-0 text-[11px] text-[#666]">Discount</label>
                     <button type="button" onClick={() => {
                       setEditData((prev) => ({ ...prev, _discountOn: !(prev as Record<string,unknown>)._discountOn } as Partial<Product>));
-                    }} className={`w-8 h-[18px] rounded-full relative transition-colors shrink-0 ${(editData as Record<string,unknown>)._discountOn ? "bg-[#111]" : "bg-[#ddd]"}`}>
-                      <span className={`absolute top-[2px] w-[14px] h-[14px] rounded-full bg-white transition-all ${(editData as Record<string,unknown>)._discountOn ? "left-[14px]" : "left-[2px]"}`} />
+                    }} className={`w-8 h-[18px] rounded-full relative transition-colors shrink-0 ${!!(editData as Record<string,unknown>)._discountOn ? "bg-[#111]" : "bg-[#ddd]"}`}>
+                      <span className={`absolute top-[2px] w-[14px] h-[14px] rounded-full bg-white transition-all ${!!(editData as Record<string,unknown>)._discountOn ? "left-[14px]" : "left-[2px]"}`} />
                     </button>
-                    {(editData as Record<string,unknown>)._discountOn && (
+                    {!!(editData as Record<string,unknown>)._discountOn && (
                       <>
                         <input type="text" inputMode="numeric" value={editData.discount_percent ?? 0}
                           onChange={(e) => setEditData({ ...editData, discount_percent: parseInt(e.target.value) || 0 })}
@@ -275,7 +275,7 @@ export default function AdminProducts() {
                       </>
                     )}
                   </div>
-                  {(editData as Record<string,unknown>)._discountOn && (
+                  {!!(editData as Record<string,unknown>)._discountOn && (
                     <>
                       <div className="flex items-center gap-2 mb-2">
                         <label className="w-[80px] shrink-0 text-[11px] text-[#666]">Schedule</label>
@@ -293,7 +293,7 @@ export default function AdminProducts() {
                   {/* Final price preview */}
                   <div className="flex items-center gap-2 mt-3 pt-3 border-t border-[#eee]">
                     <label className="w-[80px] shrink-0 text-[11px] text-[#666]">Final price</label>
-                    {(editData as Record<string,unknown>)._discountOn && (editData.discount_percent ?? 0) > 0 ? (
+                    {!!(editData as Record<string,unknown>)._discountOn && (editData.discount_percent ?? 0) > 0 ? (
                       <div className="flex items-center gap-2">
                         <span className="text-[12px] text-[#ccc] line-through">₩{(editData.original_price ?? editData.price ?? 0).toLocaleString()}</span>
                         <span className="text-[14px] font-bold text-red-600">₩{Math.round((editData.original_price ?? editData.price ?? 0) * (1 - (editData.discount_percent ?? 0) / 100)).toLocaleString()}</span>
