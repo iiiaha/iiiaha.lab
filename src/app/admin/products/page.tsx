@@ -270,72 +270,22 @@ export default function AdminProducts() {
                 </div>
               </div>
             ) : (
-              <div className="flex items-center justify-between border-b border-[#ddd] py-3">
-                <div className="flex items-center gap-3">
-                  {/* Order buttons */}
-                  <div className="flex flex-col gap-1">
-                    <button onClick={() => moveProduct(i, "up")} disabled={i === 0}
-                      className="bg-transparent border-0 p-0 cursor-pointer disabled:opacity-15 disabled:cursor-default hover:opacity-60">
-                      <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 5L5 1L9 5" stroke="#999" strokeWidth="1.2"/></svg>
-                    </button>
-                    <button onClick={() => moveProduct(i, "down")} disabled={i === filteredProducts.length - 1}
-                      className="bg-transparent border-0 p-0 cursor-pointer disabled:opacity-15 disabled:cursor-default hover:opacity-60">
-                      <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1L5 5L9 1" stroke="#999" strokeWidth="1.2"/></svg>
-                    </button>
-                  </div>
-                  <span className="text-[11px] text-[#ccc] w-5 text-center">{i + 1}</span>
-                  {p.thumbnail_url ? (
-                    <img src={p.thumbnail_url} alt={p.display_name} className="w-8 h-8 object-contain border border-[#ddd] bg-[#f5f5f5] p-0.5" />
-                  ) : (
-                    <div className="w-8 h-8 bg-[#f5f5f5] border border-[#ddd]" />
-                  )}
-                  <div>
-                    <span className="text-[13px] font-bold">{p.display_name}</span>
-                    <span className="text-[11px] text-[#999] ml-2">{p.slug}</span>
-                  </div>
+              <div className="flex items-center border-b border-[#ddd] py-1.5 gap-2">
+                <div className="flex gap-0.5 shrink-0">
+                  <button onClick={() => moveProduct(i, 'up')} disabled={i === 0} className="bg-transparent border-0 p-0 cursor-pointer disabled:opacity-15 hover:opacity-60"><svg width="8" height="5" viewBox="0 0 10 6" fill="none"><path d="M1 5L5 1L9 5" stroke="#999" strokeWidth="1.2"/></svg></button>
+                  <button onClick={() => moveProduct(i, 'down')} disabled={i === filteredProducts.length - 1} className="bg-transparent border-0 p-0 cursor-pointer disabled:opacity-15 hover:opacity-60"><svg width="8" height="5" viewBox="0 0 10 6" fill="none"><path d="M1 1L5 5L9 1" stroke="#999" strokeWidth="1.2"/></svg></button>
                 </div>
-                <div className="flex items-center gap-3">
-                  {/* Inline price editing */}
-                  <div className="flex items-center gap-1.5">
-                    <div className="flex items-center gap-0.5">
-                      <span className="text-[10px] text-[#999]">₩</span>
-                      <input
-                        type="number"
-                        defaultValue={p.original_price ?? p.price}
-                        onBlur={async (e) => {
-                          const val = parseInt(e.target.value) || 0;
-                          const disc = p.discount_percent ?? 0;
-                          const finalPrice = disc > 0 ? Math.round(val * (1 - disc / 100)) : val;
-                          await supabase.from("products").update({ original_price: val, price: finalPrice }).eq("id", p.id);
-                          load();
-                        }}
-                        className="w-[70px] border border-[#ddd] px-1.5 py-0.5 text-[12px] text-right outline-none focus:border-[#111]"
-                      />
-                    </div>
-                    <div className="flex items-center gap-0.5">
-                      <input
-                        type="number"
-                        defaultValue={p.discount_percent ?? 0}
-                        min={0}
-                        max={99}
-                        onBlur={async (e) => {
-                          const disc = parseInt(e.target.value) || 0;
-                          const orig = p.original_price ?? p.price;
-                          const finalPrice = disc > 0 ? Math.round(orig * (1 - disc / 100)) : orig;
-                          await supabase.from("products").update({ discount_percent: disc, price: finalPrice }).eq("id", p.id);
-                          load();
-                        }}
-                        className="w-[36px] border border-[#ddd] px-1 py-0.5 text-[12px] text-right outline-none focus:border-[#111]"
-                      />
-                      <span className="text-[10px] text-[#999]">%</span>
-                    </div>
-                    {(p.discount_percent ?? 0) > 0 && (
-                      <span className="text-[12px] font-bold text-red-600">₩{p.price.toLocaleString()}</span>
-                    )}
-                  </div>
-                  <button onClick={() => startEdit(p)} className="text-[11px] text-[#111] bg-transparent border border-[#ddd] px-3 py-1 cursor-pointer hover:bg-[#f5f5f5]">Edit</button>
-                  <button onClick={() => deleteProduct(p.id, p.display_name)} className="text-[11px] text-red-600 bg-transparent border border-[#ddd] px-3 py-1 cursor-pointer hover:bg-red-50">Delete</button>
+                <span className="text-[10px] text-[#ccc] w-4 text-center shrink-0">{i + 1}</span>
+                {p.thumbnail_url ? (<img src={p.thumbnail_url} alt="" className="w-5 h-5 object-contain shrink-0" />) : (<div className="w-5 h-5 bg-[#f5f5f5] border border-[#ddd] shrink-0" />)}
+                <span className="text-[12px] font-bold truncate min-w-0 flex-1">{p.display_name}</span>
+                <div className="flex items-center gap-1 shrink-0">
+                  <input type="text" inputMode="numeric" key={p.id + '-price'} defaultValue={p.original_price ?? p.price} onBlur={async (e) => { const val = parseInt(e.target.value) || 0; const disc = p.discount_percent ?? 0; const fp = disc > 0 ? Math.round(val * (1 - disc / 100)) : val; await supabase.from('products').update({ original_price: val, price: fp }).eq('id', p.id); load(); }} className="w-[60px] border border-[#ddd] px-1 py-0.5 text-[11px] text-right outline-none focus:border-[#111]" />
+                  <input type="text" inputMode="numeric" key={p.id + '-disc'} defaultValue={p.discount_percent ?? 0} onBlur={async (e) => { const disc = parseInt(e.target.value) || 0; const orig = p.original_price ?? p.price; const fp = disc > 0 ? Math.round(orig * (1 - disc / 100)) : orig; await supabase.from('products').update({ discount_percent: disc, price: fp }).eq('id', p.id); load(); }} className="w-[28px] border border-[#ddd] px-0.5 py-0.5 text-[11px] text-right outline-none focus:border-[#111]" />
+                  <span className="text-[10px] text-[#999]">%</span>
+                  {(p.discount_percent ?? 0) > 0 && (<span className="text-[11px] font-bold text-red-600 ml-0.5">{p.price.toLocaleString()}</span>)}
                 </div>
+                <button onClick={() => startEdit(p)} className="text-[10px] text-[#999] bg-transparent border border-[#ddd] px-2 py-0.5 cursor-pointer hover:bg-[#f5f5f5] shrink-0">Edit</button>
+                <button onClick={() => deleteProduct(p.id, p.display_name)} className="text-[10px] text-red-500 bg-transparent border border-[#ddd] px-2 py-0.5 cursor-pointer hover:bg-red-50 shrink-0">Del</button>
               </div>
             )}
           </div>
