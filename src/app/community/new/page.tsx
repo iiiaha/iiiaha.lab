@@ -29,7 +29,8 @@ function PostForm() {
 
   const [userId, setUserId] = useState("");
   const [products, setProducts] = useState<ProductOption[]>([]);
-  const [category, setCategory] = useState<"idea" | "bug">("bug");
+  const [category, setCategory] = useState<"idea" | "bug" | "notice">("bug");
+  const [isAdmin, setIsAdmin] = useState(false);
   const [productId, setProductId] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -46,6 +47,8 @@ function PostForm() {
       const user = await getUser();
       if (!user) { router.push("/login"); return; }
       setUserId(user.id);
+      const { isAdmin: checkAdmin } = await import("@/lib/admin");
+      setIsAdmin(await checkAdmin());
 
       const { data } = await supabase
         .from("products")
@@ -204,6 +207,12 @@ function PostForm() {
               className={`text-[13px] px-4 py-2 border cursor-pointer transition-colors ${category === "bug" ? "bg-[#111] text-white border-[#111]" : "bg-white text-[#666] border-[#ddd] hover:border-[#111]"}`}>
               Question / Bug
             </button>
+            {isAdmin && (
+              <button type="button" onClick={() => setCategory("notice")}
+                className={`text-[13px] px-4 py-2 border cursor-pointer transition-colors ${category === "notice" ? "bg-[#00C864] text-white border-[#00C864]" : "bg-white text-[#666] border-[#ddd] hover:border-[#00C864]"}`}>
+                Notice
+              </button>
+            )}
           </div>
         </div>
 

@@ -89,7 +89,11 @@ export default function CommunityPage() {
     setSelected(new Set());
   };
 
-  const filtered = filter === "all" ? posts : posts.filter((p) => p.category === filter);
+  const filteredRaw = filter === "all" ? posts : posts.filter((p) => p.category === filter);
+  // notice를 항상 최상단에 고정
+  const notices = posts.filter((p) => p.category === "notice");
+  const nonNotice = filteredRaw.filter((p) => p.category !== "notice");
+  const filtered = filter === "all" ? [...notices, ...nonNotice] : filteredRaw;
   const totalPages = Math.ceil(filtered.length / PER_PAGE);
   const paged = filtered.slice(page * PER_PAGE, (page + 1) * PER_PAGE);
 
@@ -185,11 +189,13 @@ export default function CommunityPage() {
                     className="flex items-center gap-2 flex-1 min-w-0 no-underline group/link"
                   >
                     <span className={`text-[10px] font-bold text-white px-1.5 py-0.5 shrink-0 ${
-                      post.category === "idea"
+                      post.category === "notice"
+                        ? "bg-[#00C864]"
+                        : post.category === "idea"
                         ? "bg-[#0096D7]"
                         : "bg-[#DC0A7D]"
                     }`}>
-                      {post.category === "idea" ? "Idea" : "Q&A"}
+                      {post.category === "notice" ? "Notice" : post.category === "idea" ? "Idea" : "Q&A"}
                     </span>
                     <span className="text-[14px] font-bold truncate ml-1 group-hover/link:underline">
                       {post.title}

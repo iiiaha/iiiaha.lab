@@ -128,9 +128,9 @@ export default function PostDetailPage() {
       <div className="flex items-center justify-between gap-4 mb-2">
         <div className="flex items-center gap-2 min-w-0">
           <span className={`text-[10px] font-bold text-white px-1.5 py-0.5 shrink-0 ${
-            post.category === "idea" ? "bg-[#0096D7]" : "bg-[#DC0A7D]"
+            post.category === "notice" ? "bg-[#00C864]" : post.category === "idea" ? "bg-[#0096D7]" : "bg-[#DC0A7D]"
           }`}>
-            {post.category === "idea" ? "Idea" : "Q&A"}
+            {post.category === "notice" ? "Notice" : post.category === "idea" ? "Idea" : "Q&A"}
           </span>
           <h1 className="text-[16px] font-bold tracking-[0.03em] truncate">{post.title}</h1>
         </div>
