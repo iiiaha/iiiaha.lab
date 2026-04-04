@@ -173,21 +173,62 @@ export default function ReportBugPage() {
           <label className="block text-[12px] text-[#666] font-bold mb-1 tracking-[0.05em] uppercase">
             Screenshot (optional)
           </label>
+          <div
+            onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add("border-[#111]"); }}
+            onDragLeave={(e) => { e.currentTarget.classList.remove("border-[#111]"); }}
+            onDrop={(e) => {
+              e.preventDefault();
+              e.currentTarget.classList.remove("border-[#111]");
+              const file = e.dataTransfer.files?.[0];
+              if (file && file.type.startsWith("image/")) {
+                setImageFile(file);
+                const reader = new FileReader();
+                reader.onload = () => setImagePreview(reader.result as string);
+                reader.readAsDataURL(file);
+              }
+            }}
+            onClick={() => document.getElementById("file-input")?.click()}
+            className="border border-dashed border-[#ddd] py-8 flex flex-col items-center justify-center cursor-pointer hover:border-[#999] transition-colors"
+          >
+            {imagePreview ? (
+              <div className="relative">
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  className="max-w-[300px] max-h-[200px] object-contain"
+                />
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setImageFile(null);
+                    setImagePreview(null);
+                  }}
+                  className="absolute -top-2 -right-2 w-5 h-5 flex items-center justify-center bg-[#111] text-white text-[11px] border-0 cursor-pointer"
+                >
+                  ×
+                </button>
+              </div>
+            ) : (
+              <>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ccc" strokeWidth="1.5">
+                  <rect x="3" y="3" width="18" height="18" rx="1" />
+                  <circle cx="8.5" cy="8.5" r="1.5" />
+                  <path d="M21 15l-5-5L5 21" />
+                </svg>
+                <p className="text-[13px] text-[#999] mt-2">
+                  Drop an image here or click to upload
+                </p>
+              </>
+            )}
+          </div>
           <input
+            id="file-input"
             type="file"
             accept="image/*"
             onChange={handleImageChange}
-            className="text-[13px]"
+            className="hidden"
           />
-          {imagePreview && (
-            <div className="mt-3 border border-[#ddd] p-2 inline-block">
-              <img
-                src={imagePreview}
-                alt="Preview"
-                className="max-w-[300px] max-h-[200px] object-contain"
-              />
-            </div>
-          )}
         </div>
 
         {/* Submit */}
