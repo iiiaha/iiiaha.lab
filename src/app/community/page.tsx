@@ -107,11 +107,6 @@ export default function CommunityPage() {
                 className="flex items-center justify-between border-b border-[#ddd] py-3 no-underline hover:bg-[#fafafa] transition-colors"
               >
                 <div className="flex items-center gap-2 flex-1 min-w-0">
-                  <span
-                    className={`text-[10px] font-bold uppercase border px-1.5 py-0.5 shrink-0 ${statusStyle(post.status)}`}
-                  >
-                    {post.status === "in_progress" ? "WIP" : post.status}
-                  </span>
                   <span className="text-[10px] text-[#999] border border-[#ddd] px-1.5 py-0.5 shrink-0">
                     {post.category === "idea" ? "Idea" : "Q&A"}
                   </span>
@@ -134,6 +129,11 @@ export default function CommunityPage() {
                       month: "short",
                       day: "numeric",
                     })}
+                  </span>
+                  <span
+                    className={`text-[10px] font-bold uppercase border px-1.5 py-0.5 ${statusStyle(post.status)}`}
+                  >
+                    {post.status === "in_progress" ? "WIP" : post.status}
                   </span>
                 </div>
               </Link>
