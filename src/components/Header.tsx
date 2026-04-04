@@ -55,7 +55,6 @@ export default function Header() {
             ))}
           </nav>
         </div>
-        <div className="border-b border-[#111]" />
       </div>
     </header>
   );
