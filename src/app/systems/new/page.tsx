@@ -1,21 +1,34 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { getUser } from "@/lib/auth";
 import { isAdmin } from "@/lib/admin";
 import { createClient } from "@/lib/supabase";
 
 export default function NewSystemPage() {
+  return (
+    <Suspense fallback={<div className="pt-20 text-center text-[14px] text-[#999]">Loading...</div>}>
+      <SystemForm />
+    </Suspense>
+  );
+}
+
+function SystemForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const supabase = createClient();
+  const editId = searchParams.get("edit");
+  const isEdit = !!editId;
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [linkUrl, setLinkUrl] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [existingImageUrl, setExistingImageUrl] = useState<string | null>(null);
+  const [removeImage, setRemoveImage] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [authorized, setAuthorized] = useState(false);
@@ -26,18 +39,39 @@ export default function NewSystemPage() {
       if (!user) { router.push("/login"); return; }
       const a = await isAdmin();
       if (!a) { router.push("/systems"); return; }
+
+      if (isEdit) {
+        const { data } = await supabase.from("systems").select("*").eq("id", editId).single();
+        if (data) {
+          setTitle(data.title);
+          setDescription(data.description || "");
+          setLinkUrl(data.link_url || "");
+          if (data.image_url) {
+            setExistingImageUrl(data.image_url);
+            setImagePreview(data.image_url);
+          }
+        }
+      }
+
       setAuthorized(true);
     };
     check();
-  }, [router]);
+  }, [router, editId, isEdit, supabase]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setImageFile(file);
+    setRemoveImage(false);
     const reader = new FileReader();
     reader.onload = () => setImagePreview(reader.result as string);
     reader.readAsDataURL(file);
+  };
+
+  const clearImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+    setRemoveImage(true);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -46,7 +80,9 @@ export default function NewSystemPage() {
     setLoading(true);
     setError("");
 
-    let imageUrl: string | null = null;
+    let imageUrl: string | null = existingImageUrl;
+    if (removeImage) imageUrl = null;
+
     if (imageFile) {
       const user = await getUser();
       const ext = imageFile.name.split(".").pop();
@@ -60,20 +96,25 @@ export default function NewSystemPage() {
       }
     }
 
-    const { error: insertErr } = await supabase.from("systems").insert({
-      title: title.trim(),
-      description: description.trim() || null,
-      link_url: linkUrl.trim() || null,
-      image_url: imageUrl,
-    });
-
-    if (insertErr) {
-      setError(insertErr.message);
-      setLoading(false);
-      return;
+    if (isEdit) {
+      const { error: updateErr } = await supabase.from("systems").update({
+        title: title.trim(),
+        description: description.trim() || null,
+        link_url: linkUrl.trim() || null,
+        image_url: imageUrl,
+      }).eq("id", editId);
+      if (updateErr) { setError(updateErr.message); setLoading(false); return; }
+      router.push(`/systems/${editId}`);
+    } else {
+      const { error: insertErr } = await supabase.from("systems").insert({
+        title: title.trim(),
+        description: description.trim() || null,
+        link_url: linkUrl.trim() || null,
+        image_url: imageUrl,
+      });
+      if (insertErr) { setError(insertErr.message); setLoading(false); return; }
+      router.push("/systems");
     }
-
-    router.push("/systems");
   };
 
   if (!authorized) {
@@ -87,7 +128,7 @@ export default function NewSystemPage() {
         Systems
       </Link>
 
-      <h1 className="text-[16px] font-bold tracking-[0.03em] mb-6">Add System</h1>
+      <h1 className="text-[16px] font-bold tracking-[0.03em] mb-6">{isEdit ? "Edit System" : "Add System"}</h1>
       <div className="border-t border-[#111] mb-8" />
 
       {error && <p className="text-[13px] text-red-600 mb-4">{error}</p>}
@@ -122,6 +163,7 @@ export default function NewSystemPage() {
               const file = e.dataTransfer.files?.[0];
               if (file && file.type.startsWith("image/")) {
                 setImageFile(file);
+                setRemoveImage(false);
                 const reader = new FileReader();
                 reader.onload = () => setImagePreview(reader.result as string);
                 reader.readAsDataURL(file);
@@ -133,7 +175,7 @@ export default function NewSystemPage() {
             {imagePreview ? (
               <div className="relative">
                 <img src={imagePreview} alt="Preview" className="max-w-[300px] max-h-[200px] object-contain" />
-                <button type="button" onClick={(e) => { e.stopPropagation(); setImageFile(null); setImagePreview(null); }}
+                <button type="button" onClick={(e) => { e.stopPropagation(); clearImage(); }}
                   className="absolute -top-2 -right-2 w-5 h-5 flex items-center justify-center bg-[#111] text-white text-[11px] border-0 cursor-pointer">×</button>
               </div>
             ) : (
@@ -149,9 +191,9 @@ export default function NewSystemPage() {
         </div>
 
         <div className="flex gap-3 mt-2 justify-end">
-          <Link href="/systems" className="text-[#111] text-[13px] font-bold px-6 py-3 border border-[#ddd] no-underline hover:bg-[#f5f5f5] transition-colors flex items-center">Cancel</Link>
+          <Link href={isEdit ? `/systems/${editId}` : "/systems"} className="text-[#111] text-[13px] font-bold px-6 py-3 border border-[#ddd] no-underline hover:bg-[#f5f5f5] transition-colors flex items-center">Cancel</Link>
           <button type="submit" disabled={loading} className="bg-[#111] text-white text-[13px] font-bold px-6 py-3 border-0 cursor-pointer hover:bg-[#333] transition-colors disabled:opacity-40">
-            {loading ? "Saving..." : "Add"}
+            {loading ? "Saving..." : isEdit ? "Save" : "Add"}
           </button>
         </div>
       </form>
