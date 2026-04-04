@@ -22,9 +22,9 @@ export default function ExtensionsList({
 
   return (
     <div>
-      <h1 className="text-[16px] font-bold tracking-[0.03em] mb-4">Extensions</h1>
-      <div className="border-b border-[#111] mb-6" />
-      <div className="flex gap-6 text-[13px] tracking-[0.05em] mb-8">
+      <h1 className="text-[16px] font-bold tracking-[0.03em] mb-3">Extensions</h1>
+      <div className="border-b border-[#111] mb-5" />
+      <div className="flex gap-6 text-[13px] tracking-[0.05em] mb-6">
         {FILTERS.map(({ key, label, value }) => (
           <button
             key={key}

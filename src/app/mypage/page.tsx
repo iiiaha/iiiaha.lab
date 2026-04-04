@@ -141,8 +141,8 @@ export default function MyPage() {
           Logout
         </button>
       </div>
-      <div className="border-b border-[#111] mb-8" />
-      <p className="text-[13px] text-[#666] mb-8">{email}</p>
+      <div className="border-b border-[#111] mb-6" />
+      <p className="text-[13px] text-[#666] mb-6">{email}</p>
 
       <h2 className="text-[12px] font-bold text-[#999] tracking-[0.05em] uppercase mb-4">
         Purchased
