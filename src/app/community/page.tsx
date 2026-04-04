@@ -47,7 +47,7 @@ export default function CommunityPage() {
               .from("comments")
               .select("id", { count: "exact", head: true })
               .eq("post_id", p.id);
-            return { ...p, comment_count: count ?? 0 } as Post;
+            return { ...p, comment_count: count ?? 0 } as unknown as Post;
           })
         );
         setPosts(withCounts);
