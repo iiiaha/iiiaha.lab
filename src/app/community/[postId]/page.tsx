@@ -112,8 +112,8 @@ export default function PostDetailPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <Link href="/community" className="flex items-center gap-1.5 text-[16px] font-bold tracking-[0.03em] no-underline hover:no-underline">
-          <svg width="14" height="14" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6L8 10" stroke="#111" strokeWidth="1.5"/></svg>
           Community
+          <svg width="14" height="14" viewBox="0 0 12 12" fill="none"><path d="M4 2L8 6L4 10" stroke="#111" strokeWidth="1.5"/></svg>
         </Link>
         {userId && (
           <Link href="/community/new"

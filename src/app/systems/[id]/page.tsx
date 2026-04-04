@@ -56,8 +56,8 @@ export default function SystemDetailPage() {
       {/* Header */}
       <div className="flex items-baseline justify-between mb-[10px]">
         <Link href="/systems" className="flex items-center gap-1.5 text-[16px] font-bold tracking-[0.03em] no-underline hover:no-underline">
-          <svg width="14" height="14" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6L8 10" stroke="#111" strokeWidth="1.5"/></svg>
           Systems
+          <svg width="14" height="14" viewBox="0 0 12 12" fill="none"><path d="M4 2L8 6L4 10" stroke="#111" strokeWidth="1.5"/></svg>
         </Link>
         {admin && (
           <div className="flex items-center gap-3">
@@ -72,7 +72,7 @@ export default function SystemDetailPage() {
           </div>
         )}
       </div>
-      <div className="border-b border-[#111] mb-[56px] sticky-divider" />
+      <div className="border-b border-[#111] mb-[72px] sticky-divider" />
 
       {/* Image */}
       <div className="aspect-video bg-[#f5f5f5] border border-[#ddd] mb-5 flex items-center justify-center overflow-hidden">
