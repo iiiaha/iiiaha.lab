@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  body {
+    margin: 0;
+    padding: 4px;
+    font-family: Arial, sans-serif;
+    font-size: 11px;
+    background: #f0f0f0;
+  }
+  .header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 4px 6px;
+  }
+  .header h3 {
+    margin: 0;
+    font-size: 11px;
+    font-weight: bold;
+    color: black;
+  }
+  .credit {
+    font-size: 10px;
+    color: #666;
+  }
+  .credit a {
+    color: #0066cc;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  .section {
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+    padding: 6px;
+    margin-bottom: 4px;
+  }
+  .section-title {
+    font-size: 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: #888;
+    letter-spacing: 0.3px;
+    margin-bottom: 4px;
+  }
+  input[type="text"] {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+    padding: 5px 6px;
+    font-size: 11px;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    letter-spacing: 0.5px;
+  }
+  input[type="text"]:focus {
+    outline: none;
+    border-color: #3498db;
+  }
+  .action-bar {
+    margin-top: 4px;
+  }
+  .action-bar button {
+    width: 100%;
+    height: 28px;
+    font-size: 11px;
+    font-weight: bold;
+    border-radius: 2px;
+    background: #3498db;
+    color: #fff;
+    border: 1px solid #2980b9;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .action-bar button:hover { background: #2980b9; }
+  .action-bar button:active { background: #2471a3; }
+  .action-bar button:disabled { opacity: 0.4; cursor: default; }
+  .result {
+    font-size: 10px;
+    margin-top: 4px;
+    text-align: center;
+    min-height: 14px;
+  }
+  .result.success { color: #27ae60; }
+  .result.error { color: #e74c3c; }
+</style>
+</head>
+<body>
+  <div class="header">
+    <h3>License activation</h3>
+    <span class="credit">by <a href="#" onclick="sketchup.callback('openLink','https://www.instagram.com/iiiaha.lab/');return false;">iiiaha</a></span>
+  </div>
+  <div class="section">
+    <div class="section-title">License Key</div>
+    <input type="text" id="key" placeholder="XXXX-XXXX-XXXX-XXXX" spellcheck="false">
+  </div>
+  <div class="action-bar">
+    <button id="btn" onclick="doActivate()">Activate</button>
+  </div>
+  <div class="result" id="result"></div>
+  <script>
+    function fitDialog() {
+      requestAnimationFrame(function() {
+        var h = document.body.offsetHeight;
+        sketchup.fitHeight(String(h));
+      });
+    }
+    fitDialog();
+
+    function doActivate() {
+      var key = document.getElementById('key').value.trim();
+      if (!key) return;
+      document.getElementById('btn').disabled = true;
+      document.getElementById('result').className = 'result';
+      document.getElementById('result').textContent = '...';
+      sketchup.activate(key);
+    }
+
+    function showResult(msg, success) {
+      var el = document.getElementById('result');
+      el.textContent = msg;
+      el.className = 'result ' + (success ? 'success' : 'error');
+      document.getElementById('btn').disabled = false;
+      fitDialog();
+    }
+
+    document.getElementById('key').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') doActivate();
+    });
+  </script>
+</body>
+</html>

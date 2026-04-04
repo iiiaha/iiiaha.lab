@@ -1,0 +1,42 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #111111;
+  --muted: #666666;
+  --caption: #999999;
+  --border: #111111;
+  --border-light: #dddddd;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: "Pretendard Variable", "Pretendard", -apple-system, sans-serif;
+  font-size: 15px;
+  line-height: 1.7;
+  letter-spacing: -0.01em;
+}
+
+@layer base {
+  a:any-link {
+    color: inherit;
+    text-decoration: none;
+  }
+  a:any-link:hover {
+    text-decoration: underline;
+  }
+}
+
+/* Custom cursor — SketchUp select */
+*, *::before, *::after {
+  cursor: url("/cursor.png") 9 6, default;
+}
+a, button, [role="button"], input[type="submit"], select {
+  cursor: url("/cursor.png") 9 6, pointer;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-thumb { background: #ccc; }
+::-webkit-scrollbar-thumb:hover { background: #aaa; }
