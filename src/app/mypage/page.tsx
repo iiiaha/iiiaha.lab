@@ -252,6 +252,12 @@ export default function MyPage() {
                         Update to v{ver.latest}
                       </a>
                     )}
+                    <Link
+                      href={`/mypage/report/${slug}`}
+                      className="text-[11px] text-[#999] no-underline hover:text-[#111] hover:underline"
+                    >
+                      Report bug
+                    </Link>
                   </div>
                 </div>
               </div>
