@@ -135,20 +135,6 @@ export default function PostDetailPage() {
           <h1 className="text-[15px] font-bold tracking-[0.03em] truncate">{post.title}</h1>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          {admin && (
-            <div className="flex gap-1">
-              {STATUS_OPTIONS.map((s) => (
-                <button key={s} onClick={() => updateStatus(s)}
-                  className={`text-[9px] px-1.5 py-0.5 border cursor-pointer ${
-                    post.status === s
-                      ? "bg-[#111] text-white border-[#111]"
-                      : "bg-white text-[#ccc] border-[#ddd] hover:border-[#111] hover:text-[#111]"
-                  }`}>
-                  {s === "in_progress" ? "Working" : s.charAt(0).toUpperCase() + s.slice(1)}
-                </button>
-              ))}
-            </div>
-          )}
           {(isAuthor || admin) && (
             <div className="flex gap-1">
               <Link href={`/community/new?edit=${post.id}`}
@@ -196,9 +182,25 @@ export default function PostDetailPage() {
       <div className="border-t border-[#ddd] mb-5" />
 
       {/* Comments */}
-      <h2 className="text-[12px] font-bold text-[#999] tracking-[0.05em] uppercase mb-4">
-        Replies ({comments.length})
-      </h2>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-[12px] font-bold text-[#999] tracking-[0.05em] uppercase">
+          Replies ({comments.length})
+        </h2>
+        {admin && (
+          <div className="flex gap-1">
+            {STATUS_OPTIONS.map((s) => (
+              <button key={s} onClick={() => updateStatus(s)}
+                className={`text-[9px] px-1.5 py-0.5 border cursor-pointer ${
+                  post.status === s
+                    ? "bg-[#111] text-white border-[#111]"
+                    : "bg-white text-[#ccc] border-[#ddd] hover:border-[#111] hover:text-[#111]"
+                }`}>
+                {s === "in_progress" ? "Working" : s.charAt(0).toUpperCase() + s.slice(1)}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
 
       <div className="border-t border-[#ddd]">
         {comments.length === 0 ? (
