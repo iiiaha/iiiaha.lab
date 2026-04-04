@@ -119,11 +119,23 @@ export default function PostDetailPage() {
   const isAuthor = userId === post.user_id;
 
   return (
-    <div className="pt-10">
-      <Link href="/community" className="flex items-center gap-1.5 text-[12px] text-[#999] no-underline hover:underline mb-6">
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6L8 10" stroke="#999" strokeWidth="1.2"/></svg>
-        Community
-      </Link>
+    <div>
+      {/* Header — same as community list */}
+      <div className="flex items-center justify-between mb-6">
+        <Link href="/community" className="flex items-center gap-1.5 text-[16px] font-bold tracking-[0.03em] no-underline hover:no-underline">
+          <svg width="14" height="14" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6L8 10" stroke="#111" strokeWidth="1.5"/></svg>
+          Community
+        </Link>
+        {userId && (
+          <Link
+            href="/community/new"
+            className="text-[12px] text-[#111] border border-[#111] px-4 py-2 no-underline hover:bg-[#111] hover:text-white transition-colors font-bold"
+          >
+            New Post
+          </Link>
+        )}
+      </div>
+      <div className="border-b border-[#111] mb-8" />
 
       {/* Header */}
       {editing ? (
