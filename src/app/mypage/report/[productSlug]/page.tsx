@@ -69,12 +69,12 @@ export default function ReportBugPage() {
       const ext = imageFile.name.split(".").pop();
       const path = `bug-reports/${userId}/${Date.now()}.${ext}`;
       const { error: uploadErr } = await supabase.storage
-        .from("public")
+        .from("uploads")
         .upload(path, imageFile, { upsert: true });
 
       if (!uploadErr) {
         const { data: { publicUrl } } = supabase.storage
-          .from("public")
+          .from("uploads")
           .getPublicUrl(path);
         imageUrl = publicUrl;
       }

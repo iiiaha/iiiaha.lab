@@ -73,10 +73,10 @@ export default function NewPostPage() {
       const ext = imageFile.name.split(".").pop();
       const path = `community/${userId}/${Date.now()}.${ext}`;
       const { error: uploadErr } = await supabase.storage
-        .from("public")
+        .from("uploads")
         .upload(path, imageFile, { upsert: true });
       if (!uploadErr) {
-        const { data: { publicUrl } } = supabase.storage.from("public").getPublicUrl(path);
+        const { data: { publicUrl } } = supabase.storage.from("uploads").getPublicUrl(path);
         imageUrl = publicUrl;
       }
     }

@@ -105,9 +105,9 @@ export default function AdminProducts() {
   const uploadThumbnail = async (file: File, slug: string, target: "edit" | "new") => {
     const ext = file.name.split(".").pop();
     const path = `thumbnails/${slug}.${ext}`;
-    const { error } = await supabase.storage.from("public").upload(path, file, { upsert: true });
+    const { error } = await supabase.storage.from("uploads").upload(path, file, { upsert: true });
     if (error) { showMessage(`Upload error: ${error.message}`); return; }
-    const { data: { publicUrl } } = supabase.storage.from("public").getPublicUrl(path);
+    const { data: { publicUrl } } = supabase.storage.from("uploads").getPublicUrl(path);
     if (target === "edit") setEditData((prev) => ({ ...prev, thumbnail_url: publicUrl }));
     else setNewProduct((prev) => ({ ...prev, thumbnail_url: publicUrl }));
     showMessage("Uploaded");
