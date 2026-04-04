@@ -253,7 +253,7 @@ export default function MyPage() {
                       </a>
                     )}
                     <Link
-                      href="/community/new"
+                      href={`/community/new?product=${slug}`}
                       className="w-full text-[12px] text-[#111] border border-[#111] px-4 py-1.5 no-underline hover:bg-[#111] hover:text-white transition-colors text-center"
                     >
                       Report / Ask

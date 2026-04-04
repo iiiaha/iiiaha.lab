@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { getUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase";
@@ -13,6 +13,7 @@ interface ProductOption {
 
 export default function NewPostPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const supabase = createClient();
 
   const [userId, setUserId] = useState("");
@@ -34,12 +35,20 @@ export default function NewPostPage() {
 
       const { data } = await supabase
         .from("products")
-        .select("id, display_name")
+        .select("id, display_name, slug")
         .order("sort_order", { ascending: true });
-      setProducts(data ?? []);
+      const productList = data ?? [];
+      setProducts(productList);
+
+      // URL 파라미터로 product 자동 선택
+      const productSlug = searchParams.get("product");
+      if (productSlug) {
+        const match = productList.find((p: { slug?: string }) => p.slug === productSlug);
+        if (match) setProductId(match.id);
+      }
     };
     load();
-  }, [router, supabase]);
+  }, [router, supabase, searchParams]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
