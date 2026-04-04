@@ -53,7 +53,7 @@ export default function ExtensionDetail({ product }: { product: Product }) {
           Extensions
         </Link>
       </div>
-      <div className="border-b border-[#111] mb-5 sticky-divider" />
+      <div className="border-b border-[#111] mb-[56px] sticky-divider" />
 
       <div className="aspect-video bg-[#f5f5f5] border border-[#ddd] mb-5 flex items-center justify-center text-[#999]">
         {product.thumbnail_url ? (
