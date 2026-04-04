@@ -134,7 +134,7 @@ export default function MyPage() {
     <div>
       <h1 className="text-[16px] font-bold tracking-[0.03em] mb-1">My Page</h1>
       <div className="border-b border-[#111] mb-4" />
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between min-h-[32px] mb-6">
         <p className="text-[13px] text-[#666]">{email}</p>
         <button
           onClick={handleSignOut}

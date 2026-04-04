@@ -103,7 +103,7 @@ export default function CommunityPage() {
       <div className="border-b border-[#111] mb-4" />
 
       {/* Actions + Filter tabs */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between min-h-[32px] mb-6">
         <div className="flex gap-6 text-[13px] tracking-[0.05em]">
           {([
             { key: "all", label: "All" },

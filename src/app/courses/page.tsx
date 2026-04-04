@@ -26,7 +26,8 @@ export default function CoursesPage() {
   return (
     <div>
       <h1 className="text-[16px] font-bold tracking-[0.03em] mb-1">Courses</h1>
-      <div className="border-b border-[#111] mb-6" />
+      <div className="border-b border-[#111] mb-4" />
+      <div className="min-h-[32px] mb-6" />
       {loading ? (
         <p className="text-[14px] text-[#999]">Loading...</p>
       ) : courses.length === 0 ? (
