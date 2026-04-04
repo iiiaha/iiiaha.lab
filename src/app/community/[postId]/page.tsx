@@ -158,64 +158,77 @@ export default function PostDetailPage() {
         </div>
       ) : (
         <>
-          <div className="flex items-start justify-between gap-4 mb-3">
-            <h1 className="text-[16px] font-bold tracking-[0.03em]">{post.title}</h1>
-            {(isAuthor || admin) && (
-              <button onClick={startEdit} className="text-[11px] text-[#999] bg-transparent border-0 cursor-pointer hover:underline shrink-0">
-                Edit
-              </button>
-            )}
+          <div className="flex items-center justify-between gap-4 mb-2">
+            <div className="flex items-center gap-2 min-w-0">
+              <span className={`text-[10px] font-bold text-white px-1.5 py-0.5 shrink-0 ${
+                post.category === "idea" ? "bg-[#0096D7]" : "bg-[#DC0A7D]"
+              }`}>
+                {post.category === "idea" ? "Idea" : "Q&A"}
+              </span>
+              <h1 className="text-[16px] font-bold tracking-[0.03em] truncate">{post.title}</h1>
+            </div>
+            <div className="flex items-center gap-3 shrink-0">
+              {admin && (
+                <div className="flex gap-1">
+                  {STATUS_OPTIONS.map((s) => (
+                    <button
+                      key={s}
+                      onClick={() => updateStatus(s)}
+                      className={`text-[9px] px-1.5 py-0.5 border cursor-pointer ${
+                        post.status === s
+                          ? "bg-[#111] text-white border-[#111]"
+                          : "bg-white text-[#ccc] border-[#ddd] hover:border-[#111] hover:text-[#111]"
+                      }`}
+                    >
+                      {s === "in_progress" ? "WIP" : s.charAt(0).toUpperCase() + s.slice(1)}
+                    </button>
+                  ))}
+                </div>
+              )}
+              {(isAuthor || admin) && (
+                <button onClick={startEdit} className="text-[11px] text-[#999] bg-transparent border-0 cursor-pointer hover:underline">
+                  Edit
+                </button>
+              )}
+            </div>
           </div>
           <div className="flex items-center gap-3 text-[11px] text-[#999] mb-6">
-            <span>{post.category === "idea" ? "Idea" : "Q&A / Bug"}</span>
             {post.products && (
               <>
-                <span>·</span>
                 <span>{post.products.display_name}</span>
+                <span>·</span>
               </>
             )}
-            <span>·</span>
             <span>
               {new Date(post.created_at).toLocaleDateString("en-US", {
                 year: "numeric", month: "short", day: "numeric",
               })}
             </span>
+            {!admin && (
+              <>
+                <span>·</span>
+                <span className={statusStyle(post.status).split(" ")[0]}>
+                  {post.status}
+                </span>
+              </>
+            )}
           </div>
         </>
       )}
 
-      <div className="border-t border-[#111] mb-8" />
+      <div className="border-t border-[#ddd] mb-6" />
 
       {/* Body */}
       {!editing && (
-        <div className="mb-8">
+        <div className="mb-6">
           <p className="text-[14px] leading-[1.8] whitespace-pre-wrap">{post.description}</p>
           {post.image_url && (
-            <div className="mt-6">
+            <div className="mt-4">
               <a href={post.image_url} target="_blank" rel="noopener noreferrer">
                 <img src={post.image_url} alt="attachment" className="max-w-full max-h-[500px] object-contain border border-[#eee]" />
               </a>
             </div>
           )}
-        </div>
-      )}
-
-      {/* Admin: status change — compact, inline */}
-      {admin && !editing && (
-        <div className="flex items-center gap-2 mb-8">
-          {STATUS_OPTIONS.map((s) => (
-            <button
-              key={s}
-              onClick={() => updateStatus(s)}
-              className={`text-[10px] px-2 py-0.5 border cursor-pointer ${
-                post.status === s
-                  ? "bg-[#111] text-white border-[#111]"
-                  : "bg-white text-[#999] border-[#ddd] hover:border-[#111]"
-              }`}
-            >
-              {s}
-            </button>
-          ))}
         </div>
       )}
 

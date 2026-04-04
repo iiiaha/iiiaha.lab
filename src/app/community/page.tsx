@@ -128,14 +128,14 @@ export default function CommunityPage() {
                     href={`/community/${post.id}`}
                     className="flex items-center gap-2 flex-1 min-w-0 no-underline"
                   >
-                    <span className={`text-[10px] font-bold border px-1.5 py-0.5 shrink-0 ${
+                    <span className={`text-[10px] font-bold text-white px-1.5 py-0.5 shrink-0 ${
                       post.category === "idea"
-                        ? "text-blue-600 border-blue-300 bg-blue-50"
-                        : "text-orange-600 border-orange-300 bg-orange-50"
+                        ? "bg-[#0096D7]"
+                        : "bg-[#DC0A7D]"
                     }`}>
                       {post.category === "idea" ? "Idea" : "Q&A"}
                     </span>
-                    <span className="text-[14px] font-bold truncate">
+                    <span className="text-[14px] font-bold truncate ml-1">
                       {post.title}
                     </span>
                     {post.comment_count > 0 && (
