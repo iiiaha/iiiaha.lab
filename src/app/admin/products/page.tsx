@@ -156,7 +156,7 @@ export default function AdminProducts() {
   const finalPrice = discountOn && discPercent > 0 ? Math.round(origPrice * (1 - discPercent / 100)) : origPrice;
 
   const editPanel = editing ? (
-    <div className="w-[320px] shrink-0 border-l border-[#ddd] pl-6 overflow-y-auto max-h-[80vh] sticky top-20">
+    <div className="fixed right-0 top-0 w-[340px] h-full bg-white border-l border-[#ddd] px-6 py-8 overflow-y-auto z-50 shadow-[-4px_0_20px_rgba(0,0,0,0.05)]">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-[13px] font-bold">Edit</h2>
         <button onClick={() => setEditing(null)} className="text-[11px] text-[#999] bg-transparent border-0 cursor-pointer hover:underline">Close</button>
@@ -227,8 +227,8 @@ export default function AdminProducts() {
   ) : null;
 
   return (
-    <div className="flex gap-0">
-      <div className={editing ? "flex-1 min-w-0 pr-6" : "flex-1"}>
+    <div>
+      <div>
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <h1 className="text-[16px] font-bold tracking-[0.03em]">Products</h1>
@@ -321,8 +321,7 @@ export default function AdminProducts() {
       <div className="border-t border-[#ddd]">
         {filteredProducts.map((p, i) => (
           <div key={p.id}>
-            ) : (
-              <div className="flex items-center border-b border-[#ddd] py-2 gap-2">
+              <div className={`flex items-center border-b border-[#ddd] py-2 gap-2 ${editing === p.id ? "bg-[#f8f8f8]" : ""}`}>
                 <div className="flex gap-0.5 shrink-0">
                   <button onClick={() => moveProduct(i, 'up')} disabled={i === 0} className="bg-transparent border-0 p-0 cursor-pointer disabled:opacity-15 hover:opacity-60"><svg width="8" height="5" viewBox="0 0 10 6" fill="none"><path d="M1 5L5 1L9 5" stroke="#999" strokeWidth="1.2"/></svg></button>
                   <button onClick={() => moveProduct(i, 'down')} disabled={i === filteredProducts.length - 1} className="bg-transparent border-0 p-0 cursor-pointer disabled:opacity-15 hover:opacity-60"><svg width="8" height="5" viewBox="0 0 10 6" fill="none"><path d="M1 1L5 5L9 1" stroke="#999" strokeWidth="1.2"/></svg></button>
