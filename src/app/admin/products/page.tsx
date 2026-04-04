@@ -74,13 +74,23 @@ export default function AdminProducts() {
   // Edit
   const startEdit = (p: Product) => {
     setEditing(p.id);
-    setEditData({ ...p });
+    setEditData({ ...p, _discountOn: (p.discount_percent ?? 0) > 0 } as Partial<Product>);
     setAdding(false);
   };
 
   const saveEdit = async () => {
     if (!editing) return;
-    const { id, ...rest } = editData as Product;
+    const { id, _discountOn, ...rest } = editData as Product & { _discountOn?: boolean };
+    // Calculate final price
+    const orig = rest.original_price ?? rest.price ?? 0;
+    const disc = _discountOn ? (rest.discount_percent ?? 0) : 0;
+    rest.original_price = orig;
+    rest.discount_percent = disc;
+    rest.price = disc > 0 ? Math.round(orig * (1 - disc / 100)) : orig;
+    if (!_discountOn) {
+      rest.discount_start = null as unknown as undefined;
+      rest.discount_end = null as unknown as undefined;
+    }
     const { error } = await supabase.from("products").update(rest).eq("id", editing);
     if (error) { showMessage(`Error: ${error.message}`); return; }
     setEditing(null);
@@ -239,37 +249,58 @@ export default function AdminProducts() {
                 <Field label="Slug" value={editData.slug ?? ""} onChange={(v) => setEditData({ ...editData, slug: v })} />
                 <Field label="Name" value={editData.name ?? ""} onChange={(v) => setEditData({ ...editData, name: v })} />
                 <Field label="Display Name" value={editData.display_name ?? ""} onChange={(v) => setEditData({ ...editData, display_name: v })} />
-                <Field label="Price" value={editData.original_price ?? editData.price ?? 0} type="number" onChange={(v) => {
-                  const orig = parseInt(v) || 0;
-                  const disc = editData.discount_percent ?? 0;
-                  const fp = disc > 0 ? Math.round(orig * (1 - disc / 100)) : orig;
-                  setEditData({ ...editData, original_price: orig, price: fp });
-                }} />
-                <div className="flex items-center gap-2 mb-2">
-                  <label className="w-[100px] shrink-0 text-[11px] text-[#999] font-bold uppercase tracking-[0.05em]">Discount</label>
-                  <div className="flex items-center gap-2 flex-1">
+                {/* Pricing section */}
+                <div className="border border-[#ddd] p-3 mb-3">
+                  <p className="text-[11px] text-[#999] font-bold uppercase tracking-[0.05em] mb-3">Pricing</p>
+                  <div className="flex items-center gap-2 mb-2">
+                    <label className="w-[80px] shrink-0 text-[11px] text-[#666]">Regular price</label>
+                    <span className="text-[12px] text-[#999]">₩</span>
+                    <input type="text" inputMode="numeric" value={editData.original_price ?? editData.price ?? 0}
+                      onChange={(e) => setEditData({ ...editData, original_price: parseInt(e.target.value) || 0 })}
+                      className="w-[80px] border border-[#ddd] px-2 py-1 text-[13px] text-right outline-none focus:border-[#111]" />
+                  </div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <label className="w-[80px] shrink-0 text-[11px] text-[#666]">Discount</label>
                     <button type="button" onClick={() => {
-                      const isOn = (editData.discount_percent ?? 0) > 0;
-                      if (isOn) {
-                        setEditData({ ...editData, discount_percent: 0, price: editData.original_price ?? editData.price ?? 0 });
-                      } else {
-                        setEditData({ ...editData, discount_percent: 10 });
-                      }
-                    }} className={`w-9 h-5 rounded-full relative transition-colors ${(editData.discount_percent ?? 0) > 0 ? "bg-[#111]" : "bg-[#ddd]"}`}>
-                      <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all ${(editData.discount_percent ?? 0) > 0 ? "left-[18px]" : "left-0.5"}`} />
+                      setEditData((prev) => ({ ...prev, _discountOn: !(prev as Record<string,unknown>)._discountOn } as Partial<Product>));
+                    }} className={`w-8 h-[18px] rounded-full relative transition-colors shrink-0 ${(editData as Record<string,unknown>)._discountOn ? "bg-[#111]" : "bg-[#ddd]"}`}>
+                      <span className={`absolute top-[2px] w-[14px] h-[14px] rounded-full bg-white transition-all ${(editData as Record<string,unknown>)._discountOn ? "left-[14px]" : "left-[2px]"}`} />
                     </button>
-                    {(editData.discount_percent ?? 0) > 0 && (
+                    {(editData as Record<string,unknown>)._discountOn && (
                       <>
-                        <input type="text" inputMode="numeric" value={editData.discount_percent ?? 0} onChange={(e) => {
-                          const disc = parseInt(e.target.value) || 0;
-                          const orig = editData.original_price ?? editData.price ?? 0;
-                          const fp = disc > 0 ? Math.round(orig * (1 - disc / 100)) : orig;
-                          setEditData({ ...editData, discount_percent: disc, price: fp });
-                        }} className="w-[40px] border border-[#ddd] px-1 py-0.5 text-[13px] text-right outline-none focus:border-[#111]" />
-                        <span className="text-[12px] text-[#999]">%</span>
-                        <span className="text-[12px] text-[#999]">→</span>
-                        <span className="text-[13px] font-bold text-red-600">₩{(editData.price ?? 0).toLocaleString()}</span>
+                        <input type="text" inputMode="numeric" value={editData.discount_percent ?? 0}
+                          onChange={(e) => setEditData({ ...editData, discount_percent: parseInt(e.target.value) || 0 })}
+                          className="w-[40px] border border-[#ddd] px-1 py-1 text-[13px] text-right outline-none focus:border-[#111]" />
+                        <span className="text-[11px] text-[#999]">%</span>
                       </>
+                    )}
+                  </div>
+                  {(editData as Record<string,unknown>)._discountOn && (
+                    <>
+                      <div className="flex items-center gap-2 mb-2">
+                        <label className="w-[80px] shrink-0 text-[11px] text-[#666]">Schedule</label>
+                        <input type="datetime-local" value={editData.discount_start ? new Date(editData.discount_start).toISOString().slice(0,16) : ""}
+                          onChange={(e) => setEditData({ ...editData, discount_start: e.target.value ? new Date(e.target.value).toISOString() : undefined } as Partial<Product>)}
+                          className="border border-[#ddd] px-1 py-0.5 text-[11px] outline-none focus:border-[#111]" />
+                        <span className="text-[11px] text-[#999]">~</span>
+                        <input type="datetime-local" value={editData.discount_end ? new Date(editData.discount_end).toISOString().slice(0,16) : ""}
+                          onChange={(e) => setEditData({ ...editData, discount_end: e.target.value ? new Date(e.target.value).toISOString() : undefined } as Partial<Product>)}
+                          className="border border-[#ddd] px-1 py-0.5 text-[11px] outline-none focus:border-[#111]" />
+                      </div>
+                      <p className="text-[10px] text-[#bbb] ml-[88px] mb-2">Leave empty for no schedule (always active)</p>
+                    </>
+                  )}
+                  {/* Final price preview */}
+                  <div className="flex items-center gap-2 mt-3 pt-3 border-t border-[#eee]">
+                    <label className="w-[80px] shrink-0 text-[11px] text-[#666]">Final price</label>
+                    {(editData as Record<string,unknown>)._discountOn && (editData.discount_percent ?? 0) > 0 ? (
+                      <div className="flex items-center gap-2">
+                        <span className="text-[12px] text-[#ccc] line-through">₩{(editData.original_price ?? editData.price ?? 0).toLocaleString()}</span>
+                        <span className="text-[14px] font-bold text-red-600">₩{Math.round((editData.original_price ?? editData.price ?? 0) * (1 - (editData.discount_percent ?? 0) / 100)).toLocaleString()}</span>
+                        <span className="text-[11px] text-red-500">-{editData.discount_percent}%</span>
+                      </div>
+                    ) : (
+                      <span className="text-[14px] font-bold">₩{(editData.original_price ?? editData.price ?? 0).toLocaleString()}</span>
                     )}
                   </div>
                 </div>

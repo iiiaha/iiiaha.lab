@@ -17,6 +17,9 @@ export interface Product {
   sort_order?: number;
   original_price?: number;
   discount_percent?: number;
+  discount_start?: string;
+  discount_end?: string;
+  is_active?: boolean;
 }
 
 export function formatPrice(price: number): string {
