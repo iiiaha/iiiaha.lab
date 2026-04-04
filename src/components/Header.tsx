@@ -27,11 +27,11 @@ export default function Header() {
   const navItems = [
     { href: "/extensions", label: "Extensions" },
     { href: "/courses", label: "Courses" },
+    { href: "/systems", label: "Systems" },
     { href: "/community", label: "Community" },
     loggedIn
       ? { href: "/mypage", label: "My Page" }
       : { href: "/login", label: "Login" },
-    ...(admin ? [{ href: "/admin", label: "Admin" }] : []),
   ];
 
   return (
