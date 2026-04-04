@@ -107,7 +107,7 @@ export default function CommunityPage() {
         )}
         {loggedIn && (
           <Link
-            href="/community/new"
+            href={`/community/new${filter === "bug" ? "?category=bug" : filter === "idea" ? "?category=idea" : ""}`}
             className="text-[12px] text-[#111] border border-[#111] px-4 py-2 no-underline hover:bg-[#111] hover:text-white transition-colors font-bold"
           >
             New Post

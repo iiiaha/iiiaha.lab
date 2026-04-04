@@ -36,14 +36,12 @@ export default function PostDetailPage() {
 
   const [post, setPost] = useState<Post | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
+  const [authorName, setAuthorName] = useState("");
   const [newComment, setNewComment] = useState("");
   const [userId, setUserId] = useState("");
   const [admin, setAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [commenting, setCommenting] = useState(false);
-  const [editing, setEditing] = useState(false);
-  const [editTitle, setEditTitle] = useState("");
-  const [editDesc, setEditDesc] = useState("");
 
   const load = async () => {
     const { data: p } = await supabase
@@ -54,6 +52,13 @@ export default function PostDetailPage() {
 
     if (!p) { router.push("/community"); return; }
     setPost(p as unknown as Post);
+
+    // 작성자 이름
+    const res = await fetch(`/api/user-email?id=${p.user_id}`);
+    if (res.ok) {
+      const d = await res.json();
+      if (d.name) setAuthorName(d.name);
+    }
 
     const { data: c } = await supabase
       .from("comments")
@@ -96,22 +101,6 @@ export default function PostDetailPage() {
     load();
   };
 
-  const startEdit = () => {
-    if (!post) return;
-    setEditTitle(post.title);
-    setEditDesc(post.description);
-    setEditing(true);
-  };
-
-  const saveEdit = async () => {
-    await supabase.from("posts").update({
-      title: editTitle.trim(),
-      description: editDesc.trim(),
-    }).eq("id", postId);
-    setEditing(false);
-    load();
-  };
-
   if (loading || !post) {
     return <div className="pt-20 text-center text-[14px] text-[#999]">Loading...</div>;
   }
@@ -120,133 +109,106 @@ export default function PostDetailPage() {
 
   return (
     <div>
-      {/* Header — same as community list */}
+      {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <Link href="/community" className="flex items-center gap-1.5 text-[16px] font-bold tracking-[0.03em] no-underline hover:no-underline">
           <svg width="14" height="14" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6L8 10" stroke="#111" strokeWidth="1.5"/></svg>
           Community
         </Link>
         {userId && (
-          <Link
-            href="/community/new"
-            className="text-[12px] text-[#111] border border-[#111] px-4 py-2 no-underline hover:bg-[#111] hover:text-white transition-colors font-bold"
-          >
+          <Link href="/community/new"
+            className="text-[12px] text-[#111] border border-[#111] px-4 py-2 no-underline hover:bg-[#111] hover:text-white transition-colors font-bold">
             New Post
           </Link>
         )}
       </div>
       <div className="border-b border-[#111] mb-8" />
 
-      {/* Header */}
-      {editing ? (
-        <div className="mb-6">
-          <input
-            value={editTitle}
-            onChange={(e) => setEditTitle(e.target.value)}
-            className="w-full text-[16px] font-bold border border-[#ddd] px-3 py-2 mb-3 outline-none focus:border-[#111]"
-          />
-          <textarea
-            value={editDesc}
-            onChange={(e) => setEditDesc(e.target.value)}
-            rows={6}
-            className="w-full border border-[#ddd] px-3 py-2 text-[14px] outline-none focus:border-[#111] resize-y font-[inherit] mb-3"
-          />
-          <div className="flex gap-2 justify-end">
-            <button onClick={() => setEditing(false)} className="text-[12px] text-[#111] px-4 py-1.5 border border-[#ddd] bg-white cursor-pointer hover:bg-[#f5f5f5]">Cancel</button>
-            <button onClick={saveEdit} className="text-[12px] bg-[#111] text-white px-4 py-1.5 border-0 cursor-pointer hover:bg-[#333]">Save</button>
-          </div>
+      {/* Title row */}
+      <div className="flex items-center justify-between gap-4 mb-2">
+        <div className="flex items-center gap-2 min-w-0">
+          <span className={`text-[10px] font-bold text-white px-1.5 py-0.5 shrink-0 ${
+            post.category === "idea" ? "bg-[#0096D7]" : "bg-[#DC0A7D]"
+          }`}>
+            {post.category === "idea" ? "Idea" : "Q&A"}
+          </span>
+          <h1 className="text-[16px] font-bold tracking-[0.03em] truncate">{post.title}</h1>
         </div>
-      ) : (
-        <>
-          <div className="flex items-center justify-between gap-4 mb-2">
-            <div className="flex items-center gap-2 min-w-0">
-              <span className={`text-[10px] font-bold text-white px-1.5 py-0.5 shrink-0 ${
-                post.category === "idea" ? "bg-[#0096D7]" : "bg-[#DC0A7D]"
-              }`}>
-                {post.category === "idea" ? "Idea" : "Q&A"}
-              </span>
-              <h1 className="text-[16px] font-bold tracking-[0.03em] truncate">{post.title}</h1>
+        <div className="flex items-center gap-2 shrink-0">
+          {admin && (
+            <div className="flex gap-1">
+              {STATUS_OPTIONS.map((s) => (
+                <button key={s} onClick={() => updateStatus(s)}
+                  className={`text-[9px] px-1.5 py-0.5 border cursor-pointer ${
+                    post.status === s
+                      ? "bg-[#111] text-white border-[#111]"
+                      : "bg-white text-[#ccc] border-[#ddd] hover:border-[#111] hover:text-[#111]"
+                  }`}>
+                  {s === "in_progress" ? "WIP" : s.charAt(0).toUpperCase() + s.slice(1)}
+                </button>
+              ))}
             </div>
-            <div className="flex items-center gap-3 shrink-0">
-              {admin && (
-                <div className="flex gap-1">
-                  {STATUS_OPTIONS.map((s) => (
-                    <button
-                      key={s}
-                      onClick={() => updateStatus(s)}
-                      className={`text-[9px] px-1.5 py-0.5 border cursor-pointer ${
-                        post.status === s
-                          ? "bg-[#111] text-white border-[#111]"
-                          : "bg-white text-[#ccc] border-[#ddd] hover:border-[#111] hover:text-[#111]"
-                      }`}
-                    >
-                      {s === "in_progress" ? "WIP" : s.charAt(0).toUpperCase() + s.slice(1)}
-                    </button>
-                  ))}
-                </div>
-              )}
-              {(isAuthor || admin) && (
-                <div className="flex gap-1">
-                  <button onClick={startEdit} className="text-[11px] text-[#111] border border-[#ddd] bg-white px-3 py-1 cursor-pointer hover:bg-[#f5f5f5]">
-                    Edit
-                  </button>
-                  <button
-                    onClick={async () => {
-                      if (!confirm("Delete this post?")) return;
-                      await supabase.from("comments").delete().eq("post_id", postId);
-                      await supabase.from("posts").delete().eq("id", postId);
-                      router.push("/community");
-                    }}
-                    className="text-[11px] text-red-600 border border-[#ddd] bg-white px-3 py-1 cursor-pointer hover:bg-red-50"
-                  >
-                    Delete
-                  </button>
-                </div>
-              )}
+          )}
+          {(isAuthor || admin) && (
+            <div className="flex gap-1">
+              <Link href={`/community/new?edit=${post.id}`}
+                className="text-[11px] text-[#111] border border-[#ddd] bg-white px-3 py-1 no-underline hover:bg-[#f5f5f5]">
+                Edit
+              </Link>
+              <button onClick={async () => {
+                if (!confirm("Delete this post?")) return;
+                await supabase.from("comments").delete().eq("post_id", postId);
+                await supabase.from("posts").delete().eq("id", postId);
+                router.push("/community");
+              }} className="text-[11px] text-red-600 border border-[#ddd] bg-white px-3 py-1 cursor-pointer hover:bg-red-50">
+                Delete
+              </button>
             </div>
-          </div>
-          <div className="flex items-center gap-3 text-[11px] text-[#999] mb-6">
-            {post.products && (
-              <>
-                <span>{post.products.display_name}</span>
-                <span>·</span>
-              </>
-            )}
-            <span>
-              {new Date(post.created_at).toLocaleDateString("en-US", {
-                year: "numeric", month: "short", day: "numeric",
-              })}
+          )}
+        </div>
+      </div>
+
+      {/* Meta */}
+      <div className="flex items-center gap-3 text-[11px] text-[#999] mb-6">
+        {authorName && <span>{authorName}</span>}
+        {authorName && <span>·</span>}
+        {post.products && (
+          <>
+            <span>{post.products.display_name}</span>
+            <span>·</span>
+          </>
+        )}
+        <span>
+          {new Date(post.created_at).toLocaleDateString("en-US", {
+            year: "numeric", month: "short", day: "numeric",
+          })}
+        </span>
+        {!admin && (
+          <>
+            <span>·</span>
+            <span className={
+              post.status === "resolved" ? "text-green-600" :
+              post.status === "closed" ? "text-[#ccc]" : "text-[#999]"
+            }>
+              {post.status}
             </span>
-            {!admin && (
-              <>
-                <span>·</span>
-                <span className={
-                  post.status === "resolved" ? "text-green-600" :
-                  post.status === "closed" ? "text-[#ccc]" : "text-[#999]"
-                }>
-                  {post.status}
-                </span>
-              </>
-            )}
-          </div>
-        </>
-      )}
+          </>
+        )}
+      </div>
 
       <div className="border-t border-[#ddd] mb-6" />
 
       {/* Body */}
-      {!editing && (
-        <div className="mb-6">
-          <p className="text-[14px] leading-[1.8] whitespace-pre-wrap">{post.description}</p>
-          {post.image_url && (
-            <div className="mt-4">
-              <a href={post.image_url} target="_blank" rel="noopener noreferrer">
-                <img src={post.image_url} alt="attachment" className="max-w-full max-h-[500px] object-contain border border-[#eee]" />
-              </a>
-            </div>
-          )}
-        </div>
-      )}
+      <div className="mb-6">
+        <p className="text-[14px] leading-[1.8] whitespace-pre-wrap">{post.description}</p>
+        {post.image_url && (
+          <div className="mt-4">
+            <a href={post.image_url} target="_blank" rel="noopener noreferrer">
+              <img src={post.image_url} alt="attachment" className="max-w-full max-h-[500px] object-contain border border-[#eee]" />
+            </a>
+          </div>
+        )}
+      </div>
 
       <div className="border-t border-[#ddd] mb-6" />
 
@@ -263,9 +225,7 @@ export default function PostDetailPage() {
             <div key={c.id} className={`border-b border-[#ddd] py-4 ${c.is_admin ? "bg-[#fafafa] px-4" : ""}`}>
               <div className="flex items-center gap-2 mb-2">
                 {c.is_admin && (
-                  <span className="text-[10px] font-bold text-white bg-[#111] px-1.5 py-0.5">
-                    iiiaha
-                  </span>
+                  <span className="text-[10px] font-bold text-white bg-[#111] px-1.5 py-0.5">iiiaha</span>
                 )}
                 <span className="text-[11px] text-[#999]">
                   {new Date(c.created_at).toLocaleDateString("en-US", {
@@ -282,19 +242,12 @@ export default function PostDetailPage() {
       {/* Add comment */}
       {userId ? (
         <div className="mt-6">
-          <textarea
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-            placeholder="Write a reply..."
-            rows={3}
-            className="w-full border border-[#ddd] px-3 py-2.5 text-[14px] outline-none focus:border-[#111] transition-colors resize-y font-[inherit] mb-3"
-          />
+          <textarea value={newComment} onChange={(e) => setNewComment(e.target.value)}
+            placeholder="Write a reply..." rows={3}
+            className="w-full border border-[#ddd] px-3 py-2.5 text-[14px] outline-none focus:border-[#111] transition-colors resize-y font-[inherit] mb-3" />
           <div className="flex justify-end">
-            <button
-              onClick={addComment}
-              disabled={commenting || !newComment.trim()}
-              className="bg-[#111] text-white text-[13px] font-bold px-6 py-2.5 border-0 cursor-pointer hover:bg-[#333] transition-colors disabled:opacity-40"
-            >
+            <button onClick={addComment} disabled={commenting || !newComment.trim()}
+              className="bg-[#111] text-white text-[13px] font-bold px-6 py-2.5 border-0 cursor-pointer hover:bg-[#333] transition-colors disabled:opacity-40">
               {commenting ? "Posting..." : "Reply"}
             </button>
           </div>
