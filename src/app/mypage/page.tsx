@@ -132,16 +132,18 @@ export default function MyPage() {
 
   return (
     <div>
-      <h1 className="text-[16px] font-bold tracking-[0.03em] mb-[10px]">My Page</h1>
-      <div className="border-b border-[#111] mb-4" />
-      <div className="flex items-center justify-between min-h-[32px] mb-6">
-        <p className="text-[13px] text-[#666]">{email}</p>
+      <div className="flex items-baseline justify-between mb-[10px]">
+        <h1 className="text-[16px] font-bold tracking-[0.03em]">My Page</h1>
         <button
           onClick={handleSignOut}
           className="text-[12px] text-[#999] bg-transparent border-0 cursor-pointer hover:underline"
         >
           Logout
         </button>
+      </div>
+      <div className="border-b border-[#111] mb-4" />
+      <div className="flex items-center min-h-[32px] mb-6">
+        <p className="text-[13px] text-[#666]">{email}</p>
       </div>
 
       <h2 className="text-[12px] font-bold text-[#999] tracking-[0.05em] uppercase mb-4">
