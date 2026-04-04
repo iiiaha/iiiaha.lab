@@ -254,7 +254,7 @@ export default function MyPage() {
                     )}
                     <Link
                       href={`/mypage/report/${slug}`}
-                      className="text-[11px] text-[#999] no-underline hover:text-[#111] hover:underline"
+                      className="text-[12px] text-[#111] border border-[#111] px-4 py-1.5 no-underline hover:bg-[#111] hover:text-white transition-colors text-center"
                     >
                       Report bug
                     </Link>
