@@ -144,7 +144,7 @@ export default function PostDetailPage() {
                       ? "bg-[#111] text-white border-[#111]"
                       : "bg-white text-[#ccc] border-[#ddd] hover:border-[#111] hover:text-[#111]"
                   }`}>
-                  {s === "in_progress" ? "WIP" : s.charAt(0).toUpperCase() + s.slice(1)}
+                  {s === "in_progress" ? "WORKING" : s.charAt(0).toUpperCase() + s.slice(1)}
                 </button>
               ))}
             </div>
