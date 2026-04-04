@@ -245,7 +245,40 @@ export default function AdminProducts() {
                   options={[{ label: "Extension", value: "extension" }, { label: "Course", value: "course" }]} />
                 <Field label="Platform" value={editData.platform ?? "sketchup"} onChange={(v) => setEditData({ ...editData, platform: v as Product["platform"] })}
                   options={[{ label: "SketchUp", value: "sketchup" }, { label: "AutoCAD", value: "autocad" }]} />
-                <Field label="Price" value={editData.price ?? 0} type="number" onChange={(v) => setEditData({ ...editData, price: parseInt(v) || 0 })} />
+                <Field label="Price" value={editData.original_price ?? editData.price ?? 0} type="number" onChange={(v) => {
+                  const orig = parseInt(v) || 0;
+                  const disc = editData.discount_percent ?? 0;
+                  const fp = disc > 0 ? Math.round(orig * (1 - disc / 100)) : orig;
+                  setEditData({ ...editData, original_price: orig, price: fp });
+                }} />
+                <div className="flex items-center gap-2 mb-2">
+                  <label className="w-[100px] shrink-0 text-[11px] text-[#999] font-bold uppercase tracking-[0.05em]">Discount</label>
+                  <div className="flex items-center gap-2 flex-1">
+                    <button type="button" onClick={() => {
+                      const isOn = (editData.discount_percent ?? 0) > 0;
+                      if (isOn) {
+                        setEditData({ ...editData, discount_percent: 0, price: editData.original_price ?? editData.price ?? 0 });
+                      } else {
+                        setEditData({ ...editData, discount_percent: 10 });
+                      }
+                    }} className={`w-9 h-5 rounded-full relative transition-colors ${(editData.discount_percent ?? 0) > 0 ? "bg-[#111]" : "bg-[#ddd]"}`}>
+                      <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all ${(editData.discount_percent ?? 0) > 0 ? "left-[18px]" : "left-0.5"}`} />
+                    </button>
+                    {(editData.discount_percent ?? 0) > 0 && (
+                      <>
+                        <input type="text" inputMode="numeric" value={editData.discount_percent ?? 0} onChange={(e) => {
+                          const disc = parseInt(e.target.value) || 0;
+                          const orig = editData.original_price ?? editData.price ?? 0;
+                          const fp = disc > 0 ? Math.round(orig * (1 - disc / 100)) : orig;
+                          setEditData({ ...editData, discount_percent: disc, price: fp });
+                        }} className="w-[40px] border border-[#ddd] px-1 py-0.5 text-[13px] text-right outline-none focus:border-[#111]" />
+                        <span className="text-[12px] text-[#999]">%</span>
+                        <span className="text-[12px] text-[#999]">→</span>
+                        <span className="text-[13px] font-bold text-red-600">₩{(editData.price ?? 0).toLocaleString()}</span>
+                      </>
+                    )}
+                  </div>
+                </div>
                 <Field label="Version" value={editData.version ?? ""} onChange={(v) => setEditData({ ...editData, version: v })} />
                 <Field label="Compatibility" value={editData.compatibility ?? ""} onChange={(v) => setEditData({ ...editData, compatibility: v })} />
                 <div className="flex gap-2 mb-2">
@@ -270,7 +303,7 @@ export default function AdminProducts() {
                 </div>
               </div>
             ) : (
-              <div className="flex items-center border-b border-[#ddd] py-1.5 gap-2">
+              <div className="flex items-center border-b border-[#ddd] py-2 gap-2">
                 <div className="flex gap-0.5 shrink-0">
                   <button onClick={() => moveProduct(i, 'up')} disabled={i === 0} className="bg-transparent border-0 p-0 cursor-pointer disabled:opacity-15 hover:opacity-60"><svg width="8" height="5" viewBox="0 0 10 6" fill="none"><path d="M1 5L5 1L9 5" stroke="#999" strokeWidth="1.2"/></svg></button>
                   <button onClick={() => moveProduct(i, 'down')} disabled={i === filteredProducts.length - 1} className="bg-transparent border-0 p-0 cursor-pointer disabled:opacity-15 hover:opacity-60"><svg width="8" height="5" viewBox="0 0 10 6" fill="none"><path d="M1 1L5 5L9 1" stroke="#999" strokeWidth="1.2"/></svg></button>
@@ -278,11 +311,16 @@ export default function AdminProducts() {
                 <span className="text-[10px] text-[#ccc] w-4 text-center shrink-0">{i + 1}</span>
                 {p.thumbnail_url ? (<img src={p.thumbnail_url} alt="" className="w-5 h-5 object-contain shrink-0" />) : (<div className="w-5 h-5 bg-[#f5f5f5] border border-[#ddd] shrink-0" />)}
                 <span className="text-[12px] font-bold truncate min-w-0 flex-1">{p.display_name}</span>
-                <div className="flex items-center gap-1 shrink-0">
-                  <input type="text" inputMode="numeric" key={p.id + '-price'} defaultValue={p.original_price ?? p.price} onBlur={async (e) => { const val = parseInt(e.target.value) || 0; const disc = p.discount_percent ?? 0; const fp = disc > 0 ? Math.round(val * (1 - disc / 100)) : val; await supabase.from('products').update({ original_price: val, price: fp }).eq('id', p.id); load(); }} className="w-[60px] border border-[#ddd] px-1 py-0.5 text-[11px] text-right outline-none focus:border-[#111]" />
-                  <input type="text" inputMode="numeric" key={p.id + '-disc'} defaultValue={p.discount_percent ?? 0} onBlur={async (e) => { const disc = parseInt(e.target.value) || 0; const orig = p.original_price ?? p.price; const fp = disc > 0 ? Math.round(orig * (1 - disc / 100)) : orig; await supabase.from('products').update({ discount_percent: disc, price: fp }).eq('id', p.id); load(); }} className="w-[28px] border border-[#ddd] px-0.5 py-0.5 text-[11px] text-right outline-none focus:border-[#111]" />
-                  <span className="text-[10px] text-[#999]">%</span>
-                  {(p.discount_percent ?? 0) > 0 && (<span className="text-[11px] font-bold text-red-600 ml-0.5">{p.price.toLocaleString()}</span>)}
+                <div className="flex items-center gap-1 shrink-0 text-[11px]">
+                  {(p.discount_percent ?? 0) > 0 ? (
+                    <>
+                      <span className="text-[#ccc] line-through">₩{(p.original_price ?? p.price).toLocaleString()}</span>
+                      <span className="font-bold text-red-600">₩{p.price.toLocaleString()}</span>
+                      <span className="text-red-500 text-[10px]">-{p.discount_percent}%</span>
+                    </>
+                  ) : (
+                    <span className="text-[#666]">₩{p.price.toLocaleString()}</span>
+                  )}
                 </div>
                 <button onClick={() => startEdit(p)} className="text-[10px] text-[#999] bg-transparent border border-[#ddd] px-2 py-0.5 cursor-pointer hover:bg-[#f5f5f5] shrink-0">Edit</button>
                 <button onClick={() => deleteProduct(p.id, p.display_name)} className="text-[10px] text-red-500 bg-transparent border border-[#ddd] px-2 py-0.5 cursor-pointer hover:bg-red-50 shrink-0">Del</button>

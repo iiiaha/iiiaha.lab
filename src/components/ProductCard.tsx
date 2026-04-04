@@ -25,9 +25,16 @@ export default function ProductCard({ product }: { product: Product }) {
       <h3 className="text-[14px] font-bold group-hover:underline">
         {product.display_name}
       </h3>
-      <p className="text-[13px] text-[#666] mt-0.5">
-        {formatPrice(product.price)}
-      </p>
+      <div className="flex items-center gap-1.5 mt-0.5">
+        {(product.discount_percent ?? 0) > 0 && product.original_price ? (
+          <>
+            <span className="text-[12px] text-[#ccc] line-through">{formatPrice(product.original_price)}</span>
+            <span className="text-[13px] font-bold text-red-600">{formatPrice(product.price)}</span>
+          </>
+        ) : (
+          <span className="text-[13px] text-[#666]">{formatPrice(product.price)}</span>
+        )}
+      </div>
     </Link>
   );
 }
