@@ -76,7 +76,7 @@ export default function DeleteAccountPage() {
   }
 
   return (
-    <div className="max-w-[480px] mx-auto pt-10">
+    <div className="pt-10">
       <h1 className="text-[16px] font-bold tracking-[0.03em] mb-6">
         Delete Account
       </h1>
