@@ -60,15 +60,19 @@ export default function SystemDetailPage() {
           Systems
         </Link>
         {admin && (
-          <button onClick={async () => {
-            if (!confirm("Delete this item?")) return;
-            await supabase.from("systems").delete().eq("id", id);
-            router.push("/systems");
-          }} className="text-[11px] text-red-600 border border-[#ddd] bg-white px-3 py-1 cursor-pointer hover:bg-red-50">
-            Delete
-          </button>
+          <div className="flex items-center gap-3">
+            <Link href={`/systems/new?edit=${id}`} className="text-[12px] text-[#999] no-underline hover:underline">Edit</Link>
+            <button onClick={async () => {
+              if (!confirm("Delete this item?")) return;
+              await supabase.from("systems").delete().eq("id", id);
+              router.push("/systems");
+            }} className="text-[12px] text-[#999] bg-transparent border-0 cursor-pointer hover:underline hover:text-red-600">
+              Delete
+            </button>
+          </div>
         )}
       </div>
+      <div className="border-b border-[#111] mb-5" />
 
       {/* Image */}
       <div className="aspect-video bg-[#f5f5f5] border border-[#ddd] mb-5 flex items-center justify-center overflow-hidden">
@@ -78,8 +82,6 @@ export default function SystemDetailPage() {
           <span className="text-[#999] text-[13px]">{item.title}</span>
         )}
       </div>
-
-      <div className="border-b border-[#111] mb-4" />
 
       <h1 className="text-[15px] font-bold tracking-[0.03em] mb-3">{item.title}</h1>
 
@@ -97,7 +99,7 @@ export default function SystemDetailPage() {
 
       {/* Description */}
       {item.description && (
-        <div className="border-b border-[#ddd] py-1.5">
+        <div className="pt-1.5 pb-4">
           <div className="flex mb-2">
             <span className="w-[140px] shrink-0 text-[13px] text-[#666]">Description</span>
           </div>

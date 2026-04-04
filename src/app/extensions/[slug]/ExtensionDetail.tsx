@@ -53,6 +53,7 @@ export default function ExtensionDetail({ product }: { product: Product }) {
           Extensions
         </Link>
       </div>
+      <div className="border-b border-[#111] mb-5" />
 
       <div className="aspect-video bg-[#f5f5f5] border border-[#ddd] mb-5 flex items-center justify-center text-[#999]">
         {product.thumbnail_url ? (
@@ -65,8 +66,6 @@ export default function ExtensionDetail({ product }: { product: Product }) {
           product.display_name
         )}
       </div>
-
-      <div className="border-b border-[#111] mb-4" />
 
       <h1 className="text-[15px] font-bold tracking-[0.03em] mb-3">
         {product.name}
@@ -101,7 +100,7 @@ export default function ExtensionDetail({ product }: { product: Product }) {
         </div>
         {/* Description */}
         {product.description && (
-          <div className="border-b border-[#ddd] pt-1.5 pb-4">
+          <div className="pt-1.5 pb-4">
             <div className="flex mb-3">
               <span className="w-[140px] shrink-0 text-[13px] text-[#666]">
                 Description
