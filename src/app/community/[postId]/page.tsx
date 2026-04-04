@@ -177,7 +177,7 @@ export default function PostDetailPage() {
           <p className="text-[13px] text-[#999] py-4">No replies yet.</p>
         ) : (
           comments.map((c) => (
-            <div key={c.id} className={`border-b border-[#ddd] py-4 ${c.is_admin ? "bg-[#fafafa] -mx-4 px-4" : ""}`}>
+            <div key={c.id} className={`border-b border-[#ddd] py-4 ${c.is_admin ? "bg-[#fafafa] px-4" : ""}`}>
               <div className="flex items-center gap-2 mb-2">
                 {c.is_admin && (
                   <span className="text-[10px] font-bold text-white bg-[#111] px-1.5 py-0.5">
