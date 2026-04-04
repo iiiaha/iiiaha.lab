@@ -68,6 +68,27 @@ export default function CommunityPage() {
     load();
   }, []);
 
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+
+  const toggleSelect = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const deleteSelected = async () => {
+    if (!confirm(`Delete ${selected.size} post(s)?`)) return;
+    for (const id of selected) {
+      await supabase.from("comments").delete().eq("post_id", id);
+      await supabase.from("posts").delete().eq("id", id);
+    }
+    setPosts((prev) => prev.filter((p) => !selected.has(p.id)));
+    setSelected(new Set());
+  };
+
   const filtered = filter === "all" ? posts : posts.filter((p) => p.category === filter);
   const totalPages = Math.ceil(filtered.length / PER_PAGE);
   const paged = filtered.slice(page * PER_PAGE, (page + 1) * PER_PAGE);
@@ -75,14 +96,24 @@ export default function CommunityPage() {
   const header = (
     <div className="flex items-center justify-between mb-6">
       <h1 className="text-[16px] font-bold tracking-[0.03em]">Community</h1>
-      {loggedIn && (
-        <Link
-          href="/community/new"
-          className="text-[12px] text-[#111] border border-[#111] px-4 py-2 no-underline hover:bg-[#111] hover:text-white transition-colors font-bold"
-        >
-          New Post
-        </Link>
-      )}
+      <div className="flex items-center gap-2">
+        {admin && selected.size > 0 && (
+          <button
+            onClick={deleteSelected}
+            className="text-[12px] text-red-600 border border-red-300 px-3 py-2 cursor-pointer hover:bg-red-50 transition-colors font-bold"
+          >
+            Delete ({selected.size})
+          </button>
+        )}
+        {loggedIn && (
+          <Link
+            href="/community/new"
+            className="text-[12px] text-[#111] border border-[#111] px-4 py-2 no-underline hover:bg-[#111] hover:text-white transition-colors font-bold"
+          >
+            New Post
+          </Link>
+        )}
+      </div>
     </div>
   );
 
@@ -118,15 +149,19 @@ export default function CommunityPage() {
           {paged.length === 0 ? (
             <p className="text-[14px] text-[#999] py-6">No posts yet.</p>
           ) : (
-            paged.map((post) => {
-              const canEdit = currentUserId === post.user_id || admin;
-              const canDelete = admin || currentUserId === post.user_id;
-
-              return (
-                <div key={post.id} className="flex items-center justify-between border-b border-[#ddd] py-3 group">
+            paged.map((post) => (
+                <div key={post.id} className="flex items-center border-b border-[#ddd] py-3">
+                  {admin && (
+                    <input
+                      type="checkbox"
+                      checked={selected.has(post.id)}
+                      onChange={() => toggleSelect(post.id)}
+                      className="mr-3 shrink-0 cursor-pointer"
+                    />
+                  )}
                   <Link
                     href={`/community/${post.id}`}
-                    className="flex items-center gap-2 flex-1 min-w-0 no-underline"
+                    className="flex items-center gap-2 flex-1 min-w-0 no-underline hover:bg-[#fafafa] transition-colors"
                   >
                     <span className={`text-[10px] font-bold text-white px-1.5 py-0.5 shrink-0 ${
                       post.category === "idea"
@@ -152,29 +187,6 @@ export default function CommunityPage() {
                     )}
                   </Link>
                   <div className="flex items-center gap-3 shrink-0 text-[11px] text-[#999] ml-4">
-                    {/* Edit/Delete — visible on hover */}
-                    {canEdit && (
-                      <Link
-                        href={`/community/${post.id}`}
-                        className="text-[10px] text-[#ccc] no-underline hover:text-[#111] opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        edit
-                      </Link>
-                    )}
-                    {canDelete && (
-                      <button
-                        onClick={async (e) => {
-                          e.preventDefault();
-                          if (!confirm("Delete this post?")) return;
-                          await supabase.from("comments").delete().eq("post_id", post.id);
-                          await supabase.from("posts").delete().eq("id", post.id);
-                          setPosts((prev) => prev.filter((p) => p.id !== post.id));
-                        }}
-                        className="text-[10px] text-[#ccc] bg-transparent border-0 cursor-pointer hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        delete
-                      </button>
-                    )}
                     {post.products && (
                       <span className="text-[11px] text-[#bbb]">
                         {post.products.display_name}
@@ -193,8 +205,7 @@ export default function CommunityPage() {
                     </span>
                   </div>
                 </div>
-              );
-            })
+            ))
           )}
         </div>
       )}
