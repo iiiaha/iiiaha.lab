@@ -37,18 +37,18 @@ export default function SystemsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between min-h-[36px] mb-4">
-        <h1 className="text-[16px] font-bold tracking-[0.03em]">Systems</h1>
+      <h1 className="text-[16px] font-bold tracking-[0.03em] mb-1">Systems</h1>
+      <div className="border-b border-[#111] mb-4" />
+      <div className="flex justify-end mb-6">
         {admin && (
           <Link
             href="/systems/new"
-            className="text-[12px] text-[#111] border border-[#111] px-4 py-2 no-underline hover:bg-[#111] hover:text-white transition-colors font-bold"
+            className="text-[12px] text-[#111] border border-[#111] px-4 py-1.5 no-underline hover:bg-[#111] hover:text-white transition-colors font-bold"
           >
             + Add
           </Link>
         )}
       </div>
-      <div className="border-b border-[#111] mb-6" />
 
       {loading ? (
         <p className="text-[14px] text-[#999]">Loading...</p>

@@ -97,52 +97,44 @@ export default function CommunityPage() {
   const totalPages = Math.ceil(filtered.length / PER_PAGE);
   const paged = filtered.slice(page * PER_PAGE, (page + 1) * PER_PAGE);
 
-  const header = (
-    <div className="flex items-center justify-between min-h-[36px] mb-4">
-      <h1 className="text-[16px] font-bold tracking-[0.03em]">Community</h1>
-      <div className="flex items-center gap-2">
-        {admin && selected.size > 0 && (
-          <button
-            onClick={deleteSelected}
-            className="text-[12px] text-red-600 border border-red-300 px-3 py-2 cursor-pointer hover:bg-red-50 transition-colors font-bold"
-          >
-            Delete ({selected.size})
-          </button>
-        )}
-        {loggedIn && (
-          <Link
-            href={`/community/new${filter === "bug" ? "?category=bug" : "?category=idea"}`}
-            className="text-[12px] text-[#111] border border-[#111] px-4 py-2 no-underline hover:bg-[#111] hover:text-white transition-colors font-bold"
-          >
-            New Post
-          </Link>
-        )}
-      </div>
-    </div>
-  );
-
   return (
     <div>
-      {header}
+      <h1 className="text-[16px] font-bold tracking-[0.03em] mb-1">Community</h1>
       <div className="border-b border-[#111] mb-4" />
 
-      {/* Filter tabs */}
-      <div className="flex gap-6 text-[13px] tracking-[0.05em] mb-6">
-        {([
-          { key: "all", label: "All" },
-          { key: "idea", label: "Ideas" },
-          { key: "bug", label: "Questions / Bugs" },
-        ] as const).map(({ key, label }) => (
-          <button
-            key={key}
-            onClick={() => { setFilter(key); setPage(0); }}
-            className={`border-0 bg-transparent cursor-pointer text-[13px] tracking-[0.05em] hover:underline ${
-              filter === key ? "font-bold" : "text-[#666]"
-            }`}
-          >
-            {label}
-          </button>
-        ))}
+      {/* Actions + Filter tabs */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex gap-6 text-[13px] tracking-[0.05em]">
+          {([
+            { key: "all", label: "All" },
+            { key: "idea", label: "Ideas" },
+            { key: "bug", label: "Questions / Bugs" },
+          ] as const).map(({ key, label }) => (
+            <button
+              key={key}
+              onClick={() => { setFilter(key); setPage(0); }}
+              className={`border-0 bg-transparent cursor-pointer text-[13px] tracking-[0.05em] hover:underline ${
+                filter === key ? "font-bold" : "text-[#666]"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        <div className="flex items-center gap-2">
+          {admin && selected.size > 0 && (
+            <button onClick={deleteSelected}
+              className="text-[12px] text-red-600 border border-red-300 px-3 py-1.5 cursor-pointer hover:bg-red-50 transition-colors font-bold">
+              Delete ({selected.size})
+            </button>
+          )}
+          {loggedIn && (
+            <Link href={`/community/new${filter === "bug" ? "?category=bug" : "?category=idea"}`}
+              className="text-[12px] text-[#111] border border-[#111] px-4 py-1.5 no-underline hover:bg-[#111] hover:text-white transition-colors font-bold">
+              New Post
+            </Link>
+          )}
+        </div>
       </div>
 
       {/* Posts */}
