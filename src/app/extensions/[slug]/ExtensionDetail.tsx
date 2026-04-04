@@ -68,7 +68,7 @@ export default function ExtensionDetail({ product }: { product: Product }) {
         {info.map(
           ({ label, value }) =>
             value && (
-              <div key={label} className="flex border-b border-[#ddd] py-2">
+              <div key={label} className="flex border-b border-[#ddd] py-1">
                 <span className="w-[140px] shrink-0 text-[13px] text-[#666]">
                   {label}
                 </span>
@@ -77,7 +77,7 @@ export default function ExtensionDetail({ product }: { product: Product }) {
             )
         )}
         {/* Price */}
-        <div className="flex border-b border-[#ddd] py-2">
+        <div className="flex border-b border-[#ddd] py-1">
           <span className="w-[140px] shrink-0 text-[13px] text-[#666]">Price</span>
           <div className="flex items-center gap-2">
             {(product.discount_percent ?? 0) > 0 && product.original_price ? (
@@ -93,13 +93,13 @@ export default function ExtensionDetail({ product }: { product: Product }) {
         </div>
         {/* Description */}
         {product.description && (
-          <div className="border-b border-[#ddd] py-2.5">
+          <div className="border-b border-[#ddd] py-1.5">
             <div className="flex mb-3">
               <span className="w-[140px] shrink-0 text-[13px] text-[#666]">
                 Description
               </span>
             </div>
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-1">
               {product.description.split("\n").map((line, i) => {
                 const match = line.match(/^[•]\s*(.+?)\s*[—]\s*(.+)$/);
                 if (match) {
@@ -124,8 +124,8 @@ export default function ExtensionDetail({ product }: { product: Product }) {
             </div>
             {product.description_ko && (
               <>
-                <div className="border-t border-[#eee] my-3" />
-                <div className="flex flex-col gap-2">
+                <div className="border-t border-[#eee] my-1.5" />
+                <div className="flex flex-col gap-1">
                   {product.description_ko.split("\n").map((line, i) => {
                     const match = line.match(/^[•]\s*(.+?)\s*[—]\s*(.+)$/);
                     if (match) {

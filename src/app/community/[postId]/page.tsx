@@ -163,7 +163,7 @@ export default function PostDetailPage() {
 
       {/* Info table */}
       <div className="border-t border-[#ddd]">
-        <div className="flex border-b border-[#ddd] py-2">
+        <div className="flex border-b border-[#ddd] py-1">
           <span className="w-[140px] shrink-0 text-[13px] text-[#666]">Category</span>
           <span className={`text-[10px] font-bold text-white px-1.5 py-0.5 ${
             post.category === "notice" ? "bg-[#00C864]" : post.category === "idea" ? "bg-[#0096D7]" : "bg-[#DC0A7D]"
@@ -172,27 +172,27 @@ export default function PostDetailPage() {
           </span>
         </div>
         {post.products && (
-          <div className="flex border-b border-[#ddd] py-2">
+          <div className="flex border-b border-[#ddd] py-1">
             <span className="w-[140px] shrink-0 text-[13px] text-[#666]">Extension</span>
             <span className="text-[13px]">{post.products.display_name}</span>
           </div>
         )}
-        <div className="flex border-b border-[#ddd] py-2">
+        <div className="flex border-b border-[#ddd] py-1">
           <span className="w-[140px] shrink-0 text-[13px] text-[#666]">Author</span>
           <span className="text-[13px]">{authorName || "—"}</span>
         </div>
-        <div className="flex border-b border-[#ddd] py-2">
+        <div className="flex border-b border-[#ddd] py-1">
           <span className="w-[140px] shrink-0 text-[13px] text-[#666]">Date</span>
           <span className="text-[13px]">{new Date(post.created_at).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}</span>
         </div>
-        <div className="flex border-b border-[#ddd] py-2">
+        <div className="flex border-b border-[#ddd] py-1">
           <span className="w-[140px] shrink-0 text-[13px] text-[#666]">Status</span>
           <span className={`text-[13px] ${post.status === "resolved" ? "text-green-600" : post.status === "closed" ? "text-[#ccc]" : ""}`}>{post.status.charAt(0).toUpperCase() + post.status.slice(1)}</span>
         </div>
       </div>
 
       {/* Description */}
-      <div className="border-b border-[#ddd] py-2.5">
+      <div className="border-b border-[#ddd] py-1.5">
         <div className="flex mb-2">
           <span className="w-[140px] shrink-0 text-[13px] text-[#666]">Description</span>
         </div>

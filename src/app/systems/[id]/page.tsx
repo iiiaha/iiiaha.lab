@@ -85,7 +85,7 @@ export default function SystemDetailPage() {
       <div className="border-t border-[#ddd]">
         {info.map(({ label, value }) =>
           value && (
-            <div key={label} className="flex border-b border-[#ddd] py-2">
+            <div key={label} className="flex border-b border-[#ddd] py-1">
               <span className="w-[140px] shrink-0 text-[13px] text-[#666]">{label}</span>
               <span className="text-[13px]">{value}</span>
             </div>
@@ -95,7 +95,7 @@ export default function SystemDetailPage() {
 
       {/* Description */}
       {item.description && (
-        <div className="border-b border-[#ddd] py-2.5">
+        <div className="border-b border-[#ddd] py-1.5">
           <div className="flex mb-2">
             <span className="w-[140px] shrink-0 text-[13px] text-[#666]">Description</span>
           </div>
