@@ -10,6 +10,7 @@ export default function Header() {
   const pathname = usePathname();
   const [loggedIn, setLoggedIn] = useState(false);
   const [admin, setAdmin] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     getUser().then(async (u) => {
@@ -24,6 +25,11 @@ export default function Header() {
     return () => data.subscription.unsubscribe();
   }, []);
 
+  // 페이지 이동 시 메뉴 닫기
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [pathname]);
+
   const navItems = [
     { href: "/extensions", label: "Extensions" },
     { href: "/courses", label: "Courses" },
@@ -37,11 +43,13 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 bg-white">
       <div className="max-w-[800px] mx-auto px-10 max-sm:px-5">
-        <div className="flex items-center justify-between py-8">
-          <Link href="/" className="no-underline hover:no-underline">
-            <img src="/profile.png" alt="" className="w-[80px] h-[80px] rounded-full object-cover" />
+        <div className="flex items-center justify-between py-8 max-md:py-5">
+          <Link href="/" className="no-underline hover:no-underline shrink-0">
+            <img src="/profile.png" alt="" className="w-[80px] h-[80px] max-md:w-[50px] max-md:h-[50px] rounded-full object-cover" />
           </Link>
-          <nav className="flex gap-5">
+
+          {/* Desktop nav */}
+          <nav className="hidden md:flex gap-5">
             {navItems.map(({ href, label }) => (
               <Link
                 key={href}
@@ -54,7 +62,45 @@ export default function Header() {
               </Link>
             ))}
           </nav>
+
+          {/* Mobile hamburger */}
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="md:hidden bg-transparent border-0 cursor-pointer p-1"
+          >
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#111" strokeWidth="1.5">
+              {menuOpen ? (
+                <>
+                  <path d="M4 4L16 16" />
+                  <path d="M16 4L4 16" />
+                </>
+              ) : (
+                <>
+                  <path d="M2 5H18" />
+                  <path d="M2 10H18" />
+                  <path d="M2 15H18" />
+                </>
+              )}
+            </svg>
+          </button>
         </div>
+
+        {/* Mobile dropdown */}
+        {menuOpen && (
+          <nav className="md:hidden flex flex-col border-t border-[#eee] pb-4">
+            {navItems.map(({ href, label }) => (
+              <Link
+                key={href}
+                href={href}
+                className={`py-2.5 text-[13px] no-underline hover:underline ${
+                  pathname.startsWith(href) ? "font-bold" : "text-[#666]"
+                }`}
+              >
+                {label}
+              </Link>
+            ))}
+          </nav>
+        )}
       </div>
     </header>
   );

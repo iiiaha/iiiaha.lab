@@ -33,7 +33,7 @@ export default function CoursesPage() {
       ) : courses.length === 0 ? (
         <p className="text-[14px] text-[#999]">Coming soon.</p>
       ) : (
-        <div className="grid grid-cols-3 gap-x-8 gap-y-10 max-md:grid-cols-2 max-sm:grid-cols-1">
+        <div className="grid grid-cols-3 gap-x-4 gap-y-6 max-sm:gap-x-2 max-sm:gap-y-4">
           {courses.map((course) => (
             <ProductCard
               key={course.slug}
