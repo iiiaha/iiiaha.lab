@@ -28,6 +28,8 @@ export default function AdminProducts() {
   const [message, setMessage] = useState("");
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
   const [platformTab, setPlatformTab] = useState<"all" | "sketchup" | "autocad" | "course">("all");
+  const [dragIdx, setDragIdx] = useState<number | null>(null);
+  const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
 
   const filteredProducts = useMemo(() => {
     if (platformTab === "all") return products;
@@ -48,6 +50,22 @@ export default function AdminProducts() {
   const showMessage = (msg: string) => {
     setMessage(msg);
     setTimeout(() => setMessage(""), 3000);
+  };
+
+  // Drag reorder
+  const handleDrop = async (fromIdx: number, toIdx: number) => {
+    if (fromIdx === toIdx) return;
+    const reordered = [...filteredProducts];
+    const [moved] = reordered.splice(fromIdx, 1);
+    reordered.splice(toIdx, 0, moved);
+
+    // Update sort_order for all affected items
+    const updates = reordered.map((p, i) =>
+      supabase.from("products").update({ sort_order: i }).eq("id", p.id)
+    );
+    await Promise.all(updates);
+    showMessage("Order updated");
+    load();
   };
 
   // Reorder
@@ -321,11 +339,25 @@ export default function AdminProducts() {
       <div className="border-t border-[#ddd]">
         {filteredProducts.map((p, i) => (
           <div key={p.id}>
-              <div className={`flex items-center border-b border-[#ddd] py-2 gap-2 ${editing === p.id ? "bg-[#f8f8f8]" : ""}`}>
-                <div className="flex gap-0.5 shrink-0">
-                  <button onClick={() => moveProduct(i, 'up')} disabled={i === 0} className="bg-transparent border-0 p-0 cursor-pointer disabled:opacity-15 hover:opacity-60"><svg width="8" height="5" viewBox="0 0 10 6" fill="none"><path d="M1 5L5 1L9 5" stroke="#999" strokeWidth="1.2"/></svg></button>
-                  <button onClick={() => moveProduct(i, 'down')} disabled={i === filteredProducts.length - 1} className="bg-transparent border-0 p-0 cursor-pointer disabled:opacity-15 hover:opacity-60"><svg width="8" height="5" viewBox="0 0 10 6" fill="none"><path d="M1 1L5 5L9 1" stroke="#999" strokeWidth="1.2"/></svg></button>
-                </div>
+              <div
+                draggable
+                onDragStart={() => setDragIdx(i)}
+                onDragOver={(e) => { e.preventDefault(); setDragOverIdx(i); }}
+                onDragLeave={() => setDragOverIdx(null)}
+                onDrop={() => { if (dragIdx !== null) handleDrop(dragIdx, i); setDragIdx(null); setDragOverIdx(null); }}
+                onDragEnd={() => { setDragIdx(null); setDragOverIdx(null); }}
+                className={`flex items-center border-b border-[#ddd] py-2 gap-2 transition-colors ${
+                  editing === p.id ? "bg-[#f8f8f8]" : ""
+                } ${dragOverIdx === i ? "border-t-2 border-t-[#111]" : ""} ${dragIdx === i ? "opacity-40" : ""}`}
+              >
+                {/* Drag handle */}
+                <span className="shrink-0 cursor-grab active:cursor-grabbing text-[#ccc] hover:text-[#999]">
+                  <svg width="10" height="14" viewBox="0 0 10 14" fill="currentColor">
+                    <circle cx="3" cy="2" r="1.2"/><circle cx="7" cy="2" r="1.2"/>
+                    <circle cx="3" cy="7" r="1.2"/><circle cx="7" cy="7" r="1.2"/>
+                    <circle cx="3" cy="12" r="1.2"/><circle cx="7" cy="12" r="1.2"/>
+                  </svg>
+                </span>
                 <span className="text-[10px] text-[#ccc] w-4 text-center shrink-0">{i + 1}</span>
                 {p.thumbnail_url ? (<img src={p.thumbnail_url} alt="" className="w-5 h-5 object-contain shrink-0" />) : (<div className="w-5 h-5 bg-[#f5f5f5] border border-[#ddd] shrink-0" />)}
                 <span className="text-[12px] font-bold truncate min-w-0 flex-1">{p.display_name}</span>
