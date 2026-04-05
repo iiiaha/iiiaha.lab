@@ -1,7 +1,5 @@
 @import "tailwindcss";
 
-@custom-variant dark (&:not(*));
-
 :root {
   --background: #ffffff;
   --foreground: #111111;
@@ -13,18 +11,6 @@
 
 html {
   overflow-y: scroll;
-  color-scheme: light only;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #ffffff;
-    --foreground: #111111;
-  }
-  html, body, * {
-    background-color: inherit;
-    color: inherit;
-  }
 }
 
 body {
