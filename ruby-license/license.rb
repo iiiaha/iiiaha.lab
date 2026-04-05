@@ -6,8 +6,7 @@ require 'fileutils'
 
 module Iiiaha
   module License
-    # 이미 로드되었으면 스킵
-    return if defined?(@loaded) && @loaded
+    unless defined?(@loaded) && @loaded
     @loaded = true
 
     SERVER_URL = "https://your-domain.com/api/license"
@@ -233,5 +232,6 @@ module Iiiaha
       vp_h = Sketchup.active_model.active_view.vpheight
       dlg.set_position([(vp_w - 340) / 2, 0].max, [(vp_h - 200) / 2, 0].max)
     end
+  end # unless @loaded
   end
 end
