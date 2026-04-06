@@ -9,9 +9,9 @@ module Iiiaha
     unless defined?(@loaded) && @loaded
     @loaded = true
 
-    SERVER_URL = "https://your-domain.com/api/license"
-    VERSION_URL = "https://your-domain.com/api/version"
-    SITE_URL = "https://your-domain.com"
+    SERVER_URL = "https://iiiahalab.com/api/license"
+    VERSION_URL = "https://iiiahalab.com/api/version"
+    SITE_URL = "https://iiiahalab.com"
     GRACE_DAYS = 3
 
     # ─── 하드웨어 ID ───
