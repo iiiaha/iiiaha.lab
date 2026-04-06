@@ -230,23 +230,18 @@ module Iiiaha
         UI.openURL(url)
       end
 
-      dlg.set_file(html_path)
-
-      # 제품 이름과 아이콘 경로 전달
+      # 제품 이름과 아이콘 경로
       icon_path = File.join(File.dirname(__FILE__), 'icon.png')
       icon_url = File.exist?(icon_path) ? "file:///#{icon_path.gsub('\\', '/')}" : ""
-      display_name = product_slug.split('_').map(&:capitalize).join(' ')
+      display_name = product_slug
 
-      dlg.add_action_callback('ready') do |_|
-        dlg.execute_script("setProductInfo('#{display_name}', '#{icon_url}')")
+      dlg.add_action_callback('getProductInfo') do |_ctx|
+        js = "setProductInfo('#{display_name}', '#{icon_url}')"
+        dlg.execute_script(js)
       end
 
+      dlg.set_file(html_path)
       dlg.show
-
-      # 약간의 딜레이 후 제품 정보 전달
-      UI.start_timer(0.3, false) do
-        dlg.execute_script("setProductInfo('#{display_name}', '#{icon_url}')") rescue nil
-      end
 
       # 겹치지 않게 오프셋 배치
       offset = @dialog_count * 30

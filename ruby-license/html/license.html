@@ -152,6 +152,11 @@
     }
     fitDialog();
 
+    // 페이지 로드 후 Ruby에 제품 정보 요청
+    window.addEventListener('load', function() {
+      sketchup.getProductInfo();
+    });
+
     function setProductInfo(name, iconPath) {
       document.getElementById('product-name').textContent = name;
       if (iconPath) {
