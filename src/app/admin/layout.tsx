@@ -44,6 +44,15 @@ export default function AdminLayout({
     check();
   }, [router]);
 
+  // 관리자 페이지에서는 상단 헤더 메뉴 숨김
+  useEffect(() => {
+    const header = document.querySelector("header");
+    if (header) header.style.display = "none";
+    return () => {
+      if (header) header.style.display = "";
+    };
+  }, []);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh] text-[14px] text-[#999]">
@@ -53,15 +62,6 @@ export default function AdminLayout({
   }
 
   if (!authorized) return null;
-
-  // 관리자 페이지에서는 상단 헤더 메뉴 숨김
-  useEffect(() => {
-    const header = document.querySelector("header");
-    if (header) header.style.display = "none";
-    return () => {
-      if (header) header.style.display = "";
-    };
-  }, []);
 
   return (
     <div className="flex gap-0 min-h-[70vh] -mx-10 -my-8 max-sm:-mx-5">
