@@ -240,7 +240,7 @@ export default function MyPage() {
                             Update to v{ver.latest}
                           </a>
                         )}
-                        <Link href={`/community/new?product=${slug}`}
+                        <Link href={`/openlab/new?product=${slug}`}
                           className="w-full text-[12px] text-[#111] border border-[#111] px-4 py-1.5 no-underline hover:bg-[#111] hover:text-white transition-colors text-center">
                           Questions & Bugs
                         </Link>

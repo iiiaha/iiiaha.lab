@@ -12,7 +12,7 @@ const NAV = [
   { href: "/admin/orders", label: "주문 관리", icon: "O" },
   { href: "/admin/licenses", label: "라이선스", icon: "L" },
   { href: "/admin/courses", label: "강의 관리", icon: "C" },
-  { href: "/admin/community", label: "커뮤니티", icon: "!" },
+  { href: "/admin/openlab", label: "오픈랩", icon: "!" },
   { href: "/admin/coupons", label: "쿠폰", icon: "%" },
   { href: "/admin/users", label: "사용자", icon: "U" },
 ];

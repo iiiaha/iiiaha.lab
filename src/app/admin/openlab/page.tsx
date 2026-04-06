@@ -22,7 +22,7 @@ const statusStyle = (s: string) => {
   return "text-[#999]";
 };
 
-export default function AdminCommunity() {
+export default function AdminOpenLab() {
   const supabase = createClient();
   const [posts, setPosts] = useState<Post[]>([]);
   const [filter, setFilter] = useState("all");
@@ -55,7 +55,7 @@ export default function AdminCommunity() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <h1 className="text-[16px] font-bold tracking-[0.03em]">Community</h1>
+          <h1 className="text-[16px] font-bold tracking-[0.03em]">Open Lab</h1>
           {message && <span className="text-[11px] text-green-600">{message}</span>}
         </div>
         <span className="text-[12px] text-[#999]">
@@ -97,7 +97,7 @@ export default function AdminCommunity() {
                     <span className="text-[10px] text-[#999]">{p.products.display_name}</span>
                   )}
                 </div>
-                <Link href={`/community/${p.id}`} className="text-[13px] font-bold hover:underline">
+                <Link href={`/openlab/${p.id}`} className="text-[13px] font-bold hover:underline">
                   {p.title}
                 </Link>
               </div>

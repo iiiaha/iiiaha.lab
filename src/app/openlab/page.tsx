@@ -26,7 +26,7 @@ const statusStyle = (s: string) => {
 
 const PER_PAGE = 10;
 
-export default function CommunityPage() {
+export default function OpenLabPage() {
   const supabase = createClient();
   const [posts, setPosts] = useState<Post[]>([]);
   const [filter, setFilter] = useState<"all" | "idea" | "bug">("all");
@@ -100,7 +100,7 @@ export default function CommunityPage() {
   return (
     <div>
       <div className="flex items-baseline justify-between mb-[10px]">
-        <h1 className="text-[16px] font-bold tracking-[0.03em]">Community</h1>
+        <h1 className="text-[16px] font-bold tracking-[0.03em]">Open Lab</h1>
         <div className="flex items-center gap-3">
           {admin && selected.size > 0 && (
             <button onClick={deleteSelected}
@@ -109,7 +109,7 @@ export default function CommunityPage() {
             </button>
           )}
           {loggedIn && (
-            <Link href={`/community/new${filter === "bug" ? "?category=bug" : "?category=idea"}`}
+            <Link href={`/openlab/new${filter === "bug" ? "?category=bug" : "?category=idea"}`}
               className="text-[12px] text-[#999] no-underline hover:underline">
               + New Post
             </Link>
@@ -177,7 +177,7 @@ export default function CommunityPage() {
                     />
                   )}
                   <Link
-                    href={`/community/${post.id}`}
+                    href={`/openlab/${post.id}`}
                     className="flex items-center gap-2 flex-1 min-w-0 no-underline group/link"
                   >
                     <span className={`text-[10px] font-bold text-white px-1.5 py-0.5 shrink-0 w-[46px] text-center ${

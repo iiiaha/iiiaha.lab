@@ -123,7 +123,7 @@ function PostForm() {
 
     if (imageFile) {
       const ext = imageFile.name.split(".").pop();
-      const path = `community/${userId}/${Date.now()}.${ext}`;
+      const path = `openlab/${userId}/${Date.now()}.${ext}`;
       const { error: uploadErr } = await supabase.storage
         .from("uploads")
         .upload(path, imageFile, { upsert: true });
@@ -151,7 +151,7 @@ function PostForm() {
         setLoading(false);
         return;
       }
-      router.push(`/community/${editId}`);
+      router.push(`/openlab/${editId}`);
     } else {
       // 신규
       const { data: post, error: insertErr } = await supabase
@@ -172,7 +172,7 @@ function PostForm() {
         setLoading(false);
         return;
       }
-      router.push(`/community/${post.id}`);
+      router.push(`/openlab/${post.id}`);
     }
   };
 
@@ -182,9 +182,9 @@ function PostForm() {
 
   return (
     <div className="pt-10">
-      <Link href="/community" className="flex items-center gap-1.5 text-[12px] text-[#999] no-underline hover:underline mb-6">
+      <Link href="/openlab" className="flex items-center gap-1.5 text-[12px] text-[#999] no-underline hover:underline mb-6">
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6L8 10" stroke="#999" strokeWidth="1.2"/></svg>
-        Community
+        Open Lab
       </Link>
 
       <h1 className="text-[16px] font-bold tracking-[0.03em] mb-6">
@@ -285,7 +285,7 @@ function PostForm() {
 
         {/* Submit */}
         <div className="flex gap-3 mt-2 justify-end">
-          <Link href={isEdit ? `/community/${editId}` : "/community"}
+          <Link href={isEdit ? `/openlab/${editId}` : "/openlab"}
             className="text-[#111] text-[13px] font-bold px-6 py-3 border border-[#ddd] no-underline hover:bg-[#f5f5f5] transition-colors flex items-center">
             Cancel
           </Link>

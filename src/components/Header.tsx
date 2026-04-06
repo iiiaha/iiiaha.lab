@@ -36,7 +36,7 @@ export default function Header() {
     { href: "/extensions", label: "Extensions" },
     { href: "/courses", label: "Courses" },
     { href: "/systems", label: "Systems" },
-    { href: "/community", label: "Community" },
+    { href: "/openlab", label: "Open Lab" },
     loggedIn
       ? { href: "/mypage", label: "My Page" }
       : { href: "/login", label: "Login" },

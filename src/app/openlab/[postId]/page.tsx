@@ -50,7 +50,7 @@ export default function PostDetailPage() {
       .eq("id", postId)
       .single();
 
-    if (!p) { router.push("/community"); return; }
+    if (!p) { router.push("/openlab"); return; }
     setPost(p as unknown as Post);
 
     // 작성자 이름
@@ -111,12 +111,12 @@ export default function PostDetailPage() {
     <div>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <Link href="/community" className="flex items-center gap-1.5 text-[16px] font-bold tracking-[0.03em] no-underline hover:underline">
-          Community
+        <Link href="/openlab" className="flex items-center gap-1.5 text-[16px] font-bold tracking-[0.03em] no-underline hover:underline">
+          Open Lab
           <svg width="14" height="14" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6L8 10" stroke="#111" strokeWidth="1.5"/></svg>
         </Link>
         {userId && (
-          <Link href="/community/new"
+          <Link href="/openlab/new"
             className="text-[12px] text-[#111] border border-[#111] px-4 py-2 no-underline hover:bg-[#111] hover:text-white transition-colors font-bold">
             New Post
           </Link>
@@ -137,7 +137,7 @@ export default function PostDetailPage() {
         <div className="flex items-center gap-2 shrink-0">
           {(isAuthor || admin) && (
             <div className="flex gap-1">
-              <Link href={`/community/new?edit=${post.id}`}
+              <Link href={`/openlab/new?edit=${post.id}`}
                 className="text-[11px] text-[#111] border border-[#ddd] bg-white px-3 py-1 no-underline hover:bg-[#f5f5f5]">
                 Edit
               </Link>
@@ -145,7 +145,7 @@ export default function PostDetailPage() {
                 if (!confirm("Delete this post?")) return;
                 await supabase.from("comments").delete().eq("post_id", postId);
                 await supabase.from("posts").delete().eq("id", postId);
-                router.push("/community");
+                router.push("/openlab");
               }} className="text-[11px] text-red-600 border border-[#ddd] bg-white px-3 py-1 cursor-pointer hover:bg-red-50">
                 Delete
               </button>
