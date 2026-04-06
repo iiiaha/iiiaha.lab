@@ -157,6 +157,11 @@ module Iiiaha
 
     # ─── 메인 체크 ───
     def self.check(product_slug, local_version = nil, &on_success)
+      # caller에서 호출한 파일의 디렉토리를 구함 (아이콘 경로용)
+      caller_dir = File.dirname(caller_locations(1, 1)[0].path) rescue File.dirname(__FILE__)
+      @_caller_dirs ||= {}
+      @_caller_dirs[product_slug] = caller_dir
+
       cache = read_cache(product_slug)
       hwid = generate_hwid
 
@@ -199,7 +204,8 @@ module Iiiaha
 
     # ─── 라이선스 입력 다이얼로그 ───
     def self.show_license_dialog(product_slug, &on_success)
-      html_path = File.join(File.dirname(__FILE__), 'html', 'license.html')
+      ext_dir = @_caller_dirs && @_caller_dirs[product_slug] || File.dirname(__FILE__)
+      html_path = File.join(ext_dir, 'html', 'license.html')
 
       dlg = UI::HtmlDialog.new(
         dialog_title: "License — #{product_slug}",
@@ -230,8 +236,9 @@ module Iiiaha
         UI.openURL(url)
       end
 
-      # 제품 이름과 아이콘 경로
-      icon_path = File.join(File.dirname(__FILE__), 'icon.png')
+      # 제품 이름과 아이콘 경로 (호출한 익스텐션 폴더 기준)
+      ext_dir = @_caller_dirs && @_caller_dirs[product_slug] || File.dirname(__FILE__)
+      icon_path = File.join(ext_dir, 'icon.png')
       icon_url = File.exist?(icon_path) ? "file:///#{icon_path.gsub('\\', '/')}" : ""
       display_name = product_slug
 
