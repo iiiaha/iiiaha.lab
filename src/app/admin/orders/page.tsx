@@ -34,7 +34,7 @@ export default function AdminOrders() {
     const userIds = [...new Set(data.map((o) => o.user_id))];
     const emailMap: Record<string, string> = {};
     for (const uid of userIds) {
-      const res = await fetch(`/api/user-email?id=${uid}`);
+      const res = await fetch(`/api/user-email?id=${uid}&full=true`);
       const d = await res.json();
       emailMap[uid] = d.name || uid.slice(0, 8);
     }

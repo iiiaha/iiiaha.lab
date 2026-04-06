@@ -8,6 +8,7 @@ const serviceSupabase = createClient(
 
 export async function GET(req: NextRequest) {
   const userId = req.nextUrl.searchParams.get("id");
+  const full = req.nextUrl.searchParams.get("full") === "true";
   if (!userId) {
     return NextResponse.json({ error: "Missing id" }, { status: 400 });
   }
@@ -17,8 +18,14 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ email: null });
   }
 
-  // 이메일에서 아이디 추출 + 마스킹
   const email = data.user.email;
+
+  // full=true면 전체 이메일 반환 (관리자용)
+  if (full) {
+    return NextResponse.json({ name: email });
+  }
+
+  // 마스킹 (일반 사용자용)
   const id = email.split("@")[0];
   let masked: string;
   if (id.length <= 2) {

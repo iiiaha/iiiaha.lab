@@ -46,7 +46,7 @@ export default function AdminLicenses() {
     const userIds = Object.keys(userMap);
     const groupList: UserGroup[] = [];
     for (const uid of userIds) {
-      const res = await fetch(`/api/user-email?id=${uid}`);
+      const res = await fetch(`/api/user-email?id=${uid}&full=true`);
       const data = await res.json();
       groupList.push({
         userId: uid,
