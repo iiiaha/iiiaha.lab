@@ -125,6 +125,12 @@ module Iiiaha
         hwid: token["hwid"]
       })
 
+      # 해지된 라이선스면 캐시 삭제
+      if code == 403 && data["error"]&.include?("revoked")
+        delete_cache(product_slug)
+        return { success: false, error: "License has been revoked" }
+      end
+
       if code == 200
         write_cache(product_slug, data["token"], data["signature"])
         { success: true }
@@ -203,6 +209,11 @@ module Iiiaha
               on_success.call if on_success
               check_update(product_slug, local_version) if local_version
               return true
+            elsif result[:error]&.include?("revoked")
+              # 해지됨 → 캐시 삭제, 라이선스 창 표시
+              delete_cache(product_slug)
+              show_license_dialog(product_slug, &on_success)
+              return false
             else
               # 유예 기간 (3일)
               grace_until = expires + (GRACE_DAYS * 86400)

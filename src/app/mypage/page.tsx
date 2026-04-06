@@ -161,105 +161,91 @@ export default function MyPage() {
               { year: "numeric", month: "short", day: "numeric" }
             );
 
+            const isRevoked = order.licenses?.some((l) => l.status === "revoked");
+
             return (
-              <div key={order.id} className="border-b border-[#ddd] py-5">
-                {/* Top: name + price/date/download */}
+              <div key={order.id} className={`border-b border-[#ddd] py-5 ${isRevoked ? "opacity-60" : ""}`}>
                 <div className="flex justify-between gap-6">
-                  {/* Left: product info */}
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-4">
                       {order.products?.thumbnail_url && (
-                        <img
-                          src={order.products.thumbnail_url}
-                          alt=""
-                          className="w-9 h-9 object-contain bg-[#f5f5f5] border border-[#ddd] p-0.5"
-                        />
+                        <img src={order.products.thumbnail_url} alt=""
+                          className="w-9 h-9 object-contain bg-[#f5f5f5] border border-[#ddd] p-0.5" />
                       )}
-                      <Link
-                        href={`/extensions/${slug}`}
-                        className="text-[14px] font-bold hover:underline"
-                      >
+                      <Link href={`/extensions/${slug}`} className="text-[14px] font-bold hover:underline">
                         {order.products?.display_name}
                       </Link>
+                      {isRevoked && (
+                        <span className="text-[10px] text-red-600 font-bold border border-red-200 px-1.5 py-0.5">Revoked</span>
+                      )}
                     </div>
 
-                    {/* Info rows */}
                     <div className="flex flex-col gap-2 ml-12">
-                      {/* Date */}
                       <div className="flex items-center gap-2">
-                        <span className="text-[11px] text-[#999] w-[60px]">
-                          Purchased
-                        </span>
-                        <span className="text-[12px] text-[#666]">
-                          {purchaseDate}
-                        </span>
+                        <span className="text-[11px] text-[#999] w-[60px]">Purchased</span>
+                        <span className="text-[12px] text-[#666]">{purchaseDate}</span>
                       </div>
 
-                      {/* License */}
-                      {order.licenses?.map((lic) => (
-                        <div key={lic.license_key}>
-                          <div className="flex items-center gap-2">
-                            <span className="text-[11px] text-[#999] w-[60px]">
-                              License
-                            </span>
-                            <LicenseKeyDisplay licenseKey={lic.license_key} />
-                          </div>
-                          {lic.hwid && (
-                            <div className="flex items-center gap-2 mt-1">
-                              <span className="w-[60px]" />
-                              <span className="text-[10px] text-[#ccc]">
-                                Activated on device
-                              </span>
-                            </div>
-                          )}
+                      {isRevoked ? (
+                        <div className="flex items-center gap-2">
+                          <span className="text-[11px] text-[#999] w-[60px]">Status</span>
+                          <span className="text-[12px] text-red-600">
+                            License revoked. Please contact support.
+                          </span>
                         </div>
-                      ))}
-
-                      {/* Version */}
-                      <div className="flex items-center gap-2">
-                        <span className="text-[11px] text-[#999] w-[60px]">
-                          Version
-                        </span>
-                        {ver && (
-                          ver.hasUpdate ? (
-                            <span className="text-[12px] text-[#111] font-bold">
-                              v{ver.current} → v{ver.latest} available
-                            </span>
-                          ) : (
-                            <span className="text-[12px] text-[#999]">
-                              v{ver.current} — Latest
-                            </span>
-                          )
-                        )}
-                      </div>
+                      ) : (
+                        <>
+                          {order.licenses?.map((lic) => (
+                            <div key={lic.license_key}>
+                              <div className="flex items-center gap-2">
+                                <span className="text-[11px] text-[#999] w-[60px]">License</span>
+                                <LicenseKeyDisplay licenseKey={lic.license_key} />
+                              </div>
+                            </div>
+                          ))}
+                          <div className="flex items-center gap-2">
+                            <span className="text-[11px] text-[#999] w-[60px]">Version</span>
+                            {ver && (
+                              ver.hasUpdate ? (
+                                <span className="text-[12px] text-[#111] font-bold">
+                                  v{ver.current} → v{ver.latest} available
+                                </span>
+                              ) : (
+                                <span className="text-[12px] text-[#999]">
+                                  v{ver.current} — Latest
+                                </span>
+                              )
+                            )}
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
 
-                  {/* Right: price + buttons */}
                   <div className="flex flex-col items-end gap-2 shrink-0 w-[130px]">
-                    <span className="text-[13px] text-[#666]">
-                      {formatPrice(order.amount)}
-                    </span>
-                    <a
-                      href={`/api/download/${slug}`}
-                      className="w-full text-[12px] text-[#111] border border-[#111] px-4 py-1.5 no-underline hover:bg-[#111] hover:text-white transition-colors text-center"
-                    >
-                      Download .rbz
-                    </a>
-                    {ver?.hasUpdate && (
-                      <a
-                        href={`/api/download/${slug}`}
-                        className="w-full text-[12px] text-white bg-[#111] border border-[#111] px-4 py-1.5 no-underline hover:bg-[#333] transition-colors text-center"
-                      >
-                        Update to v{ver.latest}
-                      </a>
+                    <span className="text-[13px] text-[#666]">{formatPrice(order.amount)}</span>
+                    {isRevoked ? (
+                      <span className="w-full text-[12px] text-red-600 border border-red-200 px-4 py-1.5 text-center">
+                        Revoked
+                      </span>
+                    ) : (
+                      <>
+                        <a href={`/api/download/${slug}`}
+                          className="w-full text-[12px] text-[#111] border border-[#111] px-4 py-1.5 no-underline hover:bg-[#111] hover:text-white transition-colors text-center">
+                          Download .rbz
+                        </a>
+                        {ver?.hasUpdate && (
+                          <a href={`/api/download/${slug}`}
+                            className="w-full text-[12px] text-white bg-[#111] border border-[#111] px-4 py-1.5 no-underline hover:bg-[#333] transition-colors text-center">
+                            Update to v{ver.latest}
+                          </a>
+                        )}
+                        <Link href={`/community/new?product=${slug}`}
+                          className="w-full text-[12px] text-[#111] border border-[#111] px-4 py-1.5 no-underline hover:bg-[#111] hover:text-white transition-colors text-center">
+                          Questions & Bugs
+                        </Link>
+                      </>
                     )}
-                    <Link
-                      href={`/community/new?product=${slug}`}
-                      className="w-full text-[12px] text-[#111] border border-[#111] px-4 py-1.5 no-underline hover:bg-[#111] hover:text-white transition-colors text-center"
-                    >
-                      Questions & Bugs
-                    </Link>
                   </div>
                 </div>
               </div>

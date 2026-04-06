@@ -152,17 +152,10 @@ export default function AdminLicenses() {
                         </div>
                         <div className="flex items-center gap-3 text-[11px] text-[#999]">
                           <code className="bg-white px-1.5 py-0.5 border border-[#eee]">{lic.license_key}</code>
-                          {lic.hwid ? <span>기기 바인딩됨</span> : <span>미바인딩</span>}
-                          {lic.activated_at && <span>{new Date(lic.activated_at).toLocaleDateString("ko-KR")}</span>}
+                          {lic.created_at && <span>{new Date(lic.created_at).toLocaleDateString("ko-KR")}</span>}
                         </div>
                       </div>
                       <div className="flex gap-1 shrink-0">
-                        {lic.hwid && lic.status === "active" && (
-                          <button onClick={() => deactivateDevice(lic.id)}
-                            className="text-[10px] text-[#999] bg-transparent border border-[#ddd] px-2 py-0.5 cursor-pointer hover:bg-white">
-                            기기해제
-                          </button>
-                        )}
                         {lic.status === "active" ? (
                           <button onClick={() => revokeLicense(lic.id)}
                             className="text-[10px] text-red-600 bg-transparent border border-[#ddd] px-2 py-0.5 cursor-pointer hover:bg-red-50">
