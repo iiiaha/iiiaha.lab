@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { createServerSupabase } from "@/lib/supabase-server";
 import { generateLicenseKey } from "@/lib/license-utils";
-import { sendLicenseEmail } from "@/lib/email";
 
 const serviceSupabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -90,14 +89,6 @@ export async function POST(req: NextRequest) {
       { error: licError.message },
       { status: 500 }
     );
-  }
-
-  // 6. 이메일 발송
-  try {
-    await sendLicenseEmail(user.email!, product.display_name, licenseKey);
-  } catch {
-    // 이메일 실패해도 주문은 성공 처리
-    console.error("Email send failed");
   }
 
   return NextResponse.json({
