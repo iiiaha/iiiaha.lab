@@ -5,11 +5,14 @@ import Link from "next/link";
 import { Product, formatPrice } from "@/lib/types";
 import { getUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase";
+import { useCart } from "@/lib/cart";
 
 export default function ExtensionDetail({ product }: { product: Product }) {
   const [purchased, setPurchased] = useState(false);
   const [licenseKey, setLicenseKey] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [added, setAdded] = useState(false);
+  const { addItem, items } = useCart();
 
   useEffect(() => {
     const check = async () => {
@@ -192,9 +195,35 @@ export default function ExtensionDetail({ product }: { product: Product }) {
             )}
           </div>
         ) : (
-          <button className="w-full bg-[#111] text-white text-[14px] font-bold tracking-[0.05em] py-3 border-0 cursor-pointer hover:bg-[#333] transition-colors duration-200">
-            Purchase &mdash; {formatPrice(product.price)}
-          </button>
+          <div className="flex flex-col gap-2">
+            {items.some((i) => i.id === product.id) || added ? (
+              <Link
+                href="/cart"
+                className="w-full bg-[#111] text-white text-[14px] font-bold tracking-[0.05em] py-3 border-0 text-center no-underline hover:bg-[#333] transition-colors duration-200"
+              >
+                Go to Cart
+              </Link>
+            ) : (
+              <button
+                onClick={() => {
+                  addItem({
+                    id: product.id,
+                    slug: product.slug,
+                    name: product.name,
+                    display_name: product.display_name,
+                    price: product.price,
+                    original_price: product.original_price,
+                    discount_percent: product.discount_percent,
+                    thumbnail_url: product.thumbnail_url,
+                  });
+                  setAdded(true);
+                }}
+                className="w-full bg-[#111] text-white text-[14px] font-bold tracking-[0.05em] py-3 border-0 cursor-pointer hover:bg-[#333] transition-colors duration-200"
+              >
+                Add to Cart &mdash; {formatPrice(product.price)}
+              </button>
+            )}
+          </div>
         )}
       </div>
     </div>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { CartProvider } from "@/lib/cart";
 
 export const metadata: Metadata = {
   title: "iiiaha.lab",
@@ -24,11 +25,13 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col">
-        <Header />
-        <main className="flex-1 w-full max-w-[800px] mx-auto px-10 py-8 max-sm:px-5">
-          {children}
-        </main>
-        <Footer />
+        <CartProvider>
+          <Header />
+          <main className="flex-1 w-full max-w-[800px] mx-auto px-10 py-8 max-sm:px-5">
+            {children}
+          </main>
+          <Footer />
+        </CartProvider>
       </body>
     </html>
   );

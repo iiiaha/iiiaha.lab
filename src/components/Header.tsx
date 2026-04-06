@@ -5,12 +5,14 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { getUser, onAuthStateChange } from "@/lib/auth";
 import { isAdmin } from "@/lib/admin";
+import { useCart } from "@/lib/cart";
 
 export default function Header() {
   const pathname = usePathname();
   const [loggedIn, setLoggedIn] = useState(false);
   const [admin, setAdmin] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const { count: cartCount } = useCart();
 
   useEffect(() => {
     getUser().then(async (u) => {
@@ -49,7 +51,7 @@ export default function Header() {
           </Link>
 
           {/* Desktop nav */}
-          <nav className="hidden md:flex gap-5">
+          <nav className="hidden md:flex gap-5 items-center">
             {navItems.map(({ href, label }) => (
               <Link
                 key={href}
@@ -61,6 +63,18 @@ export default function Header() {
                 {label}
               </Link>
             ))}
+            <Link href="/cart" className="relative no-underline hover:no-underline">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="1.5">
+                <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <path d="M16 10a4 4 0 01-8 0" />
+              </svg>
+              {cartCount > 0 && (
+                <span className="absolute -top-1.5 -right-2 bg-[#111] text-white text-[9px] font-bold w-[14px] h-[14px] rounded-full flex items-center justify-center">
+                  {cartCount}
+                </span>
+              )}
+            </Link>
           </nav>
 
           {/* Mobile hamburger */}
@@ -99,6 +113,14 @@ export default function Header() {
                 {label}
               </Link>
             ))}
+            <Link
+              href="/cart"
+              className={`py-2.5 text-[13px] no-underline hover:underline ${
+                pathname === "/cart" ? "font-bold" : "text-[#666]"
+              }`}
+            >
+              Cart{cartCount > 0 ? ` (${cartCount})` : ""}
+            </Link>
           </nav>
         )}
       </div>
