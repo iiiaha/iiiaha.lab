@@ -9,7 +9,7 @@ const serviceSupabase = createClient(
 );
 
 export async function POST(req: NextRequest) {
-  const { paymentKey, orderId, amount, productId } = await req.json();
+  const { paymentKey, orderId, amount, productId, couponCode } = await req.json();
 
   // 1. 유저 확인
   const supabase = await createServerSupabase();
@@ -89,6 +89,24 @@ export async function POST(req: NextRequest) {
       { error: licError.message },
       { status: 500 }
     );
+  }
+
+  // 6. 쿠폰 사용 기록
+  if (couponCode) {
+    const { data: coupon } = await serviceSupabase
+      .from("coupons")
+      .select("id")
+      .eq("code", couponCode.toUpperCase().trim())
+      .single();
+
+    if (coupon) {
+      await serviceSupabase.from("coupon_uses").insert({
+        coupon_id: coupon.id,
+        user_id: user.id,
+        order_id: order.id,
+      });
+      await serviceSupabase.rpc("increment_coupon_used", { coupon_id: coupon.id });
+    }
   }
 
   return NextResponse.json({
