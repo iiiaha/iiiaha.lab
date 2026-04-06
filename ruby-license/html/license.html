@@ -31,6 +31,27 @@
     text-decoration: underline;
     cursor: pointer;
   }
+  .credit a:hover { color: #0052a3; }
+  .product-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px;
+    margin-bottom: 4px;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+  }
+  .product-info img {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+  }
+  .product-info .name {
+    font-size: 12px;
+    font-weight: bold;
+    color: #111;
+  }
   .section {
     background: #fff;
     border: 1px solid #ccc;
@@ -62,10 +83,25 @@
     border-color: #3498db;
   }
   .action-bar {
+    display: flex;
+    gap: 4px;
     margin-top: 4px;
   }
-  .action-bar button {
-    width: 100%;
+  .btn-site {
+    flex: 1;
+    height: 28px;
+    font-size: 10px;
+    font-weight: bold;
+    border-radius: 2px;
+    background: #fff;
+    color: #111;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn-site:hover { background: #e8e8e8; }
+  .btn-activate {
+    flex: 2;
     height: 28px;
     font-size: 11px;
     font-weight: bold;
@@ -76,9 +112,9 @@
     cursor: pointer;
     transition: background 0.15s;
   }
-  .action-bar button:hover { background: #2980b9; }
-  .action-bar button:active { background: #2471a3; }
-  .action-bar button:disabled { opacity: 0.4; cursor: default; }
+  .btn-activate:hover { background: #2980b9; }
+  .btn-activate:active { background: #2471a3; }
+  .btn-activate:disabled { opacity: 0.4; cursor: default; }
   .result {
     font-size: 10px;
     margin-top: 4px;
@@ -92,14 +128,19 @@
 <body>
   <div class="header">
     <h3>License activation</h3>
-    <span class="credit">by <a href="#" onclick="sketchup.callback('openLink','https://www.instagram.com/iiiaha.lab/');return false;">iiiaha</a></span>
+    <span class="credit">by <a href="#" onclick="sketchup.callback('openLink','https://iiiahalab.com');return false;">iiiaha.lab</a></span>
+  </div>
+  <div class="product-info" id="product-info">
+    <img id="product-icon" src="" style="display:none;" />
+    <span class="name" id="product-name"></span>
   </div>
   <div class="section">
     <div class="section-title">License Key</div>
     <input type="text" id="key" placeholder="XXXX-XXXX-XXXX-XXXX" spellcheck="false">
   </div>
   <div class="action-bar">
-    <button id="btn" onclick="doActivate()">Activate</button>
+    <button class="btn-site" onclick="sketchup.callback('openLink','https://iiiahalab.com/mypage');return false;">My Page</button>
+    <button class="btn-activate" id="btn" onclick="doActivate()">Activate</button>
   </div>
   <div class="result" id="result"></div>
   <script>
@@ -110,6 +151,16 @@
       });
     }
     fitDialog();
+
+    function setProductInfo(name, iconPath) {
+      document.getElementById('product-name').textContent = name;
+      if (iconPath) {
+        var img = document.getElementById('product-icon');
+        img.src = iconPath;
+        img.style.display = 'block';
+      }
+      fitDialog();
+    }
 
     function doActivate() {
       var key = document.getElementById('key').value.trim();

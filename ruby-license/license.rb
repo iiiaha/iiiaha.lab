@@ -224,8 +224,29 @@ module Iiiaha
         dlg.set_size(340, h.to_i + 31) if h.to_i > 0
       end
 
+      dlg.add_action_callback('openLink') do |_, url|
+        UI.openURL(url)
+      end
+
       dlg.set_file(html_path)
+
+      # 제품 이름과 아이콘 경로 전달
+      icon_path = File.join(File.dirname(__FILE__), 'icon.png')
+      icon_url = File.exist?(icon_path) ? "file:///#{icon_path.gsub('\\', '/')}" : ""
+      display_name = product_slug.split('_').map(&:capitalize).join(' ')
+
+      dlg.add_action_callback('ready') do |_|
+        dlg.execute_script("setProductInfo('#{display_name}', '#{icon_url}')")
+      end
+
+      # set_html_content 대신 로드 후 호출
+      dlg.set_on_closed { }
       dlg.show
+
+      # 약간의 딜레이 후 제품 정보 전달
+      UI.start_timer(0.3, false) do
+        dlg.execute_script("setProductInfo('#{display_name}', '#{icon_url}')") rescue nil
+      end
 
       # 중앙 배치
       vp_w = Sketchup.active_model.active_view.vpwidth
