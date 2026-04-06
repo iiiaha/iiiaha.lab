@@ -8,6 +8,7 @@ import { isAdmin } from "@/lib/admin";
 interface SystemItem {
   id: string;
   title: string;
+  subtitle: string | null;
   description: string | null;
   image_url: string | null;
   link_url: string | null;
@@ -72,10 +73,8 @@ export default function SystemsPage() {
               <h3 className="text-[14px] font-bold group-hover:underline">
                 {item.title}
               </h3>
-              {item.description && (
-                <p className="text-[13px] text-[#666] mt-0.5 line-clamp-2">
-                  {item.description}
-                </p>
+              {item.subtitle && (
+                <p className="text-[12px] text-[#999] mt-0.5">{item.subtitle}</p>
               )}
             </Link>
           ))}

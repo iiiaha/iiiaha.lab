@@ -25,6 +25,9 @@ export default function ProductCard({ product }: { product: Product }) {
       <h3 className="text-[14px] font-bold group-hover:underline">
         {product.display_name}
       </h3>
+      {product.subtitle && (
+        <p className="text-[12px] text-[#999] mt-0.5">{product.subtitle}</p>
+      )}
       <div className="flex items-center gap-1.5 mt-0.5">
         {(product.discount_percent ?? 0) > 0 && product.original_price ? (
           <>

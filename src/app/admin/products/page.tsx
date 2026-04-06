@@ -188,6 +188,7 @@ export default function AdminProducts() {
         <div><label className="text-[10px] text-[#999] uppercase block mb-0.5">Slug</label><input value={editData.slug ?? ""} onChange={(e) => setEditData({...editData, slug: e.target.value})} className="w-full border border-[#ddd] px-2 py-1 text-[12px] outline-none focus:border-[#111]" /></div>
         <div><label className="text-[10px] text-[#999] uppercase block mb-0.5">Name</label><input value={editData.name ?? ""} onChange={(e) => setEditData({...editData, name: e.target.value})} className="w-full border border-[#ddd] px-2 py-1 text-[12px] outline-none focus:border-[#111]" /></div>
         <div><label className="text-[10px] text-[#999] uppercase block mb-0.5">Display Name</label><input value={editData.display_name ?? ""} onChange={(e) => setEditData({...editData, display_name: e.target.value})} className="w-full border border-[#ddd] px-2 py-1 text-[12px] outline-none focus:border-[#111]" /></div>
+        <div><label className="text-[10px] text-[#999] uppercase block mb-0.5">Subtitle</label><input value={editData.subtitle ?? ""} onChange={(e) => setEditData({...editData, subtitle: e.target.value})} className="w-full border border-[#ddd] px-2 py-1 text-[12px] outline-none focus:border-[#111]" /></div>
 
         {/* Pricing */}
         <div className="border border-[#eee] p-2.5 mt-1">

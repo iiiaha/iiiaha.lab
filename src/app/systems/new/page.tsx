@@ -23,6 +23,7 @@ function SystemForm() {
   const isEdit = !!editId;
 
   const [title, setTitle] = useState("");
+  const [subtitle, setSubtitle] = useState("");
   const [description, setDescription] = useState("");
   const [linkUrl, setLinkUrl] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -44,6 +45,7 @@ function SystemForm() {
         const { data } = await supabase.from("systems").select("*").eq("id", editId).single();
         if (data) {
           setTitle(data.title);
+          setSubtitle(data.subtitle || "");
           setDescription(data.description || "");
           setLinkUrl(data.link_url || "");
           if (data.image_url) {
@@ -99,6 +101,7 @@ function SystemForm() {
     if (isEdit) {
       const { error: updateErr } = await supabase.from("systems").update({
         title: title.trim(),
+        subtitle: subtitle.trim() || null,
         description: description.trim() || null,
         link_url: linkUrl.trim() || null,
         image_url: imageUrl,
@@ -108,6 +111,7 @@ function SystemForm() {
     } else {
       const { error: insertErr } = await supabase.from("systems").insert({
         title: title.trim(),
+        subtitle: subtitle.trim() || null,
         description: description.trim() || null,
         link_url: linkUrl.trim() || null,
         image_url: imageUrl,
@@ -137,6 +141,12 @@ function SystemForm() {
         <div>
           <label className="block text-[12px] text-[#666] font-bold mb-1 tracking-[0.05em] uppercase">Title</label>
           <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} required placeholder="Project name"
+            className="w-full border border-[#ddd] px-3 py-2.5 text-[14px] outline-none focus:border-[#111] transition-colors" />
+        </div>
+
+        <div>
+          <label className="block text-[12px] text-[#666] font-bold mb-1 tracking-[0.05em] uppercase">Subtitle</label>
+          <input type="text" value={subtitle} onChange={(e) => setSubtitle(e.target.value)} placeholder="Short description"
             className="w-full border border-[#ddd] px-3 py-2.5 text-[14px] outline-none focus:border-[#111] transition-colors" />
         </div>
 
