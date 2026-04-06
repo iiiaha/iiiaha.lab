@@ -7,13 +7,13 @@ import { isAdmin } from "@/lib/admin";
 import { getUser } from "@/lib/auth";
 
 const NAV = [
-  { href: "/admin", label: "Dashboard", icon: "~" },
-  { href: "/admin/products", label: "Products", icon: "P" },
-  { href: "/admin/orders", label: "Orders", icon: "O" },
-  { href: "/admin/licenses", label: "Licenses", icon: "L" },
-  { href: "/admin/courses", label: "Courses", icon: "C" },
-  { href: "/admin/community", label: "Community", icon: "!" },
-  { href: "/admin/users", label: "Users", icon: "U" },
+  { href: "/admin", label: "대시보드", icon: "~" },
+  { href: "/admin/products", label: "제품 관리", icon: "P" },
+  { href: "/admin/orders", label: "주문 관리", icon: "O" },
+  { href: "/admin/licenses", label: "라이선스", icon: "L" },
+  { href: "/admin/courses", label: "강의 관리", icon: "C" },
+  { href: "/admin/community", label: "커뮤니티", icon: "!" },
+  { href: "/admin/users", label: "사용자", icon: "U" },
 ];
 
 export default function AdminLayout({
@@ -54,11 +54,20 @@ export default function AdminLayout({
 
   if (!authorized) return null;
 
+  // 관리자 페이지에서는 상단 헤더 메뉴 숨김
+  useEffect(() => {
+    const header = document.querySelector("header");
+    if (header) header.style.display = "none";
+    return () => {
+      if (header) header.style.display = "";
+    };
+  }, []);
+
   return (
-    <div className="flex gap-0 min-h-[70vh] -mx-10 -my-12 max-sm:-mx-5">
+    <div className="flex gap-0 min-h-[70vh] -mx-10 -my-8 max-sm:-mx-5">
       {/* Sidebar */}
       <aside className="w-[200px] shrink-0 border-r border-[#ddd] py-8 px-6">
-        <h2 className="text-[13px] font-bold tracking-[0.05em] mb-6">Admin</h2>
+        <h2 className="text-[13px] font-bold tracking-[0.05em] mb-6">관리자</h2>
         <nav className="flex flex-col gap-1">
           {NAV.map(({ href, label, icon }) => {
             const active =
@@ -86,7 +95,7 @@ export default function AdminLayout({
             href="/"
             className="text-[12px] text-[#999] no-underline hover:underline"
           >
-            Back to site
+            사이트로 돌아가기
           </Link>
         </div>
       </aside>
