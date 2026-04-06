@@ -9,7 +9,6 @@ import { useCart } from "@/lib/cart";
 
 export default function ExtensionDetail({ product }: { product: Product }) {
   const [purchased, setPurchased] = useState(false);
-  const [licenseKey, setLicenseKey] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [added, setAdded] = useState(false);
   const { addItem, items } = useCart();
@@ -24,17 +23,15 @@ export default function ExtensionDetail({ product }: { product: Product }) {
       const supabase = createClient();
       const { data: order } = await supabase
         .from("orders")
-        .select("id, licenses(license_key)")
+        .select("id")
         .eq("user_id", user.id)
         .eq("product_id", product.id)
         .eq("status", "paid")
+        .limit(1)
         .single();
 
       if (order) {
         setPurchased(true);
-        const lic = (order as unknown as { licenses: { license_key: string }[] })
-          .licenses?.[0];
-        if (lic) setLicenseKey(lic.license_key);
       }
       setLoading(false);
     };
@@ -176,7 +173,7 @@ export default function ExtensionDetail({ product }: { product: Product }) {
           </div>
         ) : purchased ? (
           <div className="border border-[#ddd] p-5">
-            <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center justify-between">
               <span className="text-[14px] font-bold">Purchased</span>
               <a
                 href={`/api/download/${product.slug}`}
@@ -185,14 +182,6 @@ export default function ExtensionDetail({ product }: { product: Product }) {
                 Download .rbz
               </a>
             </div>
-            {licenseKey && (
-              <div className="flex items-center gap-2">
-                <span className="text-[12px] text-[#999]">License:</span>
-                <code className="text-[12px] bg-[#f5f5f5] px-2 py-0.5 select-all">
-                  {licenseKey}
-                </code>
-              </div>
-            )}
           </div>
         ) : (
           <div className="flex flex-col gap-2">
