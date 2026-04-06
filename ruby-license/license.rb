@@ -200,7 +200,7 @@ module Iiiaha
       html_path = File.join(File.dirname(__FILE__), 'html', 'license.html')
 
       dlg = UI::HtmlDialog.new(
-        dialog_title: "License Activation",
+        dialog_title: "License — #{product_slug}",
         width: 340,
         height: 200,
         resizable: false,
