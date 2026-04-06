@@ -27,7 +27,6 @@ function Field({ label, value, onChange, type = "text", options }: {
 const EMPTY_PRODUCT: Partial<Product> = {
   slug: "",
   name: "",
-  display_name: "",
   type: "extension",
   platform: "sketchup",
   price: 0,
@@ -187,7 +186,6 @@ export default function AdminProducts() {
       <div className="flex flex-col gap-2 text-[12px]">
         <div><label className="text-[10px] text-[#999] uppercase block mb-0.5">Slug</label><input value={editData.slug ?? ""} onChange={(e) => setEditData({...editData, slug: e.target.value})} className="w-full border border-[#ddd] px-2 py-1 text-[12px] outline-none focus:border-[#111]" /></div>
         <div><label className="text-[10px] text-[#999] uppercase block mb-0.5">Name</label><input value={editData.name ?? ""} onChange={(e) => setEditData({...editData, name: e.target.value})} className="w-full border border-[#ddd] px-2 py-1 text-[12px] outline-none focus:border-[#111]" /></div>
-        <div><label className="text-[10px] text-[#999] uppercase block mb-0.5">Display Name</label><input value={editData.display_name ?? ""} onChange={(e) => setEditData({...editData, display_name: e.target.value})} className="w-full border border-[#ddd] px-2 py-1 text-[12px] outline-none focus:border-[#111]" /></div>
         <div><label className="text-[10px] text-[#999] uppercase block mb-0.5">Subtitle</label><input value={editData.subtitle ?? ""} onChange={(e) => setEditData({...editData, subtitle: e.target.value})} className="w-full border border-[#ddd] px-2 py-1 text-[12px] outline-none focus:border-[#111]" /></div>
 
         {/* Pricing */}
@@ -297,7 +295,6 @@ export default function AdminProducts() {
         <div className="border border-[#111] p-4 mb-4">
           <Field label="Slug" value={newProduct.slug ?? ""} onChange={(v) => setNewProduct({ ...newProduct, slug: v })} />
           <Field label="Name" value={newProduct.name ?? ""} onChange={(v) => setNewProduct({ ...newProduct, name: v })} />
-          <Field label="Display Name" value={newProduct.display_name ?? ""} onChange={(v) => setNewProduct({ ...newProduct, display_name: v })} />
           <Field label="Price" value={newProduct.price ?? 0} type="number" onChange={(v) => setNewProduct({ ...newProduct, price: parseInt(v) || 0 })} />
           <Field label="Version" value={newProduct.version ?? ""} onChange={(v) => setNewProduct({ ...newProduct, version: v })} />
           <Field label="Compatibility" value={newProduct.compatibility ?? ""} onChange={(v) => setNewProduct({ ...newProduct, compatibility: v })} />
@@ -317,9 +314,9 @@ export default function AdminProducts() {
                 {/* Thumbnail with reorder buttons */}
                 <div className="relative aspect-square bg-[#f5f5f5] border border-[#ddd] mb-3 overflow-hidden flex items-center justify-center p-14">
                   {p.thumbnail_url ? (
-                    <img src={p.thumbnail_url} alt={p.display_name} className="w-full h-full object-contain" />
+                    <img src={p.thumbnail_url} alt={p.name} className="w-full h-full object-contain" />
                   ) : (
-                    <span className="text-[13px] text-[#999]">{p.display_name}</span>
+                    <span className="text-[13px] text-[#999]">{p.name}</span>
                   )}
                   {/* Left arrow */}
                   <button onClick={() => moveProduct(i, "up")} disabled={i === 0}
@@ -332,7 +329,7 @@ export default function AdminProducts() {
                     <svg width="6" height="10" viewBox="0 0 6 10" fill="none"><path d="M1 1L5 5L1 9" stroke="#111" strokeWidth="1.2"/></svg>
                   </button>
                 </div>
-                <h3 className="text-[14px] font-bold">{p.display_name}</h3>
+                <h3 className="text-[14px] font-bold">{p.name}</h3>
                 <p className="text-[13px] text-[#666] mt-0.5">₩{p.price.toLocaleString()}</p>
               </div>
             ))}
@@ -365,7 +362,7 @@ export default function AdminProducts() {
                 </span>
                 <span className="text-[10px] text-[#ccc] w-4 text-center shrink-0">{i + 1}</span>
                 {p.thumbnail_url ? (<img src={p.thumbnail_url} alt="" className="w-5 h-5 object-contain shrink-0" />) : (<div className="w-5 h-5 bg-[#f5f5f5] border border-[#ddd] shrink-0" />)}
-                <span className="text-[12px] font-bold truncate min-w-0 flex-1">{p.display_name}</span>
+                <span className="text-[12px] font-bold truncate min-w-0 flex-1">{p.name}</span>
                 <div className="flex items-center gap-1 shrink-0 text-[11px]">
                   {(p.discount_percent ?? 0) > 0 ? (
                     <>
@@ -378,7 +375,7 @@ export default function AdminProducts() {
                   )}
                 </div>
                 <button onClick={() => startEdit(p)} className={`text-[10px] bg-transparent border px-2 py-0.5 cursor-pointer shrink-0 ${editing === p.id ? "text-[#111] border-[#111] font-bold" : "text-[#999] border-[#ddd] hover:bg-[#f5f5f5]"}`}>Edit</button>
-                <button onClick={() => deleteProduct(p.id, p.display_name)} className="text-[10px] text-red-500 bg-transparent border border-[#ddd] px-2 py-0.5 cursor-pointer hover:bg-red-50 shrink-0">Del</button>
+                <button onClick={() => deleteProduct(p.id, p.name)} className="text-[10px] text-red-500 bg-transparent border border-[#ddd] px-2 py-0.5 cursor-pointer hover:bg-red-50 shrink-0">Del</button>
               </div>
           </div>
         ))}

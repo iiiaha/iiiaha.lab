@@ -10,7 +10,7 @@ interface Order {
   status: string;
   payment_key: string | null;
   created_at: string;
-  products: { display_name: string; slug: string };
+  products: { name: string; slug: string };
   user_email?: string;
 }
 
@@ -25,7 +25,7 @@ export default function AdminOrders() {
   const load = async () => {
     const { data } = await supabase
       .from("orders")
-      .select("*, products(display_name, slug)")
+      .select("*, products(name, slug)")
       .order("created_at", { ascending: false });
 
     if (!data) { setLoading(false); return; }
@@ -80,7 +80,7 @@ export default function AdminOrders() {
     .filter((o) =>
       !search ||
       o.user_email?.toLowerCase().includes(search.toLowerCase()) ||
-      o.products?.display_name.toLowerCase().includes(search.toLowerCase()) ||
+      o.products?.name.toLowerCase().includes(search.toLowerCase()) ||
       o.id.toLowerCase().includes(search.toLowerCase())
     );
 
@@ -131,7 +131,7 @@ export default function AdminOrders() {
             <div key={order.id} className="flex items-center justify-between border-b border-[#ddd] py-2.5">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-0.5">
-                  <span className="text-[12px] font-bold">{order.products?.display_name}</span>
+                  <span className="text-[12px] font-bold">{order.products?.name}</span>
                   <span className={`text-[10px] font-bold ${statusColor(order.status)}`}>
                     {statusLabel(order.status)}
                   </span>

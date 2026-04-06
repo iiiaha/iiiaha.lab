@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
 
   const { data, error } = await supabase
     .from("products")
-    .select("version, display_name")
+    .select("version, name")
     .eq("slug", slug)
     .single();
 
@@ -25,6 +25,6 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({
     slug,
     version: data.version,
-    display_name: data.display_name,
+    name: data.name,
   });
 }

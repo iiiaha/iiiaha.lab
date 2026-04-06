@@ -10,7 +10,7 @@ interface Post {
   title: string;
   status: string;
   created_at: string;
-  products: { display_name: string } | null;
+  products: { name: string } | null;
 }
 
 const STATUS_OPTIONS = ["open", "in_progress", "resolved", "closed"];
@@ -31,7 +31,7 @@ export default function AdminOpenLab() {
   const load = async () => {
     const { data } = await supabase
       .from("posts")
-      .select("id, category, title, status, created_at, products(display_name)")
+      .select("id, category, title, status, created_at, products(name)")
       .order("created_at", { ascending: false });
     setPosts((data as unknown as Post[]) ?? []);
   };
@@ -94,7 +94,7 @@ export default function AdminOpenLab() {
                     {p.category === "idea" ? "Idea" : "Bug"}
                   </span>
                   {p.products && (
-                    <span className="text-[10px] text-[#999]">{p.products.display_name}</span>
+                    <span className="text-[10px] text-[#999]">{p.products.name}</span>
                   )}
                 </div>
                 <Link href={`/openlab/${p.id}`} className="text-[13px] font-bold hover:underline">

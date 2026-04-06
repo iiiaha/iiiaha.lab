@@ -5,7 +5,6 @@ export interface Product {
   id: string;
   slug: string;
   name: string;
-  display_name: string;
   type: ProductType;
   platform?: Platform;
   price: number;

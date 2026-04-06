@@ -6,7 +6,6 @@ export interface CartItem {
   id: string;
   slug: string;
   name: string;
-  display_name: string;
   price: number;
   original_price?: number;
   discount_percent?: number;

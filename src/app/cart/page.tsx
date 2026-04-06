@@ -96,7 +96,7 @@ export default function CartPage() {
               )}
               <div className="min-w-0">
                 <Link href={`/extensions/${item.slug}`} className="text-[13px] font-bold no-underline hover:underline truncate block">
-                  {item.display_name}
+                  {item.name}
                 </Link>
                 <div className="flex items-center gap-2">
                   {(item.discount_percent ?? 0) > 0 && item.original_price ? (

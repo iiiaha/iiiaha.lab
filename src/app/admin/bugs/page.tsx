@@ -12,7 +12,7 @@ interface BugReport {
   admin_note: string | null;
   created_at: string;
   user_id: string;
-  products: { display_name: string; slug: string };
+  products: { name: string; slug: string };
 }
 
 const STATUS_OPTIONS = ["open", "in_progress", "resolved", "closed"];
@@ -35,7 +35,7 @@ export default function AdminBugs() {
   const load = async () => {
     const { data } = await supabase
       .from("bug_reports")
-      .select("*, products(display_name, slug)")
+      .select("*, products(name, slug)")
       .order("created_at", { ascending: false });
     setReports((data as unknown as BugReport[]) ?? []);
   };
@@ -111,7 +111,7 @@ export default function AdminBugs() {
                     <span className="text-[13px] font-bold">{r.title}</span>
                   </div>
                   <div className="text-[11px] text-[#999] flex gap-3">
-                    <span>{r.products?.display_name}</span>
+                    <span>{r.products?.name}</span>
                     <span>{new Date(r.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
                   </div>
                 </div>

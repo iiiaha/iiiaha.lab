@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase";
 interface CourseProduct {
   id: string;
   slug: string;
-  display_name: string;
+  name: string;
   price: number;
   episode_count?: number;
 }
@@ -20,7 +20,7 @@ export default function AdminCourses() {
     const load = async () => {
       const { data: products } = await supabase
         .from("products")
-        .select("id, slug, display_name, price")
+        .select("id, slug, name, price")
         .eq("type", "course")
         .order("created_at", { ascending: true });
 
@@ -68,7 +68,7 @@ export default function AdminCourses() {
               className="flex items-center justify-between border-b border-[#ddd] py-3"
             >
               <div>
-                <span className="text-[13px] font-bold">{c.display_name}</span>
+                <span className="text-[13px] font-bold">{c.name}</span>
                 <span className="text-[11px] text-[#999] ml-2">
                   {c.episode_count} episodes
                 </span>

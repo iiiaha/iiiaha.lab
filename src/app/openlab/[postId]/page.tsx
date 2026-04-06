@@ -16,7 +16,7 @@ interface Post {
   image_url: string | null;
   status: string;
   created_at: string;
-  products: { display_name: string } | null;
+  products: { name: string } | null;
 }
 
 interface Comment {
@@ -46,7 +46,7 @@ export default function PostDetailPage() {
   const load = async () => {
     const { data: p } = await supabase
       .from("posts")
-      .select("*, products(display_name)")
+      .select("*, products(name)")
       .eq("id", postId)
       .single();
 
@@ -158,7 +158,7 @@ export default function PostDetailPage() {
       <div className="flex items-center gap-3 text-[11px] text-[#999] mb-5">
         {authorName && <span>{authorName}</span>}
         {post.products && (
-          <><span>·</span><span>{post.products.display_name}</span></>
+          <><span>·</span><span>{post.products.name}</span></>
         )}
         <span>·</span>
         <span>{new Date(post.created_at).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}</span>

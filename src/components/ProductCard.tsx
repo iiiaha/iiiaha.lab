@@ -13,17 +13,17 @@ export default function ProductCard({ product }: { product: Product }) {
         {product.thumbnail_url ? (
           <img
             src={product.thumbnail_url}
-            alt={product.display_name}
+            alt={product.name}
             className="w-full h-full object-contain group-hover:opacity-85 transition-opacity duration-200"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-[#999] text-[13px]">
-            {product.display_name}
+            {product.name}
           </div>
         )}
       </div>
       <h3 className="text-[14px] font-bold group-hover:underline">
-        {product.display_name}
+        {product.name}
       </h3>
       {product.subtitle && (
         <p className="text-[12px] text-[#999] mt-0.5">{product.subtitle}</p>

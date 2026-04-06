@@ -37,10 +37,10 @@ export default function ManageEpisodes() {
   const load = async () => {
     const { data: product } = await supabase
       .from("products")
-      .select("display_name")
+      .select("name")
       .eq("id", productId)
       .single();
-    setCourseName(product?.display_name ?? "");
+    setCourseName(product?.name ?? "");
 
     const { data } = await supabase
       .from("course_episodes")

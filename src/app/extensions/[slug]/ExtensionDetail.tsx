@@ -39,7 +39,6 @@ export default function ExtensionDetail({ product }: { product: Product }) {
   }, [product.id]);
 
   const info = [
-    { label: "Name", value: product.display_name },
     { label: "Version", value: product.version },
     { label: "Compatible", value: product.compatibility },
     { label: "Price", value: null },
@@ -59,11 +58,11 @@ export default function ExtensionDetail({ product }: { product: Product }) {
         {product.thumbnail_url ? (
           <img
             src={product.thumbnail_url}
-            alt={product.display_name}
+            alt={product.name}
             className="max-h-full max-w-full object-contain"
           />
         ) : (
-          product.display_name
+          product.name
         )}
       </div>
 
@@ -199,7 +198,6 @@ export default function ExtensionDetail({ product }: { product: Product }) {
                     id: product.id,
                     slug: product.slug,
                     name: product.name,
-                    display_name: product.display_name,
                     price: product.price,
                     original_price: product.original_price,
                     discount_percent: product.discount_percent,

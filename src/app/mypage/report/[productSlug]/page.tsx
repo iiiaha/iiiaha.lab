@@ -32,12 +32,12 @@ export default function ReportBugPage() {
 
       const { data: product } = await supabase
         .from("products")
-        .select("id, display_name")
+        .select("id, name")
         .eq("slug", slug)
         .single();
 
       if (!product) { router.push("/mypage"); return; }
-      setProductName(product.display_name);
+      setProductName(product.name);
       setProductId(product.id);
       setPageLoading(false);
     };

@@ -83,13 +83,13 @@ export default function CourseDetailPage() {
 
       <div className="aspect-video bg-[#f5f5f5] border border-[#ddd] mb-5 flex items-center justify-center text-[#999]">
         {product.thumbnail_url ? (
-          <img src={product.thumbnail_url} alt={product.display_name} className="max-h-full max-w-full object-contain" />
+          <img src={product.thumbnail_url} alt={product.name} className="max-h-full max-w-full object-contain" />
         ) : (
-          product.display_name
+          product.name
         )}
       </div>
 
-      <h1 className="text-[16px] font-bold tracking-[0.03em] mb-2">{product.display_name}</h1>
+      <h1 className="text-[16px] font-bold tracking-[0.03em] mb-2">{product.name}</h1>
       <p className="text-[14px] text-[#666] mb-8">{product.description}</p>
 
       <h2 className="text-[12px] font-bold text-[#999] tracking-[0.05em] uppercase mb-4">

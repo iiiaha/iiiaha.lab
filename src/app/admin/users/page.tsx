@@ -17,7 +17,7 @@ interface UserOrder {
   status: string;
   created_at: string;
   products: {
-    display_name: string;
+    name: string;
   };
 }
 
@@ -47,7 +47,7 @@ export default function AdminUsers() {
     setExpanded(userId);
     const { data } = await supabase
       .from("orders")
-      .select("id, amount, status, created_at, products(display_name)")
+      .select("id, amount, status, created_at, products(name)")
       .eq("user_id", userId)
       .order("created_at", { ascending: false });
     setOrders((data as unknown as UserOrder[]) ?? []);
@@ -125,7 +125,7 @@ export default function AdminUsers() {
                       className="flex items-center justify-between py-1.5"
                     >
                       <span className="text-[12px]">
-                        {o.products?.display_name}
+                        {o.products?.name}
                       </span>
                       <div className="flex gap-3 text-[11px] text-[#999]">
                         <span>₩{o.amount.toLocaleString()}</span>

@@ -15,7 +15,7 @@ interface OrderWithProduct {
   product_id: string;
   products: {
     slug: string;
-    display_name: string;
+    name: string;
     version: string | null;
     thumbnail_url: string | null;
   };
@@ -83,7 +83,7 @@ export default function MyPage() {
       const { data } = await supabase
         .from("orders")
         .select(
-          "id, amount, status, created_at, product_id, products(slug, display_name, version, thumbnail_url), licenses(license_key, hwid, status)"
+          "id, amount, status, created_at, product_id, products(slug, name, version, thumbnail_url), licenses(license_key, hwid, status)"
         )
         .eq("user_id", user.id)
         .eq("status", "paid")
@@ -173,7 +173,7 @@ export default function MyPage() {
                           className="w-9 h-9 object-contain bg-[#f5f5f5] border border-[#ddd] p-0.5" />
                       )}
                       <Link href={`/extensions/${slug}`} className="text-[14px] font-bold hover:underline">
-                        {order.products?.display_name}
+                        {order.products?.name}
                       </Link>
                       {isRevoked && (
                         <span className="text-[10px] text-red-600 font-bold border border-red-200 px-1.5 py-0.5">Revoked</span>

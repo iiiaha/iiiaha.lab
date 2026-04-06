@@ -8,7 +8,7 @@ import { createClient } from "@/lib/supabase";
 
 interface ProductOption {
   id: string;
-  display_name: string;
+  name: string;
 }
 
 export default function NewPostPage() {
@@ -52,7 +52,7 @@ function PostForm() {
 
       const { data } = await supabase
         .from("products")
-        .select("id, display_name, slug")
+        .select("id, name, slug")
         .order("sort_order", { ascending: true });
       const productList = data ?? [];
       setProducts(productList);
@@ -222,7 +222,7 @@ function PostForm() {
           <select value={productId} onChange={(e) => setProductId(e.target.value)}
             className="w-full border border-[#ddd] px-3 py-2.5 text-[14px] outline-none focus:border-[#111] transition-colors bg-white">
             <option value="">None</option>
-            {products.map((p) => <option key={p.id} value={p.id}>{p.display_name}</option>)}
+            {products.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
         </div>
 

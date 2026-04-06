@@ -11,7 +11,7 @@ interface License {
   activated_at: string | null;
   created_at: string;
   user_id: string;
-  products: { display_name: string; slug: string };
+  products: { name: string; slug: string };
 }
 
 interface UserGroup {
@@ -31,7 +31,7 @@ export default function AdminLicenses() {
   const load = async () => {
     const { data: licenses } = await supabase
       .from("licenses")
-      .select("*, products(display_name, slug)")
+      .select("*, products(name, slug)")
       .order("created_at", { ascending: false });
 
     if (!licenses) { setLoading(false); return; }
@@ -90,7 +90,7 @@ export default function AdminLicenses() {
         g.email.toLowerCase().includes(search.toLowerCase()) ||
         g.licenses.some((l) =>
           l.license_key.toLowerCase().includes(search.toLowerCase()) ||
-          l.products?.display_name.toLowerCase().includes(search.toLowerCase())
+          l.products?.name.toLowerCase().includes(search.toLowerCase())
         )
       )
     : groups;
@@ -145,7 +145,7 @@ export default function AdminLicenses() {
                     <div key={lic.id} className="flex items-center justify-between px-4 py-2 border-b border-[#eee] last:border-0">
                       <div>
                         <div className="flex items-center gap-2 mb-0.5">
-                          <span className="text-[12px] font-bold">{lic.products?.display_name}</span>
+                          <span className="text-[12px] font-bold">{lic.products?.name}</span>
                           <span className={`text-[10px] font-bold ${lic.status === "active" ? "text-green-600" : "text-red-600"}`}>
                             {lic.status === "active" ? "활성" : "해지"}
                           </span>

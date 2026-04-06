@@ -26,7 +26,7 @@ export async function GET(
   // 해당 제품 구매 확인 (paid 상태)
   const { data: order } = await serviceSupabase
     .from("orders")
-    .select("id, products!inner(slug, display_name)")
+    .select("id, products!inner(slug, name)")
     .eq("user_id", user.id)
     .eq("status", "paid")
     .eq("products.slug", slug)

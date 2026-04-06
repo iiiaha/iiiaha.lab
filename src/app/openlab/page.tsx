@@ -13,7 +13,7 @@ interface Post {
   image_url: string | null;
   status: string;
   created_at: string;
-  products: { display_name: string } | null;
+  products: { name: string } | null;
   comment_count: number;
 }
 
@@ -48,7 +48,7 @@ export default function OpenLabPage() {
 
       const { data } = await supabase
         .from("posts")
-        .select("id, user_id, category, title, image_url, status, created_at, products(display_name)")
+        .select("id, user_id, category, title, image_url, status, created_at, products(name)")
         .order("created_at", { ascending: false });
 
       if (data) {
@@ -209,7 +209,7 @@ export default function OpenLabPage() {
                     <div className="flex items-center gap-3 shrink-0 text-[11px] text-[#999] ml-4">
                       {post.products && (
                         <span className="text-[11px] text-[#bbb]">
-                          {post.products.display_name}
+                          {post.products.name}
                         </span>
                       )}
                       <span className="w-[45px] text-right">
