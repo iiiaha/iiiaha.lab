@@ -18,15 +18,36 @@ module Iiiaha
 
     # ─── 하드웨어 ID ───
     def self.generate_hwid
+      # メモリキャッシュ
+      return @hwid_cache if @hwid_cache
+
+      # ファイルキャッシュ
+      hwid_file = File.join(cache_dir, '.hwid')
+      if File.exist?(hwid_file)
+        @hwid_cache = File.read(hwid_file).strip
+        return @hwid_cache if @hwid_cache.length > 0
+      end
+
+      # 初回のみ生成 (CMD窓が出るのはこの1回だけ)
       raw = case RUBY_PLATFORM
       when /mswin|mingw|cygwin/
-        `wmic baseboard get serialnumber`.strip.split("\n").last.strip rescue "win-unknown"
+        begin
+          require 'win32/registry'
+          Win32::Registry::HKEY_LOCAL_MACHINE.open('HARDWARE\\DESCRIPTION\\System\\BIOS') do |reg|
+            reg['BaseBoardSerialNumber']
+          end
+        rescue
+          `wmic baseboard get serialnumber`.strip.split("\n").last.strip rescue "win-unknown"
+        end
       when /darwin/
         `ioreg -rd1 -c IOPlatformExpertDevice`.scan(/UUID.*?"(.*?)"/).flatten.first rescue "mac-unknown"
       else
         "unknown"
       end
-      Digest::SHA256.hexdigest("iiiaha-#{raw}")[0..31]
+
+      @hwid_cache = Digest::SHA256.hexdigest("iiiaha-#{raw}")[0..31]
+      File.write(hwid_file, @hwid_cache) rescue nil
+      @hwid_cache
     end
 
     # ─── 캐시 파일 경로 ───
