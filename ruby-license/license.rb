@@ -9,6 +9,8 @@ module Iiiaha
     unless defined?(@loaded) && @loaded
     @loaded = true
 
+    @dialog_count = 0
+
     SERVER_URL = "https://iiiahalab.com/api/license"
     VERSION_URL = "https://iiiahalab.com/api/version"
     SITE_URL = "https://iiiahalab.com"
@@ -239,8 +241,6 @@ module Iiiaha
         dlg.execute_script("setProductInfo('#{display_name}', '#{icon_url}')")
       end
 
-      # set_html_content 대신 로드 후 호출
-      dlg.set_on_closed { }
       dlg.show
 
       # 약간의 딜레이 후 제품 정보 전달
@@ -248,10 +248,16 @@ module Iiiaha
         dlg.execute_script("setProductInfo('#{display_name}', '#{icon_url}')") rescue nil
       end
 
-      # 중앙 배치
+      # 겹치지 않게 오프셋 배치
+      offset = @dialog_count * 30
+      @dialog_count += 1
       vp_w = Sketchup.active_model.active_view.vpwidth
       vp_h = Sketchup.active_model.active_view.vpheight
-      dlg.set_position([(vp_w - 340) / 2, 0].max, [(vp_h - 200) / 2, 0].max)
+      left = [(vp_w - 340) / 2 + offset, 0].max
+      top = [(vp_h - 200) / 2 + offset, 0].max
+      dlg.set_position(left, top)
+
+      dlg.set_on_closed { @dialog_count = [@dialog_count - 1, 0].max }
     end
   end # unless @loaded
   end
