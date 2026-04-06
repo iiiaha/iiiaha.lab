@@ -4,6 +4,26 @@ import { useEffect, useState, useMemo } from "react";
 import { createClient } from "@/lib/supabase";
 import { Product } from "@/lib/types";
 
+function Field({ label, value, onChange, type = "text", options }: {
+  label: string; value: string | number; onChange: (v: string) => void;
+  type?: string; options?: { label: string; value: string }[];
+}) {
+  return (
+    <div className="flex items-center gap-2 mb-2">
+      <label className="w-[100px] shrink-0 text-[11px] text-[#999] font-bold uppercase tracking-[0.05em]">{label}</label>
+      {options ? (
+        <select value={String(value)} onChange={(e) => onChange(e.target.value)}
+          className="flex-1 border border-[#ddd] px-2 py-1.5 text-[13px] outline-none focus:border-[#111]">
+          {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+        </select>
+      ) : (
+        <input type={type} value={value} onChange={(e) => onChange(e.target.value)}
+          className="flex-1 border border-[#ddd] px-2 py-1.5 text-[13px] outline-none focus:border-[#111]" />
+      )}
+    </div>
+  );
+}
+
 const EMPTY_PRODUCT: Partial<Product> = {
   slug: "",
   name: "",
@@ -150,23 +170,7 @@ export default function AdminProducts() {
     showMessage("Uploaded");
   };
 
-  const Field = ({ label, value, onChange, type = "text", options }: {
-    label: string; value: string | number; onChange: (v: string) => void;
-    type?: string; options?: { label: string; value: string }[];
-  }) => (
-    <div className="flex items-center gap-2 mb-2">
-      <label className="w-[100px] shrink-0 text-[11px] text-[#999] font-bold uppercase tracking-[0.05em]">{label}</label>
-      {options ? (
-        <select value={String(value)} onChange={(e) => onChange(e.target.value)}
-          className="flex-1 border border-[#ddd] px-2 py-1.5 text-[13px] outline-none focus:border-[#111]">
-          {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-        </select>
-      ) : (
-        <input type={type} value={value} onChange={(e) => onChange(e.target.value)}
-          className="flex-1 border border-[#ddd] px-2 py-1.5 text-[13px] outline-none focus:border-[#111]" />
-      )}
-    </div>
-  );
+  // Field is defined outside the component below
 
   const discountOn = !!(editData as Record<string, unknown>)._discountOn;
   const origPrice = editData.original_price ?? editData.price ?? 0;
