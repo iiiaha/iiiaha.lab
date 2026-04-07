@@ -20,6 +20,12 @@ interface UserGroup {
   licenses: License[];
 }
 
+interface ProductOption {
+  id: string;
+  name: string;
+  slug: string;
+}
+
 export default function AdminLicenses() {
   const supabase = createClient();
   const [groups, setGroups] = useState<UserGroup[]>([]);
@@ -27,6 +33,13 @@ export default function AdminLicenses() {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
+  const [showIssue, setShowIssue] = useState(false);
+  const [products, setProducts] = useState<ProductOption[]>([]);
+  const [issueProductId, setIssueProductId] = useState("");
+  const [issueEmail, setIssueEmail] = useState("");
+  const [issueMemo, setIssueMemo] = useState("");
+  const [issuing, setIssuing] = useState(false);
+  const [issuedKey, setIssuedKey] = useState("");
 
   const load = async () => {
     const { data: licenses } = await supabase
@@ -58,7 +71,19 @@ export default function AdminLicenses() {
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, []);
+  const loadProducts = async () => {
+    const { data } = await supabase
+      .from("products")
+      .select("id, name, slug")
+      .eq("type", "extension")
+      .order("created_at", { ascending: true });
+    setProducts((data as ProductOption[]) ?? []);
+    if (data && data.length > 0 && !issueProductId) {
+      setIssueProductId(data[0].id);
+    }
+  };
+
+  useEffect(() => { load(); loadProducts(); }, []);
 
   const showMessage = (msg: string) => {
     setMessage(msg);
@@ -85,6 +110,35 @@ export default function AdminLicenses() {
     load();
   };
 
+  const issueLicense = async () => {
+    if (!issueProductId) return;
+    setIssuing(true);
+    setIssuedKey("");
+    try {
+      const res = await fetch("/api/admin/licenses", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          product_id: issueProductId,
+          user_email: issueEmail || undefined,
+          memo: issueMemo || undefined,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setIssuedKey(data.license_key);
+        showMessage(`발급 완료: ${data.license_key}`);
+        load();
+      } else {
+        showMessage(`오류: ${data.error}`);
+      }
+    } catch {
+      showMessage("발급 실패");
+    } finally {
+      setIssuing(false);
+    }
+  };
+
   const filtered = search
     ? groups.filter((g) =>
         g.email.toLowerCase().includes(search.toLowerCase()) ||
@@ -106,6 +160,12 @@ export default function AdminLicenses() {
         <div className="flex items-center gap-3">
           <h1 className="text-[16px] font-bold">라이선스</h1>
           {message && <span className="text-[11px] text-green-600">{message}</span>}
+          <button
+            onClick={() => { setShowIssue(!showIssue); setIssuedKey(""); }}
+            className="bg-[#111] text-white text-[11px] font-bold px-3 py-1 border-0 cursor-pointer hover:bg-[#333]"
+          >
+            + 수동 발급
+          </button>
         </div>
         <div className="flex gap-4 text-[12px] text-[#999]">
           <span>전체 {totalLicenses}</span>
@@ -113,6 +173,66 @@ export default function AdminLicenses() {
           <span>계정 {groups.length}</span>
         </div>
       </div>
+
+      {showIssue && (
+        <div className="border border-[#111] p-4 mb-6">
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2">
+              <label className="w-[60px] shrink-0 text-[11px] text-[#999] font-bold">제품</label>
+              <select
+                value={issueProductId}
+                onChange={(e) => setIssueProductId(e.target.value)}
+                className="flex-1 border border-[#ddd] px-2 py-1.5 text-[13px] outline-none focus:border-[#111]"
+              >
+                {products.map((p) => (
+                  <option key={p.id} value={p.id}>{p.name} ({p.slug})</option>
+                ))}
+              </select>
+            </div>
+            <div className="flex items-center gap-2">
+              <label className="w-[60px] shrink-0 text-[11px] text-[#999] font-bold">이메일</label>
+              <input
+                type="email"
+                value={issueEmail}
+                onChange={(e) => setIssueEmail(e.target.value)}
+                placeholder="유저 이메일 (선택)"
+                className="flex-1 border border-[#ddd] px-2 py-1.5 text-[13px] outline-none focus:border-[#111]"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <label className="w-[60px] shrink-0 text-[11px] text-[#999] font-bold">메모</label>
+              <input
+                type="text"
+                value={issueMemo}
+                onChange={(e) => setIssueMemo(e.target.value)}
+                placeholder="예: 베타테스트, 본인용 (선택)"
+                className="flex-1 border border-[#ddd] px-2 py-1.5 text-[13px] outline-none focus:border-[#111]"
+              />
+            </div>
+          </div>
+          {issuedKey && (
+            <div className="mt-3 p-3 bg-[#f5f5f5] border border-[#ddd]">
+              <span className="text-[11px] text-[#999]">발급된 키:</span>
+              <code className="ml-2 text-[14px] font-bold select-all">{issuedKey}</code>
+            </div>
+          )}
+          <div className="flex gap-2 mt-3">
+            <button
+              onClick={issueLicense}
+              disabled={issuing || !issueProductId}
+              className="bg-[#111] text-white text-[12px] font-bold px-4 py-2 border-0 cursor-pointer hover:bg-[#333] disabled:opacity-40"
+            >
+              {issuing ? "..." : "발급"}
+            </button>
+            <button
+              onClick={() => { setShowIssue(false); setIssuedKey(""); setIssueEmail(""); setIssueMemo(""); }}
+              className="bg-white text-[#111] text-[12px] font-bold px-4 py-2 border border-[#ddd] cursor-pointer hover:bg-[#f5f5f5]"
+            >
+              닫기
+            </button>
+          </div>
+        </div>
+      )}
 
       <input
         type="text"
