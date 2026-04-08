@@ -27,6 +27,7 @@ export default function SystemsPage() {
   const [items, setItems] = useState<SystemItem[]>([]);
   const [admin, setAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [reordering, setReordering] = useState(false);
   const [dragIdx, setDragIdx] = useState<number | null>(null);
   const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
 
@@ -47,18 +48,27 @@ export default function SystemsPage() {
     init();
   }, []);
 
-  const handleDrop = async (fromIdx: number, toIdx: number) => {
+  const handleDrop = (fromIdx: number, toIdx: number) => {
     if (fromIdx === toIdx) return;
     const reordered = [...items];
     const [moved] = reordered.splice(fromIdx, 1);
     reordered.splice(toIdx, 0, moved);
     setItems(reordered);
-    const len = reordered.length;
+  };
+
+  const applyOrder = async () => {
+    const len = items.length;
     await Promise.all(
-      reordered.map((item, i) =>
+      items.map((item, i) =>
         supabase.from("systems").update({ sort_order: len - 1 - i }).eq("id", item.id)
       )
     );
+    setReordering(false);
+  };
+
+  const cancelReorder = () => {
+    setReordering(false);
+    load();
   };
 
   return (
@@ -66,7 +76,19 @@ export default function SystemsPage() {
       <div className="flex items-baseline justify-between mb-[10px]">
         <h1 className="text-[16px] font-bold tracking-[0.03em]">R&D</h1>
         {admin && (
-          <Link href="/systems/new" className="text-[12px] text-[#999] no-underline hover:underline">+ Add</Link>
+          <div className="flex items-center gap-3">
+            {reordering ? (
+              <>
+                <button onClick={cancelReorder} className="text-[12px] text-[#999] bg-transparent border-0 cursor-pointer hover:underline">Cancel</button>
+                <button onClick={applyOrder} className="text-[12px] text-white bg-[#111] border-0 px-3 py-1 cursor-pointer hover:bg-[#333]">Apply</button>
+              </>
+            ) : (
+              <>
+                <button onClick={() => setReordering(true)} className="text-[12px] text-[#999] bg-transparent border-0 cursor-pointer hover:underline">Reorder</button>
+                <Link href="/systems/new" className="text-[12px] text-[#999] no-underline hover:underline">+ Add</Link>
+              </>
+            )}
+          </div>
         )}
       </div>
       <div className="border-b border-[#111] mb-4 sticky-divider" />
@@ -81,11 +103,11 @@ export default function SystemsPage() {
           {items.map((item, i) => (
             <div
               key={item.id}
-              draggable={admin}
-              onDragStart={() => admin && setDragIdx(i)}
-              onDragOver={(e) => { if (admin) { e.preventDefault(); setDragOverIdx(i); } }}
-              onDragLeave={() => admin && setDragOverIdx(null)}
-              onDrop={() => { if (admin && dragIdx !== null) handleDrop(dragIdx, i); setDragIdx(null); setDragOverIdx(null); }}
+              draggable={reordering}
+              onDragStart={() => reordering && setDragIdx(i)}
+              onDragOver={(e) => { if (reordering) { e.preventDefault(); setDragOverIdx(i); } }}
+              onDragLeave={() => reordering && setDragOverIdx(null)}
+              onDrop={() => { if (reordering && dragIdx !== null) handleDrop(dragIdx, i); setDragIdx(null); setDragOverIdx(null); }}
               onDragEnd={() => { setDragIdx(null); setDragOverIdx(null); }}
               className={`${dragIdx === i ? "opacity-40" : ""} ${dragOverIdx === i ? "ring-2 ring-[#111]" : ""}`}
             >
