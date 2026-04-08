@@ -118,13 +118,35 @@ export default function SystemDetailPage() {
   );
 }
 
+function getYoutubeId(url: string): string | null {
+  const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/);
+  return match ? match[1] : null;
+}
+
+function isYoutubeUrl(url: string): boolean {
+  return url.includes("youtube.com") || url.includes("youtu.be");
+}
+
 function ImageSlider({ images }: { images: string[] }) {
   const [current, setCurrent] = useState(0);
   if (images.length === 0) return null;
 
+  const currentUrl = images[current];
+  const isYt = isYoutubeUrl(currentUrl);
+  const ytId = isYt ? getYoutubeId(currentUrl) : null;
+
   return (
     <div className="relative aspect-video bg-[#f5f5f5] border border-[#ddd] mb-5 overflow-hidden">
-      <img src={images[current]} alt="" className="w-full h-full object-cover" />
+      {isYt && ytId ? (
+        <iframe
+          src={`https://www.youtube.com/embed/${ytId}`}
+          className="w-full h-full border-0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+        />
+      ) : (
+        <img src={currentUrl} alt="" className="w-full h-full object-cover" />
+      )}
       {images.length > 1 && (
         <>
           <button

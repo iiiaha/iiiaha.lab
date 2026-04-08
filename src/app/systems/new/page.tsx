@@ -28,9 +28,10 @@ function SystemForm() {
   const [researchDate, setResearchDate] = useState("");
   const [description, setDescription] = useState("");
   const [linkUrl, setLinkUrl] = useState("");
-  const [images, setImages] = useState<{ file?: File; url: string }[]>([]);
+  const [images, setImages] = useState<{ file?: File; url: string; type: "image" | "youtube" }[]>([]);
   const [newFiles, setNewFiles] = useState<File[]>([]);
   const [imgDragIdx, setImgDragIdx] = useState<number | null>(null);
+  const [youtubeInput, setYoutubeInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [authorized, setAuthorized] = useState(false);
@@ -52,7 +53,10 @@ function SystemForm() {
           setDescription(data.description || "");
           setLinkUrl(data.link_url || "");
           const existingImages: string[] = data.images || (data.image_url ? [data.image_url] : []);
-          setImages(existingImages.map((url: string) => ({ url })));
+          setImages(existingImages.map((url: string) => ({
+            url,
+            type: url.includes("youtube.com") || url.includes("youtu.be") ? "youtube" as const : "image" as const,
+          })));
         }
       }
 
@@ -67,10 +71,18 @@ function SystemForm() {
     setNewFiles((prev) => [...prev, ...files]);
     for (const file of files) {
       const reader = new FileReader();
-      reader.onload = () => setImages((prev) => [...prev, { file, url: reader.result as string }]);
+      reader.onload = () => setImages((prev) => [...prev, { file, url: reader.result as string, type: "image" }]);
       reader.readAsDataURL(file);
     }
     e.target.value = "";
+  };
+
+  const loadYoutube = () => {
+    const url = youtubeInput.trim();
+    if (!url) return;
+    if (!url.includes("youtube.com") && !url.includes("youtu.be")) return;
+    setImages((prev) => [...prev, { url, type: "youtube" }]);
+    setYoutubeInput("");
   };
 
   const removeImage = (idx: number) => {
@@ -187,7 +199,7 @@ function SystemForm() {
         </div>
 
         <div>
-          <label className="block text-[12px] text-[#666] font-bold mb-1 tracking-[0.05em] uppercase">Image</label>
+          <label className="block text-[12px] text-[#666] font-bold mb-1 tracking-[0.05em] uppercase">Media</label>
           {images.length > 0 && (
             <div className="grid grid-cols-4 gap-2 mb-3">
               {images.map((img, i) => (
@@ -207,7 +219,13 @@ function SystemForm() {
                   onDragEnd={() => setImgDragIdx(null)}
                   className={`relative aspect-square bg-[#f5f5f5] border border-[#ddd] overflow-hidden cursor-grab active:cursor-grabbing ${imgDragIdx === i ? "opacity-40" : ""}`}
                 >
-                  <img src={img.url} alt="" className="w-full h-full object-cover pointer-events-none" />
+                  {img.type === "youtube" ? (
+                    <div className="w-full h-full flex items-center justify-center bg-[#111]">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="red"><path d="M23.5 6.5a3 3 0 00-2.1-2.1C19.5 4 12 4 12 4s-7.5 0-9.4.4a3 3 0 00-2.1 2.1C0 8.4 0 12 0 12s0 3.6.5 5.5a3 3 0 002.1 2.1c1.9.4 9.4.4 9.4.4s7.5 0 9.4-.4a3 3 0 002.1-2.1c.5-1.9.5-5.5.5-5.5s0-3.6-.5-5.5z"/><path d="M9.75 15.02l6.28-3.02-6.28-3.02v6.04z" fill="white"/></svg>
+                    </div>
+                  ) : (
+                    <img src={img.url} alt="" className="w-full h-full object-cover pointer-events-none" />
+                  )}
                   <span className="absolute top-1 left-1 text-[9px] text-white bg-[#111]/60 w-4 h-4 flex items-center justify-center">{i + 1}</span>
                   <button type="button" onClick={() => removeImage(i)}
                     className="absolute top-1 right-1 w-5 h-5 flex items-center justify-center bg-[#111] text-white text-[11px] border-0 cursor-pointer">×</button>
@@ -226,7 +244,7 @@ function SystemForm() {
               setNewFiles((prev) => [...prev, ...files]);
               for (const file of files) {
                 const reader = new FileReader();
-                reader.onload = () => setImages((prev) => [...prev, { file, url: reader.result as string }]);
+                reader.onload = () => setImages((prev) => [...prev, { file, url: reader.result as string, type: "image" }]);
                 reader.readAsDataURL(file);
               }
             }}
@@ -239,6 +257,20 @@ function SystemForm() {
             <p className="text-[13px] text-[#999] mt-2">Drop images here or click to upload</p>
           </div>
           <input id="sys-file" type="file" accept="image/*" multiple onChange={handleImageChange} className="hidden" />
+          <div className="flex gap-2 mt-2">
+            <input
+              type="text"
+              value={youtubeInput}
+              onChange={(e) => setYoutubeInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), loadYoutube())}
+              placeholder="YouTube URL"
+              className="flex-1 border border-[#ddd] px-3 py-2 text-[13px] outline-none focus:border-[#111]"
+            />
+            <button type="button" onClick={loadYoutube}
+              className="text-[12px] border border-[#111] bg-transparent px-4 py-2 cursor-pointer hover:bg-[#111] hover:text-white transition-colors">
+              Load
+            </button>
+          </div>
         </div>
 
         <div className="flex gap-3 mt-2 justify-end">
