@@ -35,7 +35,7 @@ export default function TermsPage() {
           <p>
             Refund requests can be made within 7 days of purchase if the license has not
             been activated. Once a license is activated, refunds are handled on a
-            case-by-case basis. Contact us at contact@iiiaha.com.
+            case-by-case basis. Contact us at contact@iiiahalab.com.
           </p>
         </section>
 

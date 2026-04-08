@@ -10,7 +10,7 @@ export default function Footer() {
         <div className="flex justify-between text-[13px] max-sm:flex-col max-sm:gap-6">
           <div className="flex flex-col gap-1">
             <span className="font-bold tracking-[0.05em]">iiiaha.lab</span>
-            <span className="text-[#999]">contact@iiiaha.com</span>
+            <span className="text-[#999]">contact@iiiahalab.com</span>
           </div>
           <div className="flex flex-col gap-1 text-right max-sm:text-left">
             <Link href="https://www.instagram.com/iiiaha.lab/" target="_blank" rel="noopener noreferrer">

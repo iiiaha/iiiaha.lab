@@ -61,7 +61,7 @@ export default function PrivacyPage() {
         <section>
           <h2 className="font-bold mb-2">7. Contact</h2>
           <p>
-            For privacy-related inquiries, contact us at contact@iiiaha.com.
+            For privacy-related inquiries, contact us at contact@iiiahalab.com.
           </p>
         </section>
 
