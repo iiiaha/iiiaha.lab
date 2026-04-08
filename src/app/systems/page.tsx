@@ -127,7 +127,7 @@ export default function SystemsPage() {
               href={`/systems/${item.id}`}
               className="group no-underline"
             >
-              <div className="aspect-square bg-[#f5f5f5] border border-[#ddd] mb-3 overflow-hidden flex items-center justify-center">
+              <div className="aspect-square bg-[#f5f5f5] border border-[#ddd] mb-3 overflow-hidden flex items-center justify-center relative">
                 {getThumbnail(item) ? (
                   <img
                     src={getThumbnail(item)!}
@@ -137,17 +137,15 @@ export default function SystemsPage() {
                 ) : (
                   <span className="text-[#999] text-[13px]">{item.title}</span>
                 )}
-              </div>
-              <div className="flex items-center justify-between gap-2">
-                <h3 className="text-[14px] font-bold group-hover:underline truncate">
-                  {item.title}
-                </h3>
-                {item.status && STATUS_STYLE[item.status] && (
-                  <span className={`text-[9px] font-bold px-1.5 py-[3px] shrink-0 ${STATUS_STYLE[item.status].bg} ${STATUS_STYLE[item.status].text}`}>
-                    {item.status}
+                {item.status === "Released" && (
+                  <span className="absolute top-2 right-2 text-[9px] font-bold px-1.5 py-[3px] bg-[#00c9a7] text-white">
+                    Released
                   </span>
                 )}
               </div>
+              <h3 className="text-[14px] font-bold group-hover:underline truncate">
+                {item.title}
+              </h3>
               {item.subtitle && (
                 <p className="text-[12px] text-[#999] mt-0.5">{item.subtitle}</p>
               )}
