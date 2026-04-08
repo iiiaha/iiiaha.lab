@@ -22,7 +22,7 @@ function getThumbnail(item: SystemItem): string | null {
   const first = item.images?.[0];
   if (!first) return null;
   if (first.includes("youtube.com") || first.includes("youtu.be")) {
-    const id = first.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/)?.[1];
+    const id = first.match(/(?:youtube\.com\/watch\?v=|youtube\.com\/shorts\/|youtu\.be\/)([\w-]+)/)?.[1];
     return id ? `https://img.youtube.com/vi/${id}/hqdefault.jpg` : null;
   }
   return first;

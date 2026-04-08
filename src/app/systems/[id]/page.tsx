@@ -119,7 +119,7 @@ export default function SystemDetailPage() {
 }
 
 function getYoutubeId(url: string): string | null {
-  const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/);
+  const match = url.match(/(?:youtube\.com\/watch\?v=|youtube\.com\/shorts\/|youtu\.be\/)([\w-]+)/);
   return match ? match[1] : null;
 }
 
