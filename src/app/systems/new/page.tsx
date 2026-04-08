@@ -125,7 +125,11 @@ function SystemForm() {
       research_date: researchDate.trim() || null,
       description: description.trim() || null,
       link_url: linkUrl.trim() || null,
-      image_url: allUrls[0] || null,
+      image_url: allUrls[0]
+        ? (allUrls[0].includes("youtube.com") || allUrls[0].includes("youtu.be"))
+          ? `https://img.youtube.com/vi/${allUrls[0].match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/)?.[1]}/maxresdefault.jpg`
+          : allUrls[0]
+        : null,
       images: allUrls.length > 0 ? allUrls : null,
     };
 
