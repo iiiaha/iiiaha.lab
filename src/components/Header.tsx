@@ -35,7 +35,7 @@ export default function Header() {
   const navItems = [
     { href: "/extensions", label: "Extensions" },
     { href: "/courses", label: "Courses" },
-    { href: "/systems", label: "Systems" },
+    { href: "/systems", label: "R&D" },
     { href: "/openlab", label: "Open Lab" },
     loggedIn
       ? { href: "/mypage", label: "My Page" }

@@ -7,12 +7,21 @@ import { getUser, signOut } from "@/lib/auth";
 import { createClient } from "@/lib/supabase";
 import { formatPrice } from "@/lib/types";
 
+interface Subscription {
+  id: string;
+  plan: "monthly" | "annual";
+  status: "active" | "cancelled" | "expired";
+  started_at: string;
+  expires_at: string;
+}
+
 interface OrderWithProduct {
   id: string;
   amount: number;
   status: string;
   created_at: string;
   product_id: string;
+  subscription_id: string | null;
   products: {
     slug: string;
     name: string;
@@ -67,6 +76,7 @@ function LicenseKeyDisplay({ licenseKey }: { licenseKey: string }) {
 export default function MyPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
+  const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [orders, setOrders] = useState<OrderWithProduct[]>([]);
   const [versions, setVersions] = useState<Record<string, VersionInfo>>({});
   const [loading, setLoading] = useState(true);
@@ -80,16 +90,43 @@ export default function MyPage() {
       }
       setEmail(user.email ?? "");
       const supabase = createClient();
+
+      // 구독 조회
+      const { data: subData } = await supabase
+        .from("subscriptions")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("status", "active")
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .single();
+      if (subData) setSubscription(subData as Subscription);
+
       const { data } = await supabase
         .from("orders")
         .select(
-          "id, amount, status, created_at, product_id, products(slug, name, version, thumbnail_url), licenses(license_key, hwid, status)"
+          "id, amount, status, created_at, product_id, subscription_id, products(slug, name, version, thumbnail_url), licenses(license_key, hwid, status)"
         )
         .eq("user_id", user.id)
         .eq("status", "paid")
         .order("created_at", { ascending: false });
 
-      const orderList = (data as unknown as OrderWithProduct[]) ?? [];
+      const allOrders = (data as unknown as OrderWithProduct[]) ?? [];
+      // 같은 제품이 구매+구독 둘 다 있으면 구매 건만 표시
+      const seen = new Map<string, OrderWithProduct>();
+      for (const order of allOrders) {
+        const pid = order.product_id;
+        const existing = seen.get(pid);
+        if (!existing) {
+          seen.set(pid, order);
+        } else if (order.subscription_id && !existing.subscription_id) {
+          // 기존이 개별구매, 새로운게 구독 → 개별구매 유지
+        } else if (!order.subscription_id && existing.subscription_id) {
+          // 기존이 구독, 새로운게 개별구매 → 개별구매로 교체
+          seen.set(pid, order);
+        }
+      }
+      const orderList = Array.from(seen.values());
       setOrders(orderList);
 
       const versionMap: Record<string, VersionInfo> = {};
@@ -146,6 +183,39 @@ export default function MyPage() {
         <p className="text-[13px] text-[#666]">{email}</p>
       </div>
 
+      {/* Subscription */}
+      {subscription && (
+        <div className="mb-10">
+          <h2 className="text-[12px] font-bold text-[#999] tracking-[0.05em] uppercase mb-4">
+            Subscription
+          </h2>
+          <div
+            className="sub-cta relative overflow-hidden rounded-sm p-5 mb-2"
+          >
+            <div className="sub-cta-bg absolute inset-0" />
+            <div className="sub-cta-aurora absolute inset-0" />
+            <div className="relative flex items-center justify-between">
+              <div>
+                <p className="text-[14px] font-bold text-white mb-1">
+                  All Extensions — {subscription.plan === "annual" ? "Annual" : "Monthly"} Plan
+                </p>
+                <p className="text-[12px] text-[rgba(255,255,255,0.6)]">
+                  {new Date(subscription.started_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })}
+                  {" — "}
+                  {new Date(subscription.expires_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })}
+                </p>
+              </div>
+              <span className="text-[11px] font-bold tracking-[0.05em] text-white border border-[rgba(255,255,255,0.3)] px-3 py-1">
+                Active
+              </span>
+            </div>
+          </div>
+          <p className="text-[11px] text-[#999]">
+            All extensions are available for download during your subscription period.
+          </p>
+        </div>
+      )}
+
       <h2 className="text-[12px] font-bold text-[#999] tracking-[0.05em] uppercase mb-4">
         Purchased
       </h2>
@@ -156,10 +226,6 @@ export default function MyPage() {
           orders.map((order) => {
             const slug = order.products?.slug;
             const ver = slug ? versions[slug] : null;
-            const purchaseDate = new Date(order.created_at).toLocaleDateString(
-              "en-US",
-              { year: "numeric", month: "short", day: "numeric" }
-            );
 
             const isRevoked = order.licenses?.some((l) => l.status === "revoked");
 
@@ -182,8 +248,14 @@ export default function MyPage() {
 
                     <div className="flex flex-col gap-2 ml-12">
                       <div className="flex items-center gap-2">
-                        <span className="text-[11px] text-[#999] w-[60px]">Purchased</span>
-                        <span className="text-[12px] text-[#666]">{purchaseDate}</span>
+                        <span className="text-[11px] text-[#999] w-[60px]">Expires</span>
+                        {order.subscription_id && subscription ? (
+                          <span className="text-[12px] text-[#666]">
+                            {new Date(subscription.expires_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })}
+                          </span>
+                        ) : (
+                          <span className="text-[12px] text-[#666]">Permanent</span>
+                        )}
                       </div>
 
                       {isRevoked ? (
@@ -223,7 +295,13 @@ export default function MyPage() {
                   </div>
 
                   <div className="flex flex-col items-end gap-2 shrink-0 w-[130px]">
-                    <span className="text-[13px] text-[#666]">{formatPrice(order.amount)}</span>
+                    {order.subscription_id ? (
+                      <span className="text-[11px] font-bold tracking-[0.05em] text-[#00c9a7] border border-[#00c9a7] px-2.5 py-0.5">
+                        Subscribed
+                      </span>
+                    ) : (
+                      <span className="text-[13px] text-[#666]">{formatPrice(order.amount)}</span>
+                    )}
                     {isRevoked ? (
                       <span className="w-full text-[12px] text-red-600 border border-red-200 px-4 py-1.5 text-center">
                         Revoked
