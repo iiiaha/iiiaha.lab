@@ -52,3 +52,40 @@ a, button, [role="button"], input[type="submit"], select {
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-thumb { background: #ccc; }
 ::-webkit-scrollbar-thumb:hover { background: #aaa; }
+
+/* Subscription CTA — Aurora */
+.sub-cta-bg {
+  background: #080810;
+}
+
+.sub-cta-aurora {
+  overflow: hidden;
+  filter: blur(15px);
+}
+
+.sub-cta-aurora::before,
+.sub-cta-aurora::after {
+  content: "";
+  position: absolute;
+  inset: -20px;
+}
+
+.sub-cta-aurora::before {
+  background:
+    conic-gradient(from 0deg at 30% 60%, transparent 0%, rgba(0, 210, 255, 0.45) 8%, transparent 16%),
+    conic-gradient(from 120deg at 70% 40%, transparent 0%, rgba(0, 140, 255, 0.4) 10%, transparent 20%),
+    conic-gradient(from 240deg at 50% 70%, transparent 0%, rgba(0, 255, 200, 0.3) 7%, transparent 14%);
+  animation: aurora-spin 14s linear infinite;
+}
+
+.sub-cta-aurora::after {
+  background:
+    conic-gradient(from 60deg at 60% 30%, transparent 0%, rgba(0, 180, 255, 0.35) 6%, transparent 12%),
+    conic-gradient(from 180deg at 25% 50%, transparent 0%, rgba(0, 230, 255, 0.35) 9%, transparent 18%);
+  animation: aurora-spin 20s linear infinite reverse;
+}
+
+@keyframes aurora-spin {
+  0% { transform: rotate(0deg) scale(1.5); }
+  100% { transform: rotate(360deg) scale(1.5); }
+}

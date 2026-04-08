@@ -210,6 +210,23 @@ export default function ExtensionDetail({ product }: { product: Product }) {
                 Add to Cart &mdash; {formatPrice(product.price)}
               </button>
             )}
+
+            {/* Subscription CTA */}
+            <Link
+              href="/subscribe"
+              className="sub-cta group block no-underline mt-2 rounded-sm overflow-hidden relative"
+            >
+              <div className="sub-cta-bg absolute inset-0" />
+              <div className="sub-cta-aurora absolute inset-0" />
+              <div className="text-center px-5 py-5 relative">
+                <p className="text-[13px] text-[rgba(255,255,255,0.8)] mb-1.5">
+                  Or get <span className="font-bold text-white">all 17 extensions</span> with a subscription
+                </p>
+                <p className="text-[17px] font-bold text-white tracking-wide">
+                  ₩39,000<span className="text-[12px] font-normal text-[rgba(255,255,255,0.5)]"> /month</span>
+                </p>
+              </div>
+            </Link>
           </div>
         )}
       </div>
