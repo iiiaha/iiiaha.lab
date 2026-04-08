@@ -53,9 +53,10 @@ export default function SystemsPage() {
     const [moved] = reordered.splice(fromIdx, 1);
     reordered.splice(toIdx, 0, moved);
     setItems(reordered);
+    const len = reordered.length;
     await Promise.all(
       reordered.map((item, i) =>
-        supabase.from("systems").update({ sort_order: i }).eq("id", item.id)
+        supabase.from("systems").update({ sort_order: len - 1 - i }).eq("id", item.id)
       )
     );
   };
