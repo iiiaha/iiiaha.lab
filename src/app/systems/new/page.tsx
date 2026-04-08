@@ -127,7 +127,7 @@ function SystemForm() {
       link_url: linkUrl.trim() || null,
       image_url: allUrls[0]
         ? (allUrls[0].includes("youtube.com") || allUrls[0].includes("youtu.be"))
-          ? `https://img.youtube.com/vi/${allUrls[0].match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/)?.[1]}/maxresdefault.jpg`
+          ? `https://img.youtube.com/vi/${allUrls[0].match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/)?.[1]}/hqdefault.jpg`
           : allUrls[0]
         : null,
       images: allUrls.length > 0 ? allUrls : null,

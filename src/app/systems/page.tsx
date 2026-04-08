@@ -11,9 +11,21 @@ interface SystemItem {
   subtitle: string | null;
   description: string | null;
   image_url: string | null;
+  images: string[] | null;
   link_url: string | null;
   sort_order: number;
   status: string | null;
+}
+
+function getThumbnail(item: SystemItem): string | null {
+  if (item.image_url) return item.image_url;
+  const first = item.images?.[0];
+  if (!first) return null;
+  if (first.includes("youtube.com") || first.includes("youtu.be")) {
+    const id = first.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/)?.[1];
+    return id ? `https://img.youtube.com/vi/${id}/hqdefault.jpg` : null;
+  }
+  return first;
 }
 
 const STATUS_STYLE: Record<string, { bg: string; text: string }> = {
@@ -116,9 +128,9 @@ export default function SystemsPage() {
               className="group no-underline"
             >
               <div className="aspect-square bg-[#f5f5f5] border border-[#ddd] mb-3 overflow-hidden flex items-center justify-center">
-                {item.image_url ? (
+                {getThumbnail(item) ? (
                   <img
-                    src={item.image_url}
+                    src={getThumbnail(item)!}
                     alt={item.title}
                     className="w-full h-full object-cover group-hover:opacity-85 transition-opacity duration-200"
                   />
