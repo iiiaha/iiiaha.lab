@@ -30,6 +30,7 @@ function SystemForm() {
   const [linkUrl, setLinkUrl] = useState("");
   const [images, setImages] = useState<{ file?: File; url: string }[]>([]);
   const [newFiles, setNewFiles] = useState<File[]>([]);
+  const [imgDragIdx, setImgDragIdx] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [authorized, setAuthorized] = useState(false);
@@ -190,8 +191,24 @@ function SystemForm() {
           {images.length > 0 && (
             <div className="grid grid-cols-4 gap-2 mb-3">
               {images.map((img, i) => (
-                <div key={i} className="relative aspect-square bg-[#f5f5f5] border border-[#ddd] overflow-hidden">
-                  <img src={img.url} alt="" className="w-full h-full object-cover" />
+                <div
+                  key={i}
+                  draggable
+                  onDragStart={() => setImgDragIdx(i)}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={() => {
+                    if (imgDragIdx === null || imgDragIdx === i) return;
+                    const reordered = [...images];
+                    const [moved] = reordered.splice(imgDragIdx, 1);
+                    reordered.splice(i, 0, moved);
+                    setImages(reordered);
+                    setImgDragIdx(null);
+                  }}
+                  onDragEnd={() => setImgDragIdx(null)}
+                  className={`relative aspect-square bg-[#f5f5f5] border border-[#ddd] overflow-hidden cursor-grab active:cursor-grabbing ${imgDragIdx === i ? "opacity-40" : ""}`}
+                >
+                  <img src={img.url} alt="" className="w-full h-full object-cover pointer-events-none" />
+                  <span className="absolute top-1 left-1 text-[9px] text-white bg-[#111]/60 w-4 h-4 flex items-center justify-center">{i + 1}</span>
                   <button type="button" onClick={() => removeImage(i)}
                     className="absolute top-1 right-1 w-5 h-5 flex items-center justify-center bg-[#111] text-white text-[11px] border-0 cursor-pointer">×</button>
                 </div>
