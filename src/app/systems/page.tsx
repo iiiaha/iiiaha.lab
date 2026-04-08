@@ -27,21 +27,38 @@ export default function SystemsPage() {
   const [items, setItems] = useState<SystemItem[]>([]);
   const [admin, setAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [dragIdx, setDragIdx] = useState<number | null>(null);
+  const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
+
+  const load = async () => {
+    const { data } = await supabase
+      .from("systems")
+      .select("*")
+      .order("sort_order", { ascending: false });
+    setItems(data ?? []);
+  };
 
   useEffect(() => {
-    const load = async () => {
-      const { data } = await supabase
-        .from("systems")
-        .select("*")
-        .order("sort_order", { ascending: true });
-      setItems(data ?? []);
-
-      const a = await isAdmin();
-      setAdmin(a);
+    const init = async () => {
+      await load();
+      setAdmin(await isAdmin());
       setLoading(false);
     };
-    load();
+    init();
   }, []);
+
+  const handleDrop = async (fromIdx: number, toIdx: number) => {
+    if (fromIdx === toIdx) return;
+    const reordered = [...items];
+    const [moved] = reordered.splice(fromIdx, 1);
+    reordered.splice(toIdx, 0, moved);
+    setItems(reordered);
+    await Promise.all(
+      reordered.map((item, i) =>
+        supabase.from("systems").update({ sort_order: i }).eq("id", item.id)
+      )
+    );
+  };
 
   return (
     <div>
@@ -60,9 +77,18 @@ export default function SystemsPage() {
         <p className="text-[14px] text-[#999]">Coming soon.</p>
       ) : (
         <div className="grid grid-cols-3 gap-x-4 gap-y-6 max-sm:gap-x-2 max-sm:gap-y-4">
-          {items.map((item) => (
-            <Link
+          {items.map((item, i) => (
+            <div
               key={item.id}
+              draggable={admin}
+              onDragStart={() => admin && setDragIdx(i)}
+              onDragOver={(e) => { if (admin) { e.preventDefault(); setDragOverIdx(i); } }}
+              onDragLeave={() => admin && setDragOverIdx(null)}
+              onDrop={() => { if (admin && dragIdx !== null) handleDrop(dragIdx, i); setDragIdx(null); setDragOverIdx(null); }}
+              onDragEnd={() => { setDragIdx(null); setDragOverIdx(null); }}
+              className={`${dragIdx === i ? "opacity-40" : ""} ${dragOverIdx === i ? "ring-2 ring-[#111]" : ""}`}
+            >
+            <Link
               href={`/systems/${item.id}`}
               className="group no-underline"
             >
@@ -89,6 +115,7 @@ export default function SystemsPage() {
                 <p className="text-[12px] text-[#999] mt-0.5">{item.subtitle}</p>
               )}
             </Link>
+            </div>
           ))}
         </div>
       )}

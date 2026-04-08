@@ -25,6 +25,7 @@ function SystemForm() {
   const [title, setTitle] = useState("");
   const [subtitle, setSubtitle] = useState("");
   const [status, setStatus] = useState("");
+  const [researchDate, setResearchDate] = useState("");
   const [description, setDescription] = useState("");
   const [linkUrl, setLinkUrl] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -48,6 +49,7 @@ function SystemForm() {
           setTitle(data.title);
           setSubtitle(data.subtitle || "");
           setStatus(data.status || "");
+          setResearchDate(data.research_date || "");
           setDescription(data.description || "");
           setLinkUrl(data.link_url || "");
           if (data.image_url) {
@@ -105,6 +107,7 @@ function SystemForm() {
         title: title.trim(),
         subtitle: subtitle.trim() || null,
         status: status || null,
+        research_date: researchDate.trim() || null,
         description: description.trim() || null,
         link_url: linkUrl.trim() || null,
         image_url: imageUrl,
@@ -116,6 +119,7 @@ function SystemForm() {
         title: title.trim(),
         subtitle: subtitle.trim() || null,
         status: status || null,
+        research_date: researchDate.trim() || null,
         description: description.trim() || null,
         link_url: linkUrl.trim() || null,
         image_url: imageUrl,
@@ -163,6 +167,12 @@ function SystemForm() {
             <option value="Completed">Completed</option>
             <option value="Released">Released</option>
           </select>
+        </div>
+
+        <div>
+          <label className="block text-[12px] text-[#666] font-bold mb-1 tracking-[0.05em] uppercase">Research Date</label>
+          <input type="text" value={researchDate} onChange={(e) => setResearchDate(e.target.value)} placeholder="e.g. 2026. 01 ~ 2026. 03"
+            className="w-full border border-[#ddd] px-3 py-2.5 text-[14px] outline-none focus:border-[#111] transition-colors" />
         </div>
 
         <div>

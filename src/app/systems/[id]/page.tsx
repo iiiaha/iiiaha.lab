@@ -13,6 +13,7 @@ interface SystemItem {
   image_url: string | null;
   link_url: string | null;
   status: string | null;
+  research_date: string | null;
   created_at: string;
 }
 
@@ -49,9 +50,9 @@ export default function SystemDetailPage() {
 
   const info = [
     { label: "Title", value: item.title },
-    { label: "Date", value: new Date(item.created_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" }) },
+    { label: "Date", value: item.research_date || null },
     { label: "Status", value: item.status ? (
-      <span className={`text-[10px] font-bold px-2 py-0.5 ${STATUS_STYLE[item.status] || "text-[#666]"}`}>
+      <span className={`text-[10px] font-bold px-2 py-[3px] ${STATUS_STYLE[item.status] || "text-[#666]"}`}>
         {item.status}
       </span>
     ) : null },
