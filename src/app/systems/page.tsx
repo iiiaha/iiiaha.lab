@@ -138,14 +138,16 @@ export default function SystemsPage() {
                   <span className="text-[#999] text-[13px]">{item.title}</span>
                 )}
               </div>
-              <h3 className="text-[14px] font-bold group-hover:underline flex items-center gap-1.5">
+              <div className="flex items-center justify-between gap-2">
+                <h3 className="text-[14px] font-bold group-hover:underline truncate">
+                  {item.title}
+                </h3>
                 {item.status && STATUS_STYLE[item.status] && (
-                  <span className={`text-[9px] font-bold px-1.5 py-[3px] shrink-0 w-[60px] text-center ${STATUS_STYLE[item.status].bg} ${STATUS_STYLE[item.status].text}`}>
+                  <span className={`text-[9px] font-bold px-1.5 py-[3px] shrink-0 ${STATUS_STYLE[item.status].bg} ${STATUS_STYLE[item.status].text}`}>
                     {item.status}
                   </span>
                 )}
-                <span className="truncate">{item.title}</span>
-              </h3>
+              </div>
               {item.subtitle && (
                 <p className="text-[12px] text-[#999] mt-0.5">{item.subtitle}</p>
               )}
