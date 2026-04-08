@@ -28,10 +28,8 @@ function SystemForm() {
   const [researchDate, setResearchDate] = useState("");
   const [description, setDescription] = useState("");
   const [linkUrl, setLinkUrl] = useState("");
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [existingImageUrl, setExistingImageUrl] = useState<string | null>(null);
-  const [removeImage, setRemoveImage] = useState(false);
+  const [images, setImages] = useState<{ file?: File; url: string }[]>([]);
+  const [newFiles, setNewFiles] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [authorized, setAuthorized] = useState(false);
@@ -52,10 +50,8 @@ function SystemForm() {
           setResearchDate(data.research_date || "");
           setDescription(data.description || "");
           setLinkUrl(data.link_url || "");
-          if (data.image_url) {
-            setExistingImageUrl(data.image_url);
-            setImagePreview(data.image_url);
-          }
+          const existingImages: string[] = data.images || (data.image_url ? [data.image_url] : []);
+          setImages(existingImages.map((url: string) => ({ url })));
         }
       }
 
@@ -65,19 +61,23 @@ function SystemForm() {
   }, [router, editId, isEdit, supabase]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setImageFile(file);
-    setRemoveImage(false);
-    const reader = new FileReader();
-    reader.onload = () => setImagePreview(reader.result as string);
-    reader.readAsDataURL(file);
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+    setNewFiles((prev) => [...prev, ...files]);
+    for (const file of files) {
+      const reader = new FileReader();
+      reader.onload = () => setImages((prev) => [...prev, { file, url: reader.result as string }]);
+      reader.readAsDataURL(file);
+    }
+    e.target.value = "";
   };
 
-  const clearImage = () => {
-    setImageFile(null);
-    setImagePreview(null);
-    setRemoveImage(true);
+  const removeImage = (idx: number) => {
+    const removed = images[idx];
+    setImages((prev) => prev.filter((_, i) => i !== idx));
+    if (removed.file) {
+      setNewFiles((prev) => prev.filter((f) => f !== removed.file));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -86,44 +86,42 @@ function SystemForm() {
     setLoading(true);
     setError("");
 
-    let imageUrl: string | null = existingImageUrl;
-    if (removeImage) imageUrl = null;
-
-    if (imageFile) {
-      const user = await getUser();
-      const ext = imageFile.name.split(".").pop();
-      const path = `systems/${user?.id}/${Date.now()}.${ext}`;
-      const { error: uploadErr } = await supabase.storage
-        .from("uploads")
-        .upload(path, imageFile, { upsert: true });
-      if (!uploadErr) {
-        const { data: { publicUrl } } = supabase.storage.from("uploads").getPublicUrl(path);
-        imageUrl = publicUrl;
+    // 새 파일 업로드
+    const user = await getUser();
+    const allUrls: string[] = [];
+    for (const img of images) {
+      if (img.file) {
+        const ext = img.file.name.split(".").pop();
+        const path = `systems/${user?.id}/${Date.now()}-${Math.random().toString(36).slice(2, 6)}.${ext}`;
+        const { error: uploadErr } = await supabase.storage
+          .from("uploads")
+          .upload(path, img.file, { upsert: true });
+        if (!uploadErr) {
+          const { data: { publicUrl } } = supabase.storage.from("uploads").getPublicUrl(path);
+          allUrls.push(publicUrl);
+        }
+      } else {
+        allUrls.push(img.url);
       }
     }
 
+    const payload = {
+      title: title.trim(),
+      subtitle: subtitle.trim() || null,
+      status: status || null,
+      research_date: researchDate.trim() || null,
+      description: description.trim() || null,
+      link_url: linkUrl.trim() || null,
+      image_url: allUrls[0] || null,
+      images: allUrls.length > 0 ? allUrls : null,
+    };
+
     if (isEdit) {
-      const { error: updateErr } = await supabase.from("systems").update({
-        title: title.trim(),
-        subtitle: subtitle.trim() || null,
-        status: status || null,
-        research_date: researchDate.trim() || null,
-        description: description.trim() || null,
-        link_url: linkUrl.trim() || null,
-        image_url: imageUrl,
-      }).eq("id", editId);
+      const { error: updateErr } = await supabase.from("systems").update(payload).eq("id", editId);
       if (updateErr) { setError(updateErr.message); setLoading(false); return; }
       router.push(`/systems/${editId}`);
     } else {
-      const { error: insertErr } = await supabase.from("systems").insert({
-        title: title.trim(),
-        subtitle: subtitle.trim() || null,
-        status: status || null,
-        research_date: researchDate.trim() || null,
-        description: description.trim() || null,
-        link_url: linkUrl.trim() || null,
-        image_url: imageUrl,
-      });
+      const { error: insertErr } = await supabase.from("systems").insert(payload);
       if (insertErr) { setError(insertErr.message); setLoading(false); return; }
       router.push("/systems");
     }
@@ -189,40 +187,41 @@ function SystemForm() {
 
         <div>
           <label className="block text-[12px] text-[#666] font-bold mb-1 tracking-[0.05em] uppercase">Image</label>
+          {images.length > 0 && (
+            <div className="grid grid-cols-4 gap-2 mb-3">
+              {images.map((img, i) => (
+                <div key={i} className="relative aspect-square bg-[#f5f5f5] border border-[#ddd] overflow-hidden">
+                  <img src={img.url} alt="" className="w-full h-full object-cover" />
+                  <button type="button" onClick={() => removeImage(i)}
+                    className="absolute top-1 right-1 w-5 h-5 flex items-center justify-center bg-[#111] text-white text-[11px] border-0 cursor-pointer">×</button>
+                </div>
+              ))}
+            </div>
+          )}
           <div
             onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add("border-[#111]"); }}
             onDragLeave={(e) => { e.currentTarget.classList.remove("border-[#111]"); }}
             onDrop={(e) => {
               e.preventDefault();
               e.currentTarget.classList.remove("border-[#111]");
-              const file = e.dataTransfer.files?.[0];
-              if (file && file.type.startsWith("image/")) {
-                setImageFile(file);
-                setRemoveImage(false);
+              const files = Array.from(e.dataTransfer.files).filter((f) => f.type.startsWith("image/"));
+              if (files.length === 0) return;
+              setNewFiles((prev) => [...prev, ...files]);
+              for (const file of files) {
                 const reader = new FileReader();
-                reader.onload = () => setImagePreview(reader.result as string);
+                reader.onload = () => setImages((prev) => [...prev, { file, url: reader.result as string }]);
                 reader.readAsDataURL(file);
               }
             }}
             onClick={() => document.getElementById("sys-file")?.click()}
-            className="border border-dashed border-[#ddd] py-8 flex flex-col items-center justify-center cursor-pointer hover:border-[#999] transition-colors"
+            className="border border-dashed border-[#ddd] py-6 flex flex-col items-center justify-center cursor-pointer hover:border-[#999] transition-colors"
           >
-            {imagePreview ? (
-              <div className="relative">
-                <img src={imagePreview} alt="Preview" className="max-w-[300px] max-h-[200px] object-contain" />
-                <button type="button" onClick={(e) => { e.stopPropagation(); clearImage(); }}
-                  className="absolute -top-2 -right-2 w-5 h-5 flex items-center justify-center bg-[#111] text-white text-[11px] border-0 cursor-pointer">×</button>
-              </div>
-            ) : (
-              <>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ccc" strokeWidth="1.5">
-                  <rect x="3" y="3" width="18" height="18" rx="1" /><circle cx="8.5" cy="8.5" r="1.5" /><path d="M21 15l-5-5L5 21" />
-                </svg>
-                <p className="text-[13px] text-[#999] mt-2">Drop an image here or click to upload</p>
-              </>
-            )}
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ccc" strokeWidth="1.5">
+              <rect x="3" y="3" width="18" height="18" rx="1" /><circle cx="8.5" cy="8.5" r="1.5" /><path d="M21 15l-5-5L5 21" />
+            </svg>
+            <p className="text-[13px] text-[#999] mt-2">Drop images here or click to upload</p>
           </div>
-          <input id="sys-file" type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+          <input id="sys-file" type="file" accept="image/*" multiple onChange={handleImageChange} className="hidden" />
         </div>
 
         <div className="flex gap-3 mt-2 justify-end">

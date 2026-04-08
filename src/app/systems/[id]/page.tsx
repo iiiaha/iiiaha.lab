@@ -14,6 +14,7 @@ interface SystemItem {
   link_url: string | null;
   status: string | null;
   research_date: string | null;
+  images: string[] | null;
   created_at: string;
 }
 
@@ -87,14 +88,8 @@ export default function SystemDetailPage() {
       </div>
       <div className="border-b border-[#111] mb-[72px] sticky-divider" />
 
-      {/* Image */}
-      <div className="aspect-video bg-[#f5f5f5] border border-[#ddd] mb-5 flex items-center justify-center overflow-hidden">
-        {item.image_url ? (
-          <img src={item.image_url} alt={item.title} className="w-full h-full object-cover" />
-        ) : (
-          <span className="text-[#999] text-[13px]">{item.title}</span>
-        )}
-      </div>
+      {/* Images */}
+      <ImageSlider images={item.images && item.images.length > 0 ? item.images : item.image_url ? [item.image_url] : []} />
 
       <h1 className="text-[15px] font-bold tracking-[0.03em] mb-3">{item.title}</h1>
 
@@ -118,6 +113,42 @@ export default function SystemDetailPage() {
           </div>
           <p className="text-[13px] text-[#666] leading-relaxed whitespace-pre-wrap">{item.description}</p>
         </div>
+      )}
+    </div>
+  );
+}
+
+function ImageSlider({ images }: { images: string[] }) {
+  const [current, setCurrent] = useState(0);
+  if (images.length === 0) return null;
+
+  return (
+    <div className="relative aspect-video bg-[#f5f5f5] border border-[#ddd] mb-5 overflow-hidden">
+      <img src={images[current]} alt="" className="w-full h-full object-cover" />
+      {images.length > 1 && (
+        <>
+          <button
+            onClick={() => setCurrent((prev) => (prev - 1 + images.length) % images.length)}
+            className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-white/80 border-0 cursor-pointer hover:bg-white transition-colors"
+          >
+            <svg width="10" height="14" viewBox="0 0 10 14" fill="none"><path d="M8 1L2 7L8 13" stroke="#111" strokeWidth="1.5"/></svg>
+          </button>
+          <button
+            onClick={() => setCurrent((prev) => (prev + 1) % images.length)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-white/80 border-0 cursor-pointer hover:bg-white transition-colors"
+          >
+            <svg width="10" height="14" viewBox="0 0 10 14" fill="none"><path d="M2 1L8 7L2 13" stroke="#111" strokeWidth="1.5"/></svg>
+          </button>
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+            {images.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrent(i)}
+                className={`w-1.5 h-1.5 rounded-full border-0 cursor-pointer ${i === current ? "bg-[#111]" : "bg-[#111]/30"}`}
+              />
+            ))}
+          </div>
+        </>
       )}
     </div>
   );
