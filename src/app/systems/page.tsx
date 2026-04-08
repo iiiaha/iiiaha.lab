@@ -13,7 +13,14 @@ interface SystemItem {
   image_url: string | null;
   link_url: string | null;
   sort_order: number;
+  status: string | null;
 }
+
+const STATUS_STYLE: Record<string, { bg: string; text: string }> = {
+  "Researching": { bg: "bg-[#0096D7]", text: "text-white" },
+  "Completed": { bg: "bg-[#111]", text: "text-white" },
+  "Released": { bg: "bg-[#00c9a7]", text: "text-white" },
+};
 
 export default function SystemsPage() {
   const supabase = createClient();
@@ -39,7 +46,7 @@ export default function SystemsPage() {
   return (
     <div>
       <div className="flex items-baseline justify-between mb-[10px]">
-        <h1 className="text-[16px] font-bold tracking-[0.03em]">Systems</h1>
+        <h1 className="text-[16px] font-bold tracking-[0.03em]">R&D</h1>
         {admin && (
           <Link href="/systems/new" className="text-[12px] text-[#999] no-underline hover:underline">+ Add</Link>
         )}
@@ -59,7 +66,7 @@ export default function SystemsPage() {
               href={`/systems/${item.id}`}
               className="group no-underline"
             >
-              <div className="aspect-square bg-[#f5f5f5] border border-[#ddd] mb-3 overflow-hidden flex items-center justify-center">
+              <div className="aspect-square bg-[#f5f5f5] border border-[#ddd] mb-3 overflow-hidden flex items-center justify-center relative">
                 {item.image_url ? (
                   <img
                     src={item.image_url}
@@ -68,6 +75,11 @@ export default function SystemsPage() {
                   />
                 ) : (
                   <span className="text-[#999] text-[13px]">{item.title}</span>
+                )}
+                {item.status && STATUS_STYLE[item.status] && (
+                  <span className={`absolute top-2 right-2 text-[9px] font-bold px-2 py-1 ${STATUS_STYLE[item.status].bg} ${STATUS_STYLE[item.status].text}`}>
+                    {item.status}
+                  </span>
                 )}
               </div>
               <h3 className="text-[14px] font-bold group-hover:underline">

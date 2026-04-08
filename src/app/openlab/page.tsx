@@ -182,7 +182,7 @@ export default function OpenLabPage() {
                   >
                     <span className={`text-[10px] font-bold text-white px-1.5 py-0.5 shrink-0 w-[46px] text-center ${
                       post.category === "notice"
-                        ? "bg-[#00C864]"
+                        ? "bg-[#00c9a7]"
                         : post.category === "idea"
                         ? "bg-[#0096D7]"
                         : "bg-[#DC0A7D]"

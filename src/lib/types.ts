@@ -19,6 +19,7 @@ export interface Product {
   discount_start?: string;
   discount_end?: string;
   subtitle?: string;
+  badge?: string;
   is_active?: boolean;
 }
 

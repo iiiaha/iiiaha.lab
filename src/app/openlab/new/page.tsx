@@ -209,7 +209,7 @@ function PostForm() {
             </button>
             {isAdmin && (
               <button type="button" onClick={() => setCategory("notice")}
-                className={`text-[13px] px-4 py-2 border cursor-pointer transition-colors ${category === "notice" ? "bg-[#00C864] text-white border-[#00C864]" : "bg-white text-[#666] border-[#ddd] hover:border-[#00C864]"}`}>
+                className={`text-[13px] px-4 py-2 border cursor-pointer transition-colors ${category === "notice" ? "bg-[#00c9a7] text-white border-[#00c9a7]" : "bg-white text-[#666] border-[#ddd] hover:border-[#00c9a7]"}`}>
                 Notice
               </button>
             )}

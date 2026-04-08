@@ -24,6 +24,7 @@ function SystemForm() {
 
   const [title, setTitle] = useState("");
   const [subtitle, setSubtitle] = useState("");
+  const [status, setStatus] = useState("");
   const [description, setDescription] = useState("");
   const [linkUrl, setLinkUrl] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -46,6 +47,7 @@ function SystemForm() {
         if (data) {
           setTitle(data.title);
           setSubtitle(data.subtitle || "");
+          setStatus(data.status || "");
           setDescription(data.description || "");
           setLinkUrl(data.link_url || "");
           if (data.image_url) {
@@ -102,6 +104,7 @@ function SystemForm() {
       const { error: updateErr } = await supabase.from("systems").update({
         title: title.trim(),
         subtitle: subtitle.trim() || null,
+        status: status || null,
         description: description.trim() || null,
         link_url: linkUrl.trim() || null,
         image_url: imageUrl,
@@ -112,6 +115,7 @@ function SystemForm() {
       const { error: insertErr } = await supabase.from("systems").insert({
         title: title.trim(),
         subtitle: subtitle.trim() || null,
+        status: status || null,
         description: description.trim() || null,
         link_url: linkUrl.trim() || null,
         image_url: imageUrl,
@@ -129,7 +133,7 @@ function SystemForm() {
     <div className="pt-10">
       <Link href="/systems" className="flex items-center gap-1.5 text-[12px] text-[#999] no-underline hover:underline mb-6">
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6L8 10" stroke="#999" strokeWidth="1.2"/></svg>
-        Systems
+        R&D
       </Link>
 
       <h1 className="text-[16px] font-bold tracking-[0.03em] mb-6">{isEdit ? "Edit System" : "Add System"}</h1>
@@ -148,6 +152,17 @@ function SystemForm() {
           <label className="block text-[12px] text-[#666] font-bold mb-1 tracking-[0.05em] uppercase">Subtitle</label>
           <input type="text" value={subtitle} onChange={(e) => setSubtitle(e.target.value)} placeholder="Short description"
             className="w-full border border-[#ddd] px-3 py-2.5 text-[14px] outline-none focus:border-[#111] transition-colors" />
+        </div>
+
+        <div>
+          <label className="block text-[12px] text-[#666] font-bold mb-1 tracking-[0.05em] uppercase">Status</label>
+          <select value={status} onChange={(e) => setStatus(e.target.value)}
+            className="w-full border border-[#ddd] px-3 py-2.5 text-[14px] outline-none focus:border-[#111] transition-colors bg-white">
+            <option value="">None</option>
+            <option value="Researching">Researching</option>
+            <option value="Completed">Completed</option>
+            <option value="Released">Released</option>
+          </select>
         </div>
 
         <div>

@@ -9,7 +9,7 @@ export default function ProductCard({ product }: { product: Product }) {
 
   return (
     <Link href={href} className="group no-underline">
-      <div className="aspect-square bg-[#f5f5f5] border border-[#ddd] mb-3 overflow-hidden flex items-center justify-center p-[20%]">
+      <div className="aspect-square bg-[#f5f5f5] border border-[#ddd] mb-3 overflow-hidden flex items-center justify-center p-[20%] relative">
         {product.thumbnail_url ? (
           <img
             src={product.thumbnail_url}
@@ -19,6 +19,22 @@ export default function ProductCard({ product }: { product: Product }) {
         ) : (
           <div className="w-full h-full flex items-center justify-center text-[#999] text-[13px]">
             {product.name}
+          </div>
+        )}
+        {product.badge && (
+          <div className="absolute top-0 right-0 overflow-hidden w-[100px] h-[100px] pointer-events-none">
+            <div
+              className="absolute bg-[#111] text-white text-[9px] font-bold py-1 flex items-center justify-center"
+              style={{
+                width: "141px",
+                top: "18px",
+                right: "-37px",
+                transform: "rotate(45deg)",
+                transformOrigin: "center center",
+              }}
+            >
+              {product.badge}
+            </div>
           </div>
         )}
       </div>

@@ -12,8 +12,15 @@ interface SystemItem {
   description: string | null;
   image_url: string | null;
   link_url: string | null;
+  status: string | null;
   created_at: string;
 }
+
+const STATUS_STYLE: Record<string, string> = {
+  "Researching": "text-white bg-[#0096D7]",
+  "Completed": "text-white bg-[#111]",
+  "Released": "text-white bg-[#00c9a7]",
+};
 
 export default function SystemDetailPage() {
   const params = useParams();
@@ -42,7 +49,12 @@ export default function SystemDetailPage() {
 
   const info = [
     { label: "Title", value: item.title },
-    { label: "Date", value: new Date(item.created_at).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }) },
+    { label: "Date", value: new Date(item.created_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" }) },
+    { label: "Status", value: item.status ? (
+      <span className={`text-[10px] font-bold px-2 py-0.5 ${STATUS_STYLE[item.status] || "text-[#666]"}`}>
+        {item.status}
+      </span>
+    ) : null },
     { label: "Link", value: item.link_url ? (
       <a href={item.link_url} target="_blank" rel="noopener noreferrer" className="text-[#111] underline flex items-center gap-1">
         {item.link_url.replace(/^https?:\/\//, "").split("/")[0]}
@@ -56,7 +68,7 @@ export default function SystemDetailPage() {
       {/* Header */}
       <div className="flex items-baseline justify-between mb-[10px]">
         <Link href="/systems" className="flex items-center gap-1.5 text-[16px] font-bold tracking-[0.03em] no-underline hover:underline">
-          Systems
+          R&D
           <svg width="14" height="14" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6L8 10" stroke="#111" strokeWidth="1.5"/></svg>
         </Link>
         {admin && (
