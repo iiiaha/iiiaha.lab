@@ -104,7 +104,11 @@ export default function AdminLayout({
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 min-w-0 py-8 px-10 overflow-auto">{children}</main>
+      <main className="flex-1 min-w-0 overflow-auto">
+        <div className="max-w-[1280px] mx-auto px-12 py-12 max-lg:px-8">
+          {children}
+        </div>
+      </main>
     </div>
   );
 }

@@ -67,7 +67,7 @@ function SubBadge({ status }: { status: SubStatus }) {
         ? "text-green-700 border-green-600 bg-green-50"
         : "text-amber-700 border-amber-500 bg-amber-50";
   return (
-    <span className={`text-[9px] font-bold px-1.5 py-[1px] border leading-none ${cls}`}>
+    <span className={`text-[11px] font-bold px-2 py-0.5 border ${cls}`}>
       {label}
     </span>
   );
@@ -320,38 +320,39 @@ export default function AdminAccounts() {
 
   return (
     <div>
-      <div className="flex items-baseline justify-between mb-2">
+      <div className="flex items-baseline justify-between mb-8">
         <div>
-          <h1 className="text-[18px] font-bold tracking-[0.03em]">사용자 · 라이선스</h1>
-          <p className="text-[11px] text-[#999] mt-1">
+          <h1 className="text-[22px] font-bold tracking-[-0.01em]">사용자 · 라이선스</h1>
+          <p className="text-[13px] text-[#999] mt-1.5">
             계정 기반으로 구독·라이선스·주문을 통합 관리합니다
           </p>
         </div>
-        <div className="flex items-center gap-6 text-[11px] text-[#999]">
+        <div className="flex items-center gap-7 text-[12px] text-[#999]">
           <span>
-            계정 <strong className="text-[#111]">{stats.total}</strong>
+            계정 <strong className="text-[#111] text-[14px]">{stats.total}</strong>
           </span>
           <span>
-            라이선스 <strong className="text-[#111]">{stats.totalLic}</strong>
+            라이선스 <strong className="text-[#111] text-[14px]">{stats.totalLic}</strong>
           </span>
           <span>
-            구독중 <strong className="text-[#111]">{stats.active}</strong>
+            구독중 <strong className="text-[#111] text-[14px]">{stats.active}</strong>
           </span>
           <span>
-            해지중 <strong className="text-[#111]">{stats.canceling}</strong>
+            해지중 <strong className="text-[#111] text-[14px]">{stats.canceling}</strong>
           </span>
         </div>
       </div>
-      <div className="flex items-center gap-3 mb-6">
-        {message && <span className="text-[11px] text-green-600">{message}</span>}
+      <div className="border-t border-[#111] mb-6" />
+      <div className="flex items-center justify-between gap-3 mb-6">
+        <div className="text-[12px] text-green-600 h-5">{message}</div>
         <button
           onClick={() => {
             setShowIssue(!showIssue);
             setIssuedKey("");
           }}
-          className="bg-[#111] text-white text-[11px] font-bold px-3 py-1 border-0 cursor-pointer hover:bg-[#333]"
+          className="bg-[#111] text-white text-[12px] font-bold px-4 py-2 border-0 cursor-pointer hover:bg-[#333]"
         >
-          + 수동 발급
+          + 라이선스 수동 발급
         </button>
       </div>
 
@@ -423,8 +424,8 @@ export default function AdminAccounts() {
       )}
 
       {/* Filters + Search */}
-      <div className="flex items-center gap-2 mb-3">
-        <div className="flex gap-0 border border-[#ddd]">
+      <div className="flex items-center gap-3 mb-5">
+        <div className="flex border border-[#ddd]">
           {(["all", "none", "active", "canceling"] as Filter[]).map((f) => {
             const label =
               f === "all" ? "전체" : f === "none" ? "미구독" : f === "active" ? "구독중" : "해지중";
@@ -432,7 +433,7 @@ export default function AdminAccounts() {
               <button
                 key={f}
                 onClick={() => setFilter(f)}
-                className={`text-[11px] px-3 py-1.5 border-0 cursor-pointer ${
+                className={`text-[12px] px-4 py-2 border-0 cursor-pointer ${
                   filter === f
                     ? "bg-[#111] text-white font-bold"
                     : "bg-white text-[#666] hover:bg-[#f5f5f5]"
@@ -448,20 +449,20 @@ export default function AdminAccounts() {
           placeholder="이메일, 라이선스 키, 제품명 검색..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 border border-[#ddd] px-3 py-1.5 text-[12px] outline-none focus:border-[#111]"
+          className="flex-1 border border-[#ddd] px-3 py-2 text-[13px] outline-none focus:border-[#111]"
         />
       </div>
 
       {/* Column header */}
-      <div className="flex items-center gap-3 px-3 py-2 text-[10px] text-[#999] font-bold tracking-[0.08em] uppercase border-b border-[#111]">
+      <div className="flex items-center gap-4 px-4 py-3 text-[11px] text-[#999] font-bold tracking-[0.08em] uppercase border-b border-[#111]">
         <span className="flex-1">이메일</span>
-        <span className="w-16 shrink-0">Provider</span>
-        <span className="w-16 shrink-0 text-center">구독</span>
-        <span className="w-10 shrink-0 text-right">라이선스</span>
-        <span className="w-20 shrink-0 text-right">가입일</span>
-        <span className="w-20 shrink-0 text-right">최근 로그인</span>
-        <span className="w-[200px] shrink-0 text-right">작업</span>
-        <span className="w-4 shrink-0" />
+        <span className="w-20 shrink-0">Provider</span>
+        <span className="w-20 shrink-0 text-center">구독</span>
+        <span className="w-14 shrink-0 text-right">라이선스</span>
+        <span className="w-24 shrink-0 text-right">가입일</span>
+        <span className="w-24 shrink-0 text-right">최근 로그인</span>
+        <span className="w-[220px] shrink-0 text-right">작업</span>
+        <span className="w-5 shrink-0" />
       </div>
 
       <div>
@@ -477,29 +478,29 @@ export default function AdminAccounts() {
 
             return (
               <div key={user.id} className="border-b border-[#eee]">
-                <div className="flex items-center gap-3 px-3 py-1.5 text-[12px] hover:bg-[#fafafa]">
+                <div className="flex items-center gap-4 px-4 py-3 text-[13px] hover:bg-[#fafafa]">
                   <span
                     onClick={() => setExpanded(isExpanded ? null : user.id)}
                     className="flex-1 font-bold truncate cursor-pointer"
                   >
                     {user.email}
                   </span>
-                  <span className="w-16 shrink-0 text-[10px] text-[#999] border border-[#eee] px-1.5 py-0 text-center leading-[1.6]">
+                  <span className="w-20 shrink-0 text-[11px] text-[#999] border border-[#eee] px-2 py-0.5 text-center">
                     {user.provider}
                   </span>
-                  <span className="w-16 shrink-0 flex justify-center">
+                  <span className="w-20 shrink-0 flex justify-center">
                     <SubBadge status={subStatus} />
                   </span>
-                  <span className="w-10 shrink-0 text-right text-[#666]">
+                  <span className="w-14 shrink-0 text-right text-[#666]">
                     {userLics.length}
                   </span>
-                  <span className="w-20 shrink-0 text-right text-[10px] text-[#999]">
+                  <span className="w-24 shrink-0 text-right text-[11px] text-[#999]">
                     {shortDate(user.created_at)}
                   </span>
-                  <span className="w-20 shrink-0 text-right text-[10px] text-[#999]">
+                  <span className="w-24 shrink-0 text-right text-[11px] text-[#999]">
                     {shortDate(user.last_sign_in_at)}
                   </span>
-                  <div className="w-[200px] shrink-0 flex gap-1 justify-end">
+                  <div className="w-[220px] shrink-0 flex gap-1.5 justify-end">
                     {subStatus === "none" && (
                       <>
                         <button
@@ -507,7 +508,7 @@ export default function AdminAccounts() {
                             e.stopPropagation();
                             grantSubscription(user.id, user.email, "monthly");
                           }}
-                          className="text-[10px] text-[#111] bg-white border border-[#ddd] px-2 py-0.5 cursor-pointer hover:bg-[#f5f5f5] leading-[1.6]"
+                          className="text-[11px] text-[#111] bg-white border border-[#ddd] px-2.5 py-1 cursor-pointer hover:bg-[#f5f5f5]"
                         >
                           + 월간
                         </button>
@@ -516,7 +517,7 @@ export default function AdminAccounts() {
                             e.stopPropagation();
                             grantSubscription(user.id, user.email, "annual");
                           }}
-                          className="text-[10px] text-[#111] bg-white border border-[#ddd] px-2 py-0.5 cursor-pointer hover:bg-[#f5f5f5] leading-[1.6]"
+                          className="text-[11px] text-[#111] bg-white border border-[#ddd] px-2.5 py-1 cursor-pointer hover:bg-[#f5f5f5]"
                         >
                           + 연간
                         </button>
@@ -528,7 +529,7 @@ export default function AdminAccounts() {
                           e.stopPropagation();
                           cancelSubscription(subscription.id);
                         }}
-                        className="text-[10px] text-red-600 bg-white border border-red-300 px-2 py-0.5 cursor-pointer hover:bg-red-50 leading-[1.6]"
+                        className="text-[11px] text-red-600 bg-white border border-red-300 px-2.5 py-1 cursor-pointer hover:bg-red-50"
                       >
                         구독 해지
                       </button>
@@ -538,107 +539,111 @@ export default function AdminAccounts() {
                         e.stopPropagation();
                         deleteUser(user.id, user.email);
                       }}
-                      className="text-[10px] text-red-600 bg-white border border-[#ddd] px-2 py-0.5 cursor-pointer hover:bg-red-50 leading-[1.6]"
+                      className="text-[11px] text-red-600 bg-white border border-[#ddd] px-2.5 py-1 cursor-pointer hover:bg-red-50"
                     >
                       탈퇴
                     </button>
                   </div>
                   <span
                     onClick={() => setExpanded(isExpanded ? null : user.id)}
-                    className="w-4 shrink-0 text-center text-[14px] text-[#ccc] cursor-pointer leading-none"
+                    className="w-5 shrink-0 text-center text-[16px] text-[#ccc] cursor-pointer leading-none"
                   >
                     {isExpanded ? "−" : "+"}
                   </span>
                 </div>
 
                 {isExpanded && (
-                  <div className="bg-[#fafafa] px-3 py-2 border-t border-[#eee]">
+                  <div className="bg-[#fafafa] px-6 py-5 border-t border-[#eee]">
                     {userLics.length === 0 ? (
-                      <p className="text-[11px] text-[#999] py-1">발급된 라이선스 없음</p>
+                      <p className="text-[13px] text-[#999]">발급된 라이선스 없음</p>
                     ) : (
-                      <>
+                      <div className="flex flex-col gap-5">
                         {subscription && subLicenses.length > 0 && (
-                          <div className="mb-3">
-                            <p className="text-[10px] font-bold text-[#999] tracking-[0.05em] uppercase mb-1">
+                          <div>
+                            <p className="text-[11px] font-bold text-[#999] tracking-[0.08em] uppercase mb-3">
                               구독 · {subscription.plan === "annual" ? "연간" : "월간"}
-                              <span className="ml-2 text-[#999] normal-case">
+                              <span className="ml-2 text-[#999] normal-case tracking-normal">
                                 {new Date(subscription.started_at).toLocaleDateString("ko-KR")}
                                 {" → "}
                                 {new Date(subscription.expires_at).toLocaleDateString("ko-KR")}
                               </span>
                               {!subscription.billing_key && (
-                                <span className="ml-2 text-[#999] normal-case">(무상)</span>
+                                <span className="ml-2 text-[#999] normal-case tracking-normal">(무상)</span>
                               )}
                             </p>
-                            {subLicenses.map((lic) => (
-                              <div
-                                key={lic.id}
-                                className="flex items-center gap-2 py-0.5 text-[11px]"
-                              >
-                                <span className="flex-1 truncate">
-                                  {lic.products?.name}
-                                </span>
-                                <span
-                                  className={`text-[9px] font-bold ${
-                                    lic.status === "active"
-                                      ? "text-green-600"
-                                      : "text-red-600"
-                                  }`}
+                            <div className="flex flex-col">
+                              {subLicenses.map((lic) => (
+                                <div
+                                  key={lic.id}
+                                  className="flex items-center gap-3 py-1.5 text-[12px] border-b border-[#eee] last:border-0"
                                 >
-                                  {lic.status === "active" ? "활성" : "해지"}
-                                </span>
-                                <code className="text-[10px] bg-white px-1 border border-[#eee] text-[#999]">
-                                  {lic.license_key}
-                                </code>
-                              </div>
-                            ))}
+                                  <span className="flex-1 truncate font-bold">
+                                    {lic.products?.name}
+                                  </span>
+                                  <span
+                                    className={`text-[10px] font-bold ${
+                                      lic.status === "active"
+                                        ? "text-green-600"
+                                        : "text-red-600"
+                                    }`}
+                                  >
+                                    {lic.status === "active" ? "활성" : "해지"}
+                                  </span>
+                                  <code className="text-[11px] bg-white px-1.5 py-0.5 border border-[#eee] text-[#999]">
+                                    {lic.license_key}
+                                  </code>
+                                </div>
+                              ))}
+                            </div>
                           </div>
                         )}
                         {indivLicenses.length > 0 && (
                           <div>
-                            <p className="text-[10px] font-bold text-[#999] tracking-[0.05em] uppercase mb-1">
+                            <p className="text-[11px] font-bold text-[#999] tracking-[0.08em] uppercase mb-3">
                               개별 구매
                             </p>
-                            {indivLicenses.map((lic) => (
-                              <div
-                                key={lic.id}
-                                className="flex items-center gap-2 py-0.5 text-[11px]"
-                              >
-                                <span className="flex-1 truncate">
-                                  {lic.products?.name}
-                                </span>
-                                <span
-                                  className={`text-[9px] font-bold ${
-                                    lic.status === "active"
-                                      ? "text-green-600"
-                                      : "text-red-600"
-                                  }`}
+                            <div className="flex flex-col">
+                              {indivLicenses.map((lic) => (
+                                <div
+                                  key={lic.id}
+                                  className="flex items-center gap-3 py-1.5 text-[12px] border-b border-[#eee] last:border-0"
                                 >
-                                  {lic.status === "active" ? "활성" : "해지"}
-                                </span>
-                                <code className="text-[10px] bg-white px-1 border border-[#eee] text-[#999]">
-                                  {lic.license_key}
-                                </code>
-                                {lic.status === "active" ? (
-                                  <button
-                                    onClick={() => revokeLicense(lic.id)}
-                                    className="text-[9px] text-red-600 border border-[#ddd] px-1 cursor-pointer hover:bg-red-50 leading-[1.6]"
+                                  <span className="flex-1 truncate font-bold">
+                                    {lic.products?.name}
+                                  </span>
+                                  <span
+                                    className={`text-[10px] font-bold ${
+                                      lic.status === "active"
+                                        ? "text-green-600"
+                                        : "text-red-600"
+                                    }`}
                                   >
-                                    해지
-                                  </button>
-                                ) : (
-                                  <button
-                                    onClick={() => reactivateLicense(lic.id)}
-                                    className="text-[9px] text-green-600 border border-[#ddd] px-1 cursor-pointer hover:bg-green-50 leading-[1.6]"
-                                  >
-                                    재활성
-                                  </button>
-                                )}
-                              </div>
-                            ))}
+                                    {lic.status === "active" ? "활성" : "해지"}
+                                  </span>
+                                  <code className="text-[11px] bg-white px-1.5 py-0.5 border border-[#eee] text-[#999]">
+                                    {lic.license_key}
+                                  </code>
+                                  {lic.status === "active" ? (
+                                    <button
+                                      onClick={() => revokeLicense(lic.id)}
+                                      className="text-[10px] text-red-600 border border-[#ddd] bg-white px-2 py-0.5 cursor-pointer hover:bg-red-50"
+                                    >
+                                      해지
+                                    </button>
+                                  ) : (
+                                    <button
+                                      onClick={() => reactivateLicense(lic.id)}
+                                      className="text-[10px] text-green-600 border border-[#ddd] bg-white px-2 py-0.5 cursor-pointer hover:bg-green-50"
+                                    >
+                                      재활성
+                                    </button>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
                           </div>
                         )}
-                      </>
+                      </div>
                     )}
                   </div>
                 )}
@@ -650,35 +655,35 @@ export default function AdminAccounts() {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-1 mt-4">
+        <div className="flex items-center justify-center gap-1 mt-8">
           <button
             onClick={() => setPage(1)}
             disabled={page === 1}
-            className="text-[11px] px-2 py-1 border border-[#ddd] bg-white cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#f5f5f5]"
+            className="text-[12px] px-3 py-1.5 border border-[#ddd] bg-white cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#f5f5f5]"
           >
             ≪
           </button>
           <button
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
-            className="text-[11px] px-2 py-1 border border-[#ddd] bg-white cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#f5f5f5]"
+            className="text-[12px] px-3 py-1.5 border border-[#ddd] bg-white cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#f5f5f5]"
           >
             ‹
           </button>
-          <span className="text-[11px] px-3 text-[#666]">
+          <span className="text-[12px] px-4 text-[#666]">
             {page} / {totalPages}
           </span>
           <button
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={page === totalPages}
-            className="text-[11px] px-2 py-1 border border-[#ddd] bg-white cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#f5f5f5]"
+            className="text-[12px] px-3 py-1.5 border border-[#ddd] bg-white cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#f5f5f5]"
           >
             ›
           </button>
           <button
             onClick={() => setPage(totalPages)}
             disabled={page === totalPages}
-            className="text-[11px] px-2 py-1 border border-[#ddd] bg-white cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#f5f5f5]"
+            className="text-[12px] px-3 py-1.5 border border-[#ddd] bg-white cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#f5f5f5]"
           >
             ≫
           </button>

@@ -167,7 +167,7 @@ function BarChart({
 
   const isEmpty = rawMax === 0;
 
-  const height = 220;
+  const height = 240;
   const ticks = [max, Math.round(max / 2), 0];
 
   const labelIdxs = new Set<number>([
@@ -182,7 +182,7 @@ function BarChart({
     <div className="flex">
       {/* Y축 */}
       <div
-        className="flex flex-col justify-between text-[9px] text-[#999] text-right pr-2 w-[44px] shrink-0"
+        className="flex flex-col justify-between text-[11px] text-[#999] text-right pr-3 w-[56px] shrink-0"
         style={{ height: `${height}px` }}
       >
         {ticks.map((t, i) => (
@@ -208,7 +208,7 @@ function BarChart({
               className="absolute left-0 right-0 border-t border-dashed border-[#bbb] pointer-events-none"
               style={{ bottom: `${(avg / max) * 100}%` }}
             >
-              <span className="absolute right-0 -top-3 text-[9px] text-[#999] bg-white px-1">
+              <span className="absolute right-0 -top-4 text-[11px] text-[#999] bg-white px-1.5">
                 평균 {formatValue(Math.round(avg))}
               </span>
             </div>
@@ -232,9 +232,9 @@ function BarChart({
                     onMouseLeave={() => setHover(null)}
                   >
                     {isHover && (
-                      <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-[#111] text-white text-[10px] px-2 py-0.5 whitespace-nowrap z-10 leading-tight">
+                      <div className="absolute -top-9 left-1/2 -translate-x-1/2 bg-[#111] text-white text-[11px] px-2.5 py-1 whitespace-nowrap z-10 leading-tight">
                         <div className="font-bold">{formatValue(d.value)}</div>
-                        <div className="text-[#999] text-[9px]">{d.label}</div>
+                        <div className="text-[#999] text-[10px] mt-0.5">{d.label}</div>
                       </div>
                     )}
                     <div
@@ -253,11 +253,11 @@ function BarChart({
         </div>
 
         {/* X축 라벨 */}
-        <div className="flex gap-[2px] mt-1.5">
+        <div className="flex gap-[2px] mt-2">
           {data.map((d, i) => (
             <div
               key={i}
-              className="flex-1 text-[9px] text-[#999] text-center truncate"
+              className="flex-1 text-[11px] text-[#999] text-center truncate"
             >
               {labelIdxs.has(i) ? d.label : ""}
             </div>
@@ -265,12 +265,12 @@ function BarChart({
         </div>
 
         {/* 범례 */}
-        <div className="flex items-center gap-3 mt-3 text-[10px] text-[#999]">
-          <span className="flex items-center gap-1">
-            <span className="inline-block w-2 h-2 bg-[#111]" />
+        <div className="flex items-center gap-4 mt-5 text-[11px] text-[#999]">
+          <span className="flex items-center gap-1.5">
+            <span className="inline-block w-2.5 h-2.5 bg-[#111]" />
             {unit}
           </span>
-          <span className="flex items-center gap-1">
+          <span className="flex items-center gap-1.5">
             <span className="inline-block w-3 border-t border-dashed border-[#bbb]" />
             평균
           </span>
@@ -325,18 +325,18 @@ function StatCard({
   accent?: "up" | "neutral";
 }) {
   return (
-    <div className="border border-[#111] p-6 relative">
-      <p className="text-[10px] text-[#999] font-bold uppercase tracking-[0.08em] mb-3">
+    <div className="border border-[#111] p-8 relative">
+      <p className="text-[11px] text-[#999] font-bold uppercase tracking-[0.08em] mb-4">
         {label}
       </p>
-      <p className="text-[28px] font-bold leading-none tracking-[-0.01em]">
+      <p className="text-[32px] font-bold leading-none tracking-[-0.01em]">
         {value}
       </p>
       {sublabel && (
-        <div className="mt-4 pt-3 border-t border-[#eee] flex items-baseline justify-between">
-          <span className="text-[11px] text-[#999]">{sublabel}</span>
+        <div className="mt-5 pt-4 border-t border-[#eee] flex items-baseline justify-between">
+          <span className="text-[12px] text-[#999]">{sublabel}</span>
           <span
-            className={`text-[12px] font-bold ${
+            className={`text-[13px] font-bold ${
               accent === "up" ? "text-green-600" : "text-[#111]"
             }`}
           >
@@ -511,14 +511,14 @@ export default function AdminDashboard() {
 
   return (
     <div>
-      <div className="flex items-baseline justify-between mb-6">
+      <div className="flex items-baseline justify-between mb-8">
         <div>
-          <h1 className="text-[18px] font-bold tracking-[0.03em]">대시보드</h1>
-          <p className="text-[11px] text-[#999] mt-1">
+          <h1 className="text-[22px] font-bold tracking-[-0.01em]">대시보드</h1>
+          <p className="text-[13px] text-[#999] mt-1.5">
             iiiaha.lab 운영 현황 한눈에
           </p>
         </div>
-        <span className="text-[11px] text-[#999]">
+        <span className="text-[13px] text-[#999]">
           {new Date().toLocaleDateString("ko-KR", {
             year: "numeric",
             month: "long",
@@ -527,10 +527,10 @@ export default function AdminDashboard() {
           })}
         </span>
       </div>
-      <div className="border-t border-[#111] mb-8" />
+      <div className="border-t border-[#111] mb-10" />
 
       {/* 상단 카드 */}
-      <div className="grid grid-cols-4 gap-4 mb-12 max-md:grid-cols-2 max-sm:grid-cols-1">
+      <div className="grid grid-cols-4 gap-5 mb-16 max-md:grid-cols-2 max-sm:grid-cols-1">
         <StatCard
           label="전체 사용자"
           value={stats.totalUsers.toLocaleString("ko-KR")}
@@ -559,11 +559,11 @@ export default function AdminDashboard() {
       </div>
 
       {/* 사용자 증가 */}
-      <section className="mb-12">
-        <div className="flex items-end justify-between mb-5">
+      <section className="mb-16">
+        <div className="flex items-end justify-between mb-6">
           <div>
-            <h2 className="text-[14px] font-bold tracking-[0.03em]">사용자 증가</h2>
-            <p className="text-[11px] text-[#999] mt-1">
+            <h2 className="text-[16px] font-bold tracking-[-0.01em]">사용자 증가</h2>
+            <p className="text-[12px] text-[#999] mt-1.5">
               {userMode === "day"
                 ? "최근 30일"
                 : userMode === "week"
@@ -577,7 +577,7 @@ export default function AdminDashboard() {
           </div>
           <ModeToggle value={userMode} onChange={setUserMode} />
         </div>
-        <div className="border border-[#ddd] p-6">
+        <div className="border border-[#ddd] p-8">
           <BarChart
             data={userChart}
             formatValue={(n) => `${n}명`}
@@ -588,11 +588,11 @@ export default function AdminDashboard() {
       </section>
 
       {/* 결제 매출 */}
-      <section className="mb-12">
-        <div className="flex items-end justify-between mb-5">
+      <section className="mb-16">
+        <div className="flex items-end justify-between mb-6">
           <div>
-            <h2 className="text-[14px] font-bold tracking-[0.03em]">결제 매출</h2>
-            <p className="text-[11px] text-[#999] mt-1">
+            <h2 className="text-[16px] font-bold tracking-[-0.01em]">결제 매출</h2>
+            <p className="text-[12px] text-[#999] mt-1.5">
               {revenueMode === "day"
                 ? "최근 30일"
                 : revenueMode === "week"
@@ -606,7 +606,7 @@ export default function AdminDashboard() {
           </div>
           <ModeToggle value={revenueMode} onChange={setRevenueMode} />
         </div>
-        <div className="border border-[#ddd] p-6">
+        <div className="border border-[#ddd] p-8">
           <BarChart
             data={revenueChart}
             formatValue={(n) => formatKRW(n)}
@@ -617,11 +617,11 @@ export default function AdminDashboard() {
 
         {/* 매출 구성 */}
         {stats.totalRevenue > 0 && (
-          <div className="mt-5 border border-[#ddd] p-5">
-            <p className="text-[10px] text-[#999] font-bold uppercase tracking-[0.08em] mb-3">
+          <div className="mt-6 border border-[#ddd] p-6">
+            <p className="text-[11px] text-[#999] font-bold uppercase tracking-[0.08em] mb-4">
               매출 구성 (누적)
             </p>
-            <div className="flex h-2 mb-4 border border-[#eee]">
+            <div className="flex h-2.5 mb-5 border border-[#eee]">
               <div
                 className="bg-[#111]"
                 style={{ width: `${indivRatio}%` }}
@@ -631,16 +631,16 @@ export default function AdminDashboard() {
                 style={{ width: `${subRatio}%` }}
               />
             </div>
-            <div className="flex justify-between text-[12px]">
+            <div className="flex justify-between text-[13px]">
               <div className="flex items-center gap-2">
-                <span className="inline-block w-2 h-2 bg-[#111]" />
+                <span className="inline-block w-2.5 h-2.5 bg-[#111]" />
                 <span className="text-[#111] font-bold">단건 구매</span>
                 <span className="text-[#999]">
                   {formatKRW(stats.indivRevenue)} · {indivRatio}%
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="inline-block w-2 h-2 bg-[#888]" />
+                <span className="inline-block w-2.5 h-2.5 bg-[#888]" />
                 <span className="text-[#111] font-bold">구독</span>
                 <span className="text-[#999]">
                   {formatKRW(stats.subRevenue)} · {subRatio}%
@@ -652,13 +652,13 @@ export default function AdminDashboard() {
       </section>
 
       {/* 최근 활동 */}
-      <section className="grid grid-cols-2 gap-4 max-md:grid-cols-1">
-        <div className="border border-[#ddd] p-6">
-          <h3 className="text-[11px] font-bold text-[#999] uppercase tracking-[0.08em] mb-4">
+      <section className="grid grid-cols-2 gap-5 max-md:grid-cols-1">
+        <div className="border border-[#ddd] p-8">
+          <h3 className="text-[11px] font-bold text-[#999] uppercase tracking-[0.08em] mb-5">
             최근 결제
           </h3>
           {recentPaidOrders.length === 0 ? (
-            <p className="text-[12px] text-[#ccc] py-4 text-center">
+            <p className="text-[13px] text-[#ccc] py-6 text-center">
               결제 내역 없음
             </p>
           ) : (
@@ -666,15 +666,15 @@ export default function AdminDashboard() {
               {recentPaidOrders.map((o) => (
                 <div
                   key={o.id}
-                  className="flex items-center justify-between py-2 border-b border-[#eee] last:border-0 text-[12px]"
+                  className="flex items-center justify-between py-3 border-b border-[#eee] last:border-0 text-[13px]"
                 >
                   <span className="truncate flex-1 font-bold">
                     {o.products?.name ?? "—"}
                   </span>
-                  <span className="text-[#111] mx-3 shrink-0">
+                  <span className="text-[#111] mx-4 shrink-0">
                     {formatKRW(o.amount)}
                   </span>
-                  <span className="text-[10px] text-[#999] w-14 text-right shrink-0">
+                  <span className="text-[11px] text-[#999] w-16 text-right shrink-0">
                     {relativeTime(o.created_at)}
                   </span>
                 </div>
@@ -683,12 +683,12 @@ export default function AdminDashboard() {
           )}
         </div>
 
-        <div className="border border-[#ddd] p-6">
-          <h3 className="text-[11px] font-bold text-[#999] uppercase tracking-[0.08em] mb-4">
+        <div className="border border-[#ddd] p-8">
+          <h3 className="text-[11px] font-bold text-[#999] uppercase tracking-[0.08em] mb-5">
             최근 가입
           </h3>
           {recentUsers.length === 0 ? (
-            <p className="text-[12px] text-[#ccc] py-4 text-center">
+            <p className="text-[13px] text-[#ccc] py-6 text-center">
               가입 내역 없음
             </p>
           ) : (
@@ -696,13 +696,13 @@ export default function AdminDashboard() {
               {recentUsers.map((u) => (
                 <div
                   key={u.id}
-                  className="flex items-center justify-between py-2 border-b border-[#eee] last:border-0 text-[12px]"
+                  className="flex items-center justify-between py-3 border-b border-[#eee] last:border-0 text-[13px]"
                 >
                   <span className="truncate flex-1 font-bold">{u.email}</span>
-                  <span className="text-[10px] text-[#999] border border-[#eee] px-1.5 mx-3 shrink-0">
+                  <span className="text-[11px] text-[#999] border border-[#eee] px-2 py-0.5 mx-4 shrink-0">
                     {u.provider}
                   </span>
-                  <span className="text-[10px] text-[#999] w-14 text-right shrink-0">
+                  <span className="text-[11px] text-[#999] w-16 text-right shrink-0">
                     {relativeTime(u.created_at)}
                   </span>
                 </div>

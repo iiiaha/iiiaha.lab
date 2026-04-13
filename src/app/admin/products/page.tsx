@@ -251,10 +251,10 @@ export default function AdminProducts() {
   return (
     <div>
       <div>
-      <div className="flex items-baseline justify-between mb-2">
+      <div className="flex items-baseline justify-between mb-8">
         <div>
-          <h1 className="text-[18px] font-bold tracking-[0.03em]">제품 관리</h1>
-          <p className="text-[11px] text-[#999] mt-1">
+          <h1 className="text-[22px] font-bold tracking-[-0.01em]">제품 관리</h1>
+          <p className="text-[13px] text-[#999] mt-1.5">
             익스텐션·강의 상품 등록·편집·정렬
           </p>
         </div>

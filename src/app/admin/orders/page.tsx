@@ -140,42 +140,39 @@ export default function AdminOrders() {
 
   return (
     <div>
-      <div className="flex items-baseline justify-between mb-2">
+      <div className="flex items-baseline justify-between mb-8">
         <div>
-          <h1 className="text-[18px] font-bold tracking-[0.03em]">주문 관리</h1>
-          <p className="text-[11px] text-[#999] mt-1">
+          <h1 className="text-[22px] font-bold tracking-[-0.01em]">주문 관리</h1>
+          <p className="text-[13px] text-[#999] mt-1.5">
             결제·환불·구독 자동 결제 이력을 한 곳에서 확인합니다
           </p>
         </div>
-        <div className="flex items-center gap-6 text-[11px] text-[#999]">
+        <div className="flex items-center gap-7 text-[12px] text-[#999]">
           <span>
-            전체 <strong className="text-[#111]">{stats.total}</strong>
+            전체 <strong className="text-[#111] text-[14px]">{stats.total}</strong>
           </span>
           <span>
-            결제 완료 <strong className="text-[#111]">{stats.paid}</strong>
+            결제완료 <strong className="text-[#111] text-[14px]">{stats.paid}</strong>
           </span>
           <span>
-            대기 <strong className="text-[#111]">{stats.pending}</strong>
+            대기 <strong className="text-[#111] text-[14px]">{stats.pending}</strong>
           </span>
           <span>
-            환불 <strong className="text-[#111]">{stats.refunded}</strong>
+            환불 <strong className="text-[#111] text-[14px]">{stats.refunded}</strong>
           </span>
           <span>
             매출{" "}
-            <strong className="text-[#111]">
+            <strong className="text-[#111] text-[14px]">
               ₩{stats.revenue.toLocaleString("ko-KR")}
             </strong>
           </span>
         </div>
       </div>
-      <div className="flex items-center gap-3 mb-5 h-5">
-        {message && (
-          <span className="text-[11px] text-green-600">{message}</span>
-        )}
-      </div>
+      <div className="border-t border-[#111] mb-6" />
+      <div className="text-[12px] text-green-600 mb-5 h-5">{message}</div>
 
       {/* Filters + Search */}
-      <div className="flex items-center gap-2 mb-3">
+      <div className="flex items-center gap-3 mb-5">
         <div className="flex border border-[#ddd]">
           {(["all", "pending", "paid", "refunded"] as Filter[]).map((f) => {
             const label =
@@ -190,7 +187,7 @@ export default function AdminOrders() {
               <button
                 key={f}
                 onClick={() => setFilter(f)}
-                className={`text-[11px] px-3 py-1.5 border-0 cursor-pointer ${
+                className={`text-[12px] px-4 py-2 border-0 cursor-pointer ${
                   filter === f
                     ? "bg-[#111] text-white font-bold"
                     : "bg-white text-[#666] hover:bg-[#f5f5f5]"
@@ -215,7 +212,7 @@ export default function AdminOrders() {
               <button
                 key={f}
                 onClick={() => setTypeFilter(f)}
-                className={`text-[11px] px-3 py-1.5 border-0 cursor-pointer ${
+                className={`text-[12px] px-4 py-2 border-0 cursor-pointer ${
                   typeFilter === f
                     ? "bg-[#111] text-white font-bold"
                     : "bg-white text-[#666] hover:bg-[#f5f5f5]"
@@ -231,44 +228,44 @@ export default function AdminOrders() {
           placeholder="계정, 제품명, 주문 ID 검색..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 border border-[#ddd] px-3 py-1.5 text-[12px] outline-none focus:border-[#111]"
+          className="flex-1 border border-[#ddd] px-3 py-2 text-[13px] outline-none focus:border-[#111]"
         />
       </div>
 
       {/* Column header */}
-      <div className="flex items-center gap-3 px-3 py-2 text-[10px] text-[#999] font-bold tracking-[0.08em] uppercase border-b border-[#111]">
+      <div className="flex items-center gap-4 px-4 py-3 text-[11px] text-[#999] font-bold tracking-[0.08em] uppercase border-b border-[#111]">
         <span className="flex-1">상품</span>
-        <span className="w-60 shrink-0">이메일</span>
-        <span className="w-20 shrink-0 text-right">금액</span>
-        <span className="w-16 shrink-0 text-center">유형</span>
-        <span className="w-20 shrink-0 text-center">상태</span>
-        <span className="w-28 shrink-0 text-right">일시</span>
-        <span className="w-[100px] shrink-0 text-right">작업</span>
+        <span className="w-64 shrink-0">이메일</span>
+        <span className="w-24 shrink-0 text-right">금액</span>
+        <span className="w-20 shrink-0 text-center">유형</span>
+        <span className="w-24 shrink-0 text-center">상태</span>
+        <span className="w-32 shrink-0 text-right">일시</span>
+        <span className="w-[110px] shrink-0 text-right">작업</span>
       </div>
 
       <div>
         {paginated.length === 0 ? (
-          <p className="text-[12px] text-[#999] py-4 text-center">결과 없음</p>
+          <p className="text-[13px] text-[#999] py-6 text-center">결과 없음</p>
         ) : (
           paginated.map((order) => {
             const t = orderType(order);
             return (
               <div
                 key={order.id}
-                className="flex items-center gap-3 px-3 py-2 text-[12px] border-b border-[#eee] hover:bg-[#fafafa]"
+                className="flex items-center gap-4 px-4 py-3 text-[13px] border-b border-[#eee] hover:bg-[#fafafa]"
               >
                 <span className="flex-1 font-bold truncate">
                   {order.products?.name ?? "—"}
                 </span>
-                <span className="w-60 shrink-0 text-[#666] truncate">
+                <span className="w-64 shrink-0 text-[#666] truncate">
                   {order.user_email}
                 </span>
-                <span className="w-20 shrink-0 text-right font-bold">
+                <span className="w-24 shrink-0 text-right font-bold">
                   ₩{order.amount.toLocaleString("ko-KR")}
                 </span>
-                <span className="w-16 shrink-0 flex justify-center">
+                <span className="w-20 shrink-0 flex justify-center">
                   <span
-                    className={`text-[9px] font-bold px-1.5 py-[1px] border leading-none ${
+                    className={`text-[10px] font-bold px-2 py-0.5 border ${
                       t === "single"
                         ? "text-[#111] border-[#ddd]"
                         : t === "subscription"
@@ -279,21 +276,21 @@ export default function AdminOrders() {
                     {typeLabel(t)}
                   </span>
                 </span>
-                <span className="w-20 shrink-0 flex justify-center">
+                <span className="w-24 shrink-0 flex justify-center">
                   <span
-                    className={`text-[9px] font-bold px-1.5 py-[1px] border leading-none ${statusColor(order.status)}`}
+                    className={`text-[10px] font-bold px-2 py-0.5 border ${statusColor(order.status)}`}
                   >
                     {statusLabel(order.status)}
                   </span>
                 </span>
-                <span className="w-28 shrink-0 text-right text-[10px] text-[#999]">
+                <span className="w-32 shrink-0 text-right text-[11px] text-[#999]">
                   {shortDateTime(order.created_at)}
                 </span>
-                <div className="w-[100px] shrink-0 flex gap-1 justify-end">
+                <div className="w-[110px] shrink-0 flex gap-1 justify-end">
                   {order.status === "pending" && (
                     <button
                       onClick={() => updateStatus(order.id, "paid")}
-                      className="text-[10px] text-green-700 bg-white border border-green-400 px-2 py-0.5 cursor-pointer hover:bg-green-50"
+                      className="text-[11px] text-green-700 bg-white border border-green-400 px-2.5 py-1 cursor-pointer hover:bg-green-50"
                     >
                       결제 확인
                     </button>
@@ -301,7 +298,7 @@ export default function AdminOrders() {
                   {order.status === "paid" && (
                     <button
                       onClick={() => updateStatus(order.id, "refunded")}
-                      className="text-[10px] text-red-600 bg-white border border-red-300 px-2 py-0.5 cursor-pointer hover:bg-red-50"
+                      className="text-[11px] text-red-600 bg-white border border-red-300 px-2.5 py-1 cursor-pointer hover:bg-red-50"
                     >
                       환불
                     </button>
@@ -315,35 +312,35 @@ export default function AdminOrders() {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-1 mt-4">
+        <div className="flex items-center justify-center gap-1 mt-8">
           <button
             onClick={() => setPage(1)}
             disabled={page === 1}
-            className="text-[11px] px-2 py-1 border border-[#ddd] bg-white cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#f5f5f5]"
+            className="text-[12px] px-3 py-1.5 border border-[#ddd] bg-white cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#f5f5f5]"
           >
             ≪
           </button>
           <button
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
-            className="text-[11px] px-2 py-1 border border-[#ddd] bg-white cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#f5f5f5]"
+            className="text-[12px] px-3 py-1.5 border border-[#ddd] bg-white cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#f5f5f5]"
           >
             ‹
           </button>
-          <span className="text-[11px] px-3 text-[#666]">
+          <span className="text-[12px] px-4 text-[#666]">
             {page} / {totalPages}
           </span>
           <button
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={page === totalPages}
-            className="text-[11px] px-2 py-1 border border-[#ddd] bg-white cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#f5f5f5]"
+            className="text-[12px] px-3 py-1.5 border border-[#ddd] bg-white cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#f5f5f5]"
           >
             ›
           </button>
           <button
             onClick={() => setPage(totalPages)}
             disabled={page === totalPages}
-            className="text-[11px] px-2 py-1 border border-[#ddd] bg-white cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#f5f5f5]"
+            className="text-[12px] px-3 py-1.5 border border-[#ddd] bg-white cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#f5f5f5]"
           >
             ≫
           </button>
