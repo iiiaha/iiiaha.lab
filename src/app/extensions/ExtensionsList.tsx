@@ -80,6 +80,7 @@ export default function ExtensionsList({
           <ProductCard
             key={product.slug}
             product={product}
+            hidePrice
           />
         ))}
       </div>
