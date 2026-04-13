@@ -93,44 +93,6 @@ export default function SubscribeContent({
         </p>
       </div>
 
-      {/* 평생 잠금가 후킹 배너 */}
-      <div className="sub-cta relative overflow-hidden mb-8">
-        <div className="sub-cta-bg absolute inset-0" />
-        <div className="sub-cta-aurora absolute inset-0" />
-        <div className="relative px-6 py-6 flex items-center justify-between gap-4 max-sm:flex-col max-sm:items-start">
-          <div className="flex-1">
-            <div className="flex items-baseline gap-2 mb-2">
-              <span className="text-[10px] font-bold tracking-[0.15em] uppercase text-white">
-                Lifetime Lock
-              </span>
-              <span className="text-[10px] text-[rgba(255,255,255,0.5)]">
-                ~ 2026.07.31
-              </span>
-            </div>
-            <p className="text-[15px] font-bold text-white leading-[1.5] mb-1.5">
-              지금 가입하시면 ₩24,900이<br className="max-sm:hidden" />{" "}
-              평생 잠금가로 유지됩니다
-            </p>
-            <p className="text-[12px] text-[rgba(255,255,255,0.7)] leading-[1.6]">
-              디버깅 기간 종료 후 정상가는 <strong className="text-white">₩29,000/월</strong>로 인상되지만,
-              <br className="max-sm:hidden" />
-              지금 가입한 분들은 해지 전까지 영원히 ₩24,900으로 결제됩니다.
-            </p>
-          </div>
-          <div className="shrink-0 flex flex-col items-end max-sm:items-start">
-            <div className="flex items-baseline gap-2">
-              <span className="text-[14px] text-[rgba(255,255,255,0.4)] line-through">
-                ₩29,000
-              </span>
-              <span className="text-[32px] font-bold text-white leading-none tracking-[-0.02em]">
-                ₩24,900
-              </span>
-            </div>
-            <span className="text-[11px] text-[rgba(255,255,255,0.6)] mt-1">/ month · 평생 잠금</span>
-          </div>
-        </div>
-      </div>
-
       {/* Plan Toggle */}
       <div className="flex justify-center mb-8">
         <div className="inline-flex border border-[#ddd]">
@@ -217,15 +179,14 @@ export default function SubscribeContent({
               <p className="text-[11px] text-red-600 font-bold mb-1">
                 디버깅 기간 내 {Math.round((1 - MONTHLY_PRICE / MONTHLY_REGULAR) * 100)}% 할인 · ~ 2026.07.31
               </p>
-              <p className="text-[11px] text-[#111] font-bold mb-6">
-                🔒 가입 시점 가격 평생 잠금
+              <p className="text-[11px] text-[#999] mb-6">
+                디버깅 기간 이후에도 해지 전까지는 같은 가격으로 결제됩니다.
               </p>
             </>
           )}
           <div className="border-t border-[#eee] pt-4 flex flex-col gap-2.5">
             <Row label="모든 익스텐션 이용" bold />
             <Row label="신규 익스텐션 자동 포함" bold />
-            {plan === "monthly" && <Row label="가입 시점 가격 평생 잠금" bold />}
             <Row label="기기 1대" />
             <Row label="구독 기간 중 업데이트 포함" />
           </div>
@@ -292,12 +253,12 @@ export default function SubscribeContent({
         </p>
         <div className="border-t border-[#ddd]">
           <FaqItem
-            q="디버깅 기간이 끝나면 제 구독료도 인상되나요?"
-            a="아니요. 디버깅 기간(~ 2026.07.31)에 가입하신 분들은 ₩24,900 가격이 해지 전까지 평생 유지됩니다. 정상가 인상은 8월 1일 이후 신규 가입자에게만 적용됩니다."
+            q="디버깅 기간이 끝나면 제 구독료도 오르나요?"
+            a="아니요. 가입 시점의 가격이 해지 전까지 그대로 유지됩니다. 8월 1일 이후 신규 가입자에게만 정상가가 적용됩니다."
           />
           <FaqItem
             q="구독을 해지하면 어떻게 되나요?"
-            a="구독 기간이 끝나면 익스텐션 사용이 중지됩니다. 이미 작업한 파일에는 영향이 없습니다. 단, 한 번 해지하면 평생 잠금가는 사라지므로 재가입 시에는 그 시점의 정상가가 적용됩니다."
+            a="구독 기간이 끝나면 익스텐션 사용이 중지됩니다. 이미 작업한 파일에는 영향이 없습니다."
           />
           <FaqItem
             q="기기를 변경하고 싶으면 어떻게 하나요?"
