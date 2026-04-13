@@ -122,17 +122,19 @@ export default function SubscribeContent({
       {/* Pricing Cards */}
       <div className="grid grid-cols-2 gap-4 mb-10 max-sm:grid-cols-1">
         {/* Individual Purchase */}
-        <div className="border border-[#ddd] p-6">
-          <p className="text-[11px] text-[#999] tracking-[0.1em] uppercase mb-4">
-            Individual
-          </p>
-          <p className="text-[22px] font-bold mb-1">
-            {formatPrice(totalPrice)}
-          </p>
-          <p className="text-[12px] text-[#999] mb-6">
-            {extensions.length}개 전체 개별 구매 시
-          </p>
-          <div className="border-t border-[#eee] pt-4 flex flex-col gap-2.5">
+        <div className="border border-[#ddd] p-6 flex flex-col">
+          <div className="min-h-[120px]">
+            <p className="text-[11px] text-[#999] tracking-[0.1em] uppercase mb-4">
+              Individual
+            </p>
+            <p className="text-[22px] font-bold mb-1">
+              {formatPrice(totalPrice)}
+            </p>
+            <p className="text-[12px] text-[#999]">
+              {extensions.length}개 전체 개별 구매 시
+            </p>
+          </div>
+          <div className="border-t border-[#eee] pt-4 mt-4 flex flex-col gap-2.5 flex-1">
             <Row label="영구 소유" />
             <Row label="기기 1대" />
             <Row label="개별 업데이트" />
@@ -149,60 +151,66 @@ export default function SubscribeContent({
         </div>
 
         {/* Subscription */}
-        <div className="border-2 border-[#111] p-6 relative">
-          <p className="text-[11px] text-[#999] tracking-[0.1em] uppercase mb-4">
-            Subscription
-          </p>
-          {plan === "annual" ? (
-            <>
-              <div className="flex items-baseline gap-2 mb-1">
-                <p className="text-[22px] font-bold">
-                  {formatPrice(ANNUAL_PRICE)}
-                </p>
-                <span className="text-[12px] text-[#999]">/year</span>
-              </div>
-              <p className="text-[12px] text-[#999] mb-6">
-                월 {formatPrice(ANNUAL_MONTHLY)}
+        <div className="sub-cta relative overflow-hidden flex flex-col">
+          <div className="sub-cta-bg absolute inset-0" />
+          <div className="sub-cta-aurora absolute inset-0" />
+          <div className="relative p-6 flex flex-col flex-1">
+            <div className="min-h-[120px]">
+              <p className="text-[11px] text-[rgba(255,255,255,0.5)] tracking-[0.1em] uppercase mb-4">
+                Subscription
               </p>
-            </>
-          ) : (
-            <>
-              <div className="flex items-baseline gap-2 mb-1">
-                <span className="text-[14px] text-[#ccc] line-through">
-                  {formatPrice(MONTHLY_REGULAR)}
-                </span>
-                <p className="text-[22px] font-bold text-red-600">
-                  {formatPrice(MONTHLY_PRICE)}
-                </p>
-                <span className="text-[12px] text-[#999]">/month</span>
-              </div>
-              <p className="text-[11px] text-red-600 font-bold mb-1">
-                디버깅 기간 내 {Math.round((1 - MONTHLY_PRICE / MONTHLY_REGULAR) * 100)}% 할인 · ~ 2026.07.31
-              </p>
-              <p className="text-[11px] text-[#999] mb-6">
-                디버깅 기간 이후에도 해지 전까지는 같은 가격으로 결제됩니다.
-              </p>
-            </>
-          )}
-          <div className="border-t border-[#eee] pt-4 flex flex-col gap-2.5">
-            <Row label="모든 익스텐션 이용" bold />
-            <Row label="신규 익스텐션 자동 포함" bold />
-            <Row label="기기 1대" />
-            <Row label="구독 기간 중 업데이트 포함" />
-          </div>
-          <div className="mt-6">
-            <button
-              onClick={handleSubscribe}
-              disabled={processing}
-              className="w-full bg-[#111] text-white text-[13px] font-bold tracking-[0.05em] py-3 border-0 cursor-pointer hover:bg-[#333] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {processing
-                ? "결제창을 여는 중..."
-                : `Subscribe — ${plan === "annual" ? formatPrice(ANNUAL_PRICE) : `${formatPrice(MONTHLY_PRICE)}/mo`}`}
-            </button>
-            {error && (
-              <p className="text-[11px] text-red-600 text-center mt-2">{error}</p>
-            )}
+              {plan === "annual" ? (
+                <>
+                  <div className="flex items-baseline gap-2 mb-1">
+                    <p className="text-[22px] font-bold text-white">
+                      {formatPrice(ANNUAL_PRICE)}
+                    </p>
+                    <span className="text-[12px] text-[rgba(255,255,255,0.5)]">/year</span>
+                  </div>
+                  <p className="text-[12px] text-[rgba(255,255,255,0.6)]">
+                    월 {formatPrice(ANNUAL_MONTHLY)}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <div className="flex items-baseline gap-2 mb-1">
+                    <span className="text-[14px] text-[rgba(255,255,255,0.4)] line-through">
+                      {formatPrice(MONTHLY_REGULAR)}
+                    </span>
+                    <p className="text-[22px] font-bold text-white">
+                      {formatPrice(MONTHLY_PRICE)}
+                    </p>
+                    <span className="text-[12px] text-[rgba(255,255,255,0.5)]">/month</span>
+                  </div>
+                  <p className="text-[11px] text-white font-bold mb-1">
+                    디버깅 기간 내 {Math.round((1 - MONTHLY_PRICE / MONTHLY_REGULAR) * 100)}% 할인 · ~ 2026.07.31
+                  </p>
+                  <p className="text-[11px] text-[rgba(255,255,255,0.55)]">
+                    디버깅 기간 이후에도 해지 전까지는 같은 가격으로 결제됩니다.
+                  </p>
+                </>
+              )}
+            </div>
+            <div className="border-t border-[rgba(255,255,255,0.18)] pt-4 mt-4 flex flex-col gap-2.5 flex-1">
+              <Row label="모든 익스텐션 이용" bold dark />
+              <Row label="신규 익스텐션 자동 포함" bold dark />
+              <Row label="기기 1대" dark />
+              <Row label="구독 기간 중 업데이트 포함" dark />
+            </div>
+            <div className="mt-6">
+              <button
+                onClick={handleSubscribe}
+                disabled={processing}
+                className="w-full bg-white text-[#111] text-[13px] font-bold tracking-[0.05em] py-3 border-0 cursor-pointer hover:bg-[rgba(255,255,255,0.85)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {processing
+                  ? "결제창을 여는 중..."
+                  : `Subscribe — ${plan === "annual" ? formatPrice(ANNUAL_PRICE) : `${formatPrice(MONTHLY_PRICE)}/mo`}`}
+              </button>
+              {error && (
+                <p className="text-[11px] text-red-300 text-center mt-2">{error}</p>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -278,7 +286,23 @@ export default function SubscribeContent({
   );
 }
 
-function Row({ label, bold }: { label: string; bold?: boolean }) {
+function Row({ label, bold, dark }: { label: string; bold?: boolean; dark?: boolean }) {
+  if (dark) {
+    return (
+      <div className="flex items-start gap-2">
+        <span className="text-[11px] text-[rgba(255,255,255,0.4)] mt-0.5">—</span>
+        <span
+          className={`text-[13px] ${
+            bold
+              ? "font-bold text-white"
+              : "text-[rgba(255,255,255,0.75)]"
+          }`}
+        >
+          {label}
+        </span>
+      </div>
+    );
+  }
   return (
     <div className="flex items-start gap-2">
       <span className="text-[11px] text-[#999] mt-0.5">—</span>
