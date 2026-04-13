@@ -241,7 +241,7 @@ export default function SubscribeContent({
                 )}
               </div>
               <span className="text-[12px] text-[#999] shrink-0">
-                {formatPrice(ext.price)}
+                {formatPrice(ext.original_price ?? ext.price)}
               </span>
             </Link>
           ))}

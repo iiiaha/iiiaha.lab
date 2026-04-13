@@ -1,5 +1,4 @@
 import { getProducts } from "@/lib/products";
-import { formatPrice } from "@/lib/types";
 import SubscribeContent from "./SubscribeContent";
 
 export const dynamic = "force-dynamic";
@@ -7,7 +6,11 @@ export const dynamic = "force-dynamic";
 export default async function SubscribePage() {
   const allProducts = await getProducts();
   const extensions = allProducts.filter((p) => p.type === "extension");
-  const totalPrice = extensions.reduce((sum, p) => sum + p.price, 0);
+  // 정상가(original_price) 기준으로 합계. 디버깅 할인이 적용되지 않은 금액.
+  const totalPrice = extensions.reduce(
+    (sum, p) => sum + (p.original_price ?? p.price),
+    0
+  );
 
   return <SubscribeContent extensions={extensions} totalPrice={totalPrice} />;
 }
