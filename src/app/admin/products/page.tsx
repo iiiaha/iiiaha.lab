@@ -177,10 +177,10 @@ export default function AdminProducts() {
   const finalPrice = discountOn && discPercent > 0 ? Math.round(origPrice * (1 - discPercent / 100)) : origPrice;
 
   const editPanel = editing ? (
-    <div className="fixed right-0 top-0 w-[340px] h-full bg-white border-l border-[#ddd] px-6 py-8 overflow-y-auto z-50 shadow-[-4px_0_20px_rgba(0,0,0,0.05)]">
+    <div className="fixed right-0 top-0 w-[420px] h-full bg-white border-l border-[#ddd] px-8 py-8 overflow-y-auto z-50 shadow-[-4px_0_20px_rgba(0,0,0,0.05)]">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-[13px] font-bold">Edit</h2>
-        <button onClick={() => setEditing(null)} className="text-[11px] text-[#999] bg-transparent border-0 cursor-pointer hover:underline">Close</button>
+        <h2 className="text-[14px] font-bold">상품 편집</h2>
+        <button onClick={() => setEditing(null)} className="text-[11px] text-[#999] bg-transparent border-0 cursor-pointer hover:underline">닫기</button>
       </div>
 
       <div className="flex flex-col gap-2 text-[12px]">
@@ -251,33 +251,36 @@ export default function AdminProducts() {
   return (
     <div>
       <div>
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <h1 className="text-[16px] font-bold tracking-[0.03em]">Products</h1>
-          {message && <span className="text-[11px] text-green-600">{message}</span>}
+      <div className="flex items-baseline justify-between mb-2">
+        <div>
+          <h1 className="text-[18px] font-bold tracking-[0.03em]">제품 관리</h1>
+          <p className="text-[11px] text-[#999] mt-1">
+            익스텐션·강의 상품 등록·편집·정렬
+          </p>
         </div>
         <div className="flex gap-2">
           <button
             onClick={() => setViewMode(viewMode === "list" ? "grid" : "list")}
             className="text-[11px] text-[#666] bg-transparent border border-[#ddd] px-3 py-1.5 cursor-pointer hover:bg-[#f5f5f5]"
           >
-            {viewMode === "list" ? "Grid Preview" : "List View"}
+            {viewMode === "list" ? "그리드 미리보기" : "리스트 보기"}
           </button>
           <button
             onClick={() => { setAdding(true); setEditing(null); }}
             className="bg-[#111] text-white text-[12px] font-bold px-4 py-2 border-0 cursor-pointer hover:bg-[#333]"
           >
-            + Add
+            + 추가
           </button>
         </div>
       </div>
+      <div className="h-5 mb-4 text-[11px] text-green-600">{message}</div>
       {/* Platform tabs */}
       <div className="flex gap-4 mb-0 text-[12px]">
         {([
-          { key: "all", label: "All" },
+          { key: "all", label: "전체" },
           { key: "sketchup", label: "SketchUp" },
           { key: "autocad", label: "AutoCAD" },
-          { key: "course", label: "Courses" },
+          { key: "course", label: "강의" },
         ] as const).map(({ key, label }) => (
           <button
             key={key}
@@ -375,8 +378,8 @@ export default function AdminProducts() {
                     <span className="text-[#666]">₩{p.price.toLocaleString()}</span>
                   )}
                 </div>
-                <button onClick={() => startEdit(p)} className={`text-[10px] bg-transparent border px-2 py-0.5 cursor-pointer shrink-0 ${editing === p.id ? "text-[#111] border-[#111] font-bold" : "text-[#999] border-[#ddd] hover:bg-[#f5f5f5]"}`}>Edit</button>
-                <button onClick={() => deleteProduct(p.id, p.name)} className="text-[10px] text-red-500 bg-transparent border border-[#ddd] px-2 py-0.5 cursor-pointer hover:bg-red-50 shrink-0">Del</button>
+                <button onClick={() => startEdit(p)} className={`text-[10px] bg-transparent border px-2 py-0.5 cursor-pointer shrink-0 ${editing === p.id ? "text-[#111] border-[#111] font-bold" : "text-[#999] border-[#ddd] hover:bg-[#f5f5f5]"}`}>편집</button>
+                <button onClick={() => deleteProduct(p.id, p.name)} className="text-[10px] text-red-500 bg-transparent border border-[#ddd] px-2 py-0.5 cursor-pointer hover:bg-red-50 shrink-0">삭제</button>
               </div>
           </div>
         ))}

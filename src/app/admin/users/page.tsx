@@ -11,6 +11,12 @@ interface User {
   provider: string;
 }
 
+function shortDate(iso: string | null): string {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  return `${d.getFullYear().toString().slice(2)}.${d.getMonth() + 1}.${d.getDate()}`;
+}
+
 interface License {
   id: string;
   license_key: string;
@@ -314,26 +320,39 @@ export default function AdminAccounts() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-3">
-          <h1 className="text-[16px] font-bold">사용자 · 라이선스</h1>
-          {message && <span className="text-[11px] text-green-600">{message}</span>}
-          <button
-            onClick={() => {
-              setShowIssue(!showIssue);
-              setIssuedKey("");
-            }}
-            className="bg-[#111] text-white text-[11px] font-bold px-3 py-1 border-0 cursor-pointer hover:bg-[#333]"
-          >
-            + 수동 발급
-          </button>
+      <div className="flex items-baseline justify-between mb-2">
+        <div>
+          <h1 className="text-[18px] font-bold tracking-[0.03em]">사용자 · 라이선스</h1>
+          <p className="text-[11px] text-[#999] mt-1">
+            계정 기반으로 구독·라이선스·주문을 통합 관리합니다
+          </p>
         </div>
-        <div className="flex gap-4 text-[11px] text-[#999]">
-          <span>계정 {stats.total}</span>
-          <span>라이선스 {stats.totalLic}</span>
-          <span>구독 {stats.active}</span>
-          <span>해지중 {stats.canceling}</span>
+        <div className="flex items-center gap-6 text-[11px] text-[#999]">
+          <span>
+            계정 <strong className="text-[#111]">{stats.total}</strong>
+          </span>
+          <span>
+            라이선스 <strong className="text-[#111]">{stats.totalLic}</strong>
+          </span>
+          <span>
+            구독중 <strong className="text-[#111]">{stats.active}</strong>
+          </span>
+          <span>
+            해지중 <strong className="text-[#111]">{stats.canceling}</strong>
+          </span>
         </div>
+      </div>
+      <div className="flex items-center gap-3 mb-6">
+        {message && <span className="text-[11px] text-green-600">{message}</span>}
+        <button
+          onClick={() => {
+            setShowIssue(!showIssue);
+            setIssuedKey("");
+          }}
+          className="bg-[#111] text-white text-[11px] font-bold px-3 py-1 border-0 cursor-pointer hover:bg-[#333]"
+        >
+          + 수동 발급
+        </button>
       </div>
 
       {showIssue && (
@@ -434,13 +453,14 @@ export default function AdminAccounts() {
       </div>
 
       {/* Column header */}
-      <div className="flex items-center gap-2 px-2 py-1 text-[10px] text-[#999] font-bold tracking-[0.05em] uppercase border-b border-[#111]">
-        <span className="flex-1">Email</span>
-        <span className="w-14 shrink-0">Provider</span>
-        <span className="w-12 shrink-0 text-center">Status</span>
-        <span className="w-8 shrink-0 text-right">Lic</span>
-        <span className="w-20 shrink-0 text-right">Joined</span>
-        <span className="w-[160px] shrink-0 text-right">Actions</span>
+      <div className="flex items-center gap-3 px-3 py-2 text-[10px] text-[#999] font-bold tracking-[0.08em] uppercase border-b border-[#111]">
+        <span className="flex-1">이메일</span>
+        <span className="w-16 shrink-0">Provider</span>
+        <span className="w-16 shrink-0 text-center">구독</span>
+        <span className="w-10 shrink-0 text-right">라이선스</span>
+        <span className="w-20 shrink-0 text-right">가입일</span>
+        <span className="w-20 shrink-0 text-right">최근 로그인</span>
+        <span className="w-[200px] shrink-0 text-right">작업</span>
         <span className="w-4 shrink-0" />
       </div>
 
@@ -457,30 +477,29 @@ export default function AdminAccounts() {
 
             return (
               <div key={user.id} className="border-b border-[#eee]">
-                <div className="flex items-center gap-2 px-2 py-1 text-[11px] hover:bg-[#fafafa]">
+                <div className="flex items-center gap-3 px-3 py-1.5 text-[12px] hover:bg-[#fafafa]">
                   <span
                     onClick={() => setExpanded(isExpanded ? null : user.id)}
                     className="flex-1 font-bold truncate cursor-pointer"
                   >
                     {user.email}
                   </span>
-                  <span className="w-14 shrink-0 text-[10px] text-[#999] border border-[#eee] px-1 py-0 text-center leading-[1.4]">
+                  <span className="w-16 shrink-0 text-[10px] text-[#999] border border-[#eee] px-1.5 py-0 text-center leading-[1.6]">
                     {user.provider}
                   </span>
-                  <span className="w-12 shrink-0 flex justify-center">
+                  <span className="w-16 shrink-0 flex justify-center">
                     <SubBadge status={subStatus} />
                   </span>
-                  <span className="w-8 shrink-0 text-right text-[#666]">
+                  <span className="w-10 shrink-0 text-right text-[#666]">
                     {userLics.length}
                   </span>
                   <span className="w-20 shrink-0 text-right text-[10px] text-[#999]">
-                    {new Date(user.created_at).toLocaleDateString("ko-KR", {
-                      year: "2-digit",
-                      month: "2-digit",
-                      day: "2-digit",
-                    })}
+                    {shortDate(user.created_at)}
                   </span>
-                  <div className="w-[160px] shrink-0 flex gap-1 justify-end">
+                  <span className="w-20 shrink-0 text-right text-[10px] text-[#999]">
+                    {shortDate(user.last_sign_in_at)}
+                  </span>
+                  <div className="w-[200px] shrink-0 flex gap-1 justify-end">
                     {subStatus === "none" && (
                       <>
                         <button
@@ -488,18 +507,18 @@ export default function AdminAccounts() {
                             e.stopPropagation();
                             grantSubscription(user.id, user.email, "monthly");
                           }}
-                          className="text-[10px] text-[#111] bg-white border border-[#ddd] px-1.5 py-0 cursor-pointer hover:bg-[#f5f5f5] leading-[1.6]"
+                          className="text-[10px] text-[#111] bg-white border border-[#ddd] px-2 py-0.5 cursor-pointer hover:bg-[#f5f5f5] leading-[1.6]"
                         >
-                          +월
+                          + 월간
                         </button>
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
                             grantSubscription(user.id, user.email, "annual");
                           }}
-                          className="text-[10px] text-[#111] bg-white border border-[#ddd] px-1.5 py-0 cursor-pointer hover:bg-[#f5f5f5] leading-[1.6]"
+                          className="text-[10px] text-[#111] bg-white border border-[#ddd] px-2 py-0.5 cursor-pointer hover:bg-[#f5f5f5] leading-[1.6]"
                         >
-                          +년
+                          + 연간
                         </button>
                       </>
                     )}
@@ -509,9 +528,9 @@ export default function AdminAccounts() {
                           e.stopPropagation();
                           cancelSubscription(subscription.id);
                         }}
-                        className="text-[10px] text-red-600 bg-white border border-red-300 px-1.5 py-0 cursor-pointer hover:bg-red-50 leading-[1.6]"
+                        className="text-[10px] text-red-600 bg-white border border-red-300 px-2 py-0.5 cursor-pointer hover:bg-red-50 leading-[1.6]"
                       >
-                        구독해지
+                        구독 해지
                       </button>
                     )}
                     <button
@@ -519,14 +538,14 @@ export default function AdminAccounts() {
                         e.stopPropagation();
                         deleteUser(user.id, user.email);
                       }}
-                      className="text-[10px] text-red-600 bg-white border border-[#ddd] px-1.5 py-0 cursor-pointer hover:bg-red-50 leading-[1.6]"
+                      className="text-[10px] text-red-600 bg-white border border-[#ddd] px-2 py-0.5 cursor-pointer hover:bg-red-50 leading-[1.6]"
                     >
                       탈퇴
                     </button>
                   </div>
                   <span
                     onClick={() => setExpanded(isExpanded ? null : user.id)}
-                    className="w-4 shrink-0 text-center text-[13px] text-[#ccc] cursor-pointer leading-none"
+                    className="w-4 shrink-0 text-center text-[14px] text-[#ccc] cursor-pointer leading-none"
                   >
                     {isExpanded ? "−" : "+"}
                   </span>
