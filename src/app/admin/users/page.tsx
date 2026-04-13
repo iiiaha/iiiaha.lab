@@ -17,6 +17,14 @@ function shortDate(iso: string | null): string {
   return `${d.getFullYear().toString().slice(2)}.${d.getMonth() + 1}.${d.getDate()}`;
 }
 
+function shortDateTime(iso: string | null): string {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  const hh = String(d.getHours()).padStart(2, "0");
+  const mm = String(d.getMinutes()).padStart(2, "0");
+  return `${d.getFullYear().toString().slice(2)}.${d.getMonth() + 1}.${d.getDate()} ${hh}:${mm}`;
+}
+
 interface License {
   id: string;
   license_key: string;
@@ -460,7 +468,7 @@ export default function AdminAccounts() {
         <span className="w-20 shrink-0 text-center">구독</span>
         <span className="w-14 shrink-0 text-right">라이선스</span>
         <span className="w-24 shrink-0 text-right">가입일</span>
-        <span className="w-24 shrink-0 text-right">최근 로그인</span>
+        <span className="w-32 shrink-0 text-right">최근 로그인</span>
         <span className="w-[220px] shrink-0 text-right">작업</span>
         <span className="w-5 shrink-0" />
       </div>
@@ -497,8 +505,8 @@ export default function AdminAccounts() {
                   <span className="w-24 shrink-0 text-right text-[11px] text-[#999]">
                     {shortDate(user.created_at)}
                   </span>
-                  <span className="w-24 shrink-0 text-right text-[11px] text-[#999]">
-                    {shortDate(user.last_sign_in_at)}
+                  <span className="w-32 shrink-0 text-right text-[11px] text-[#999]">
+                    {shortDateTime(user.last_sign_in_at)}
                   </span>
                   <div className="w-[220px] shrink-0 flex gap-1.5 justify-end">
                     {subStatus === "none" && (
