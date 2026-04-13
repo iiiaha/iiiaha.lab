@@ -189,8 +189,8 @@ export default function ExtensionDetail({ product }: { product: Product }) {
           <div className="flex flex-col gap-4">
             {/* 개별 구매 옵션 */}
             <div>
-              <p className="text-[11px] text-[#999] text-center mb-2 tracking-[0.03em]">
-                이 익스텐션 하나만 <strong className="text-[#111]">영구 소장</strong>
+              <p className="text-[12px] font-bold text-[#111] mb-2 tracking-[0.02em]">
+                이 익스텐션 하나만 영구 소장
               </p>
               {items.some((i) => i.id === product.id) || added ? (
                 <Link
@@ -222,8 +222,8 @@ export default function ExtensionDetail({ product }: { product: Product }) {
 
             {/* 구독 옵션 */}
             <div>
-              <p className="text-[11px] text-[#999] text-center mb-2 tracking-[0.03em]">
-                또는 <strong className="text-[#111]">구독 멤버십</strong>으로 모든 익스텐션 자유롭게 사용
+              <p className="text-[12px] font-bold text-[#111] mb-2 tracking-[0.02em]">
+                구독 멤버십으로 모든 익스텐션 자유롭게 사용
               </p>
               <Link
                 href="/subscribe"
