@@ -23,6 +23,8 @@ interface OrderWithProduct {
   created_at: string;
   product_id: string;
   subscription_id: string | null;
+  payment_key: string | null;
+  download_acknowledged_at: string | null;
   products: {
     slug: string;
     name: string;
@@ -30,6 +32,19 @@ interface OrderWithProduct {
     thumbnail_url: string | null;
   };
   licenses: { license_key: string; hwid: string | null; status: string }[];
+}
+
+const REFUND_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
+
+function isRefundEligible(order: OrderWithProduct): boolean {
+  if (order.status !== "paid") return false;
+  if ((order.amount || 0) <= 0) return false;
+  if (order.subscription_id) return false;
+  if (order.payment_key?.startsWith("admin")) return false;
+  if (order.download_acknowledged_at) return false;
+  const age = Date.now() - new Date(order.created_at).getTime();
+  if (age > REFUND_WINDOW_MS) return false;
+  return true;
 }
 
 interface VersionInfo {
@@ -106,7 +121,7 @@ export default function MyPage() {
       const { data } = await supabase
         .from("orders")
         .select(
-          "id, amount, status, created_at, product_id, subscription_id, products(slug, name, version, thumbnail_url), licenses(license_key, hwid, status)"
+          "id, amount, status, created_at, product_id, subscription_id, payment_key, download_acknowledged_at, products(slug, name, version, thumbnail_url), licenses(license_key, hwid, status)"
         )
         .eq("user_id", user.id)
         .eq("status", "paid")
@@ -159,6 +174,71 @@ export default function MyPage() {
   const handleSignOut = async () => {
     await signOut();
     router.push("/");
+  };
+
+  const handleDownload = async (order: OrderWithProduct) => {
+    const slug = order.products?.slug;
+    if (!slug) return;
+
+    // 구독/관리자 발급은 바로 다운로드 (환불 대상 아님)
+    const skipConfirm =
+      !!order.subscription_id ||
+      order.payment_key?.startsWith("admin") ||
+      !!order.download_acknowledged_at;
+
+    if (!skipConfirm) {
+      const ok = confirm(
+        ".rbz 파일을 다운로드하면 이 주문의 환불이 더 이상 불가합니다.\n\n" +
+          "다운로드를 진행하시겠습니까?"
+      );
+      if (!ok) return;
+
+      try {
+        await fetch("/api/orders/acknowledge-download", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ order_id: order.id }),
+        });
+      } catch {
+        // 실패해도 다운로드는 진행 (서버에서 다음 번에 다시 시도 가능)
+      }
+    }
+
+    window.location.href = `/api/download/${slug}`;
+    // UI 상태 갱신 (다운로드가 브라우저에서 진행되는 동안)
+    setTimeout(() => {
+      router.refresh();
+    }, 1500);
+  };
+
+  const handleRefund = async (order: OrderWithProduct) => {
+    const name = order.products?.name ?? "상품";
+    if (
+      !confirm(
+        `${name} 주문을 환불 요청하시겠습니까?\n\n` +
+          `· ₩${order.amount.toLocaleString("ko-KR")}이 결제 수단으로 환불됩니다\n` +
+          `· 라이선스가 즉시 revoke됩니다\n` +
+          `· 되돌릴 수 없습니다`
+      )
+    )
+      return;
+
+    try {
+      const res = await fetch("/api/orders/refund", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ order_id: order.id }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert(`환불이 완료되었습니다. (₩${data.refunded_amount.toLocaleString("ko-KR")})`);
+        window.location.reload();
+      } else {
+        alert(data.error || "환불 처리에 실패했습니다.");
+      }
+    } catch {
+      alert("네트워크 오류가 발생했습니다.");
+    }
   };
 
   const handleCancelSubscription = async () => {
@@ -344,15 +424,27 @@ export default function MyPage() {
                       </span>
                     ) : (
                       <>
-                        <a href={`/api/download/${slug}`}
-                          className="w-full text-[12px] text-[#111] border border-[#111] px-4 py-1.5 no-underline hover:bg-[#111] hover:text-white transition-colors text-center">
+                        <button
+                          onClick={() => handleDownload(order)}
+                          className="w-full text-[12px] text-[#111] border border-[#111] bg-white px-4 py-1.5 cursor-pointer hover:bg-[#111] hover:text-white transition-colors text-center"
+                        >
                           Download .rbz
-                        </a>
+                        </button>
                         {ver?.hasUpdate && (
-                          <a href={`/api/download/${slug}`}
-                            className="w-full text-[12px] text-white bg-[#111] border border-[#111] px-4 py-1.5 no-underline hover:bg-[#333] transition-colors text-center">
+                          <button
+                            onClick={() => handleDownload(order)}
+                            className="w-full text-[12px] text-white bg-[#111] border border-[#111] px-4 py-1.5 cursor-pointer hover:bg-[#333] transition-colors text-center"
+                          >
                             Update to v{ver.latest}
-                          </a>
+                          </button>
+                        )}
+                        {isRefundEligible(order) && (
+                          <button
+                            onClick={() => handleRefund(order)}
+                            className="w-full text-[11px] text-red-600 border border-red-300 bg-white px-4 py-1 cursor-pointer hover:bg-red-50 transition-colors text-center"
+                          >
+                            환불 요청
+                          </button>
                         )}
                         <Link href={`/openlab/new?product=${slug}`}
                           className="w-full text-[12px] text-[#111] border border-[#111] px-4 py-1.5 no-underline hover:bg-[#111] hover:text-white transition-colors text-center">
