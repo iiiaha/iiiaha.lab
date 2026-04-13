@@ -94,29 +94,28 @@ export default function SubscribeContent({
       </div>
 
       {/* Plan Toggle */}
-      <div className="flex justify-center mb-8">
-        <div className="inline-flex border border-[#ddd]">
-          <button
-            onClick={() => setPlan("monthly")}
-            className={`text-[13px] tracking-[0.03em] px-6 py-2.5 border-0 cursor-pointer transition-colors ${
-              plan === "monthly"
-                ? "bg-[#111] text-white font-bold"
-                : "bg-white text-[#666] hover:text-[#111]"
-            }`}
-          >
-            Monthly
-          </button>
-          <button
-            onClick={() => setPlan("annual")}
-            className={`text-[13px] tracking-[0.03em] px-6 py-2.5 border-0 cursor-pointer transition-colors ${
-              plan === "annual"
-                ? "bg-[#111] text-white font-bold"
-                : "bg-white text-[#666] hover:text-[#111]"
-            }`}
-          >
-            Annual
-          </button>
-        </div>
+      <div className="flex justify-center items-center gap-4 mb-8 text-[12px] tracking-[0.08em]">
+        <button
+          onClick={() => setPlan("monthly")}
+          className={`bg-transparent border-0 p-0 cursor-pointer transition-colors ${
+            plan === "monthly"
+              ? "text-[#111] font-bold"
+              : "text-[#999] hover:text-[#666]"
+          }`}
+        >
+          Monthly
+        </button>
+        <span className="text-[#ddd]">·</span>
+        <button
+          onClick={() => setPlan("annual")}
+          className={`bg-transparent border-0 p-0 cursor-pointer transition-colors ${
+            plan === "annual"
+              ? "text-[#111] font-bold"
+              : "text-[#999] hover:text-[#666]"
+          }`}
+        >
+          Annual
+        </button>
       </div>
 
       {/* Pricing Cards */}
