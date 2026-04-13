@@ -100,7 +100,7 @@ export default function MyPage() {
         .eq("status", "active")
         .order("created_at", { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
       if (subData) setSubscription(subData as Subscription);
 
       const { data } = await supabase

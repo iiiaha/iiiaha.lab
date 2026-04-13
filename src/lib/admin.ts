@@ -13,7 +13,7 @@ export async function isAdmin(): Promise<boolean> {
     .from("admins")
     .select("user_id")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
 
   return !!data;
 }

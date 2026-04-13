@@ -29,7 +29,7 @@ export default function ExtensionDetail({ product }: { product: Product }) {
         .eq("product_id", product.id)
         .eq("status", "paid")
         .limit(1)
-        .single();
+        .maybeSingle();
 
       if (order) {
         setPurchased(true);

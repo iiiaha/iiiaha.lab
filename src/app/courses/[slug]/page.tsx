@@ -36,7 +36,7 @@ export default function CourseDetailPage() {
         .from("products")
         .select("*")
         .eq("slug", slug)
-        .single();
+        .maybeSingle();
 
       if (!p) {
         router.push("/courses");
@@ -59,7 +59,7 @@ export default function CourseDetailPage() {
           .eq("user_id", user.id)
           .eq("product_id", p.id)
           .eq("status", "paid")
-          .single();
+          .maybeSingle();
         setPurchased(!!order);
       }
 
