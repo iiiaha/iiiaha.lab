@@ -55,6 +55,7 @@ export default function ExtensionsList({
             <p className="text-[13px] text-[rgba(255,255,255,0.85)] leading-[1.6]">
               서비스 초기 안정화 기간 동안{" "}
               <strong className="text-white">모든 익스텐션 20% 할인</strong>합니다.
+              <br />
               사용 중 버그나 불편을 발견하시면{" "}
               <a
                 href="/openlab"
