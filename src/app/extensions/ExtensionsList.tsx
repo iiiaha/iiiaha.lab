@@ -56,14 +56,14 @@ export default function ExtensionsList({
               서비스 초기 안정화 기간 동안{" "}
               <strong className="text-white">모든 익스텐션을 20% 할인된 가격으로 판매</strong>합니다.
               <br />
-              사용 중 버그나 불편을 발견하시면{" "}
+              사용 중 발생되는 버그에 대하여{" "}
               <a
                 href="/openlab"
                 className="text-white underline hover:no-underline"
               >
                 Open Lab
               </a>
-              에 알려주세요.
+              에 보고해 주세요.
             </p>
           </div>
           <div className="shrink-0 flex items-baseline gap-1 max-sm:self-end">
