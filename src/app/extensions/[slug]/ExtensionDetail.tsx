@@ -90,8 +90,8 @@ export default function ExtensionDetail({ product }: { product: Product }) {
             {(product.discount_percent ?? 0) > 0 && product.original_price ? (
               <>
                 <span className="text-[13px] text-[#999] line-through">{formatPrice(product.original_price)}</span>
-                <span className="text-[14px] font-bold text-red-600">{formatPrice(product.price)}</span>
-                <span className="text-[11px] text-red-600 font-bold">-{product.discount_percent}%</span>
+                <span className="text-[14px] font-bold text-[#111]">{formatPrice(product.price)}</span>
+                <span className="text-[11px] text-[#666] font-bold">-{product.discount_percent}%</span>
               </>
             ) : (
               <span className="text-[14px]">{formatPrice(product.price)}</span>

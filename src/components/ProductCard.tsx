@@ -48,7 +48,7 @@ export default function ProductCard({ product }: { product: Product }) {
         {(product.discount_percent ?? 0) > 0 && product.original_price ? (
           <>
             <span className="text-[12px] text-[#ccc] line-through">{formatPrice(product.original_price)}</span>
-            <span className="text-[13px] font-bold text-red-600">{formatPrice(product.price)}</span>
+            <span className="text-[13px] font-bold text-[#111]">{formatPrice(product.price)}</span>
           </>
         ) : (
           <span className="text-[13px] text-[#666]">{formatPrice(product.price)}</span>
