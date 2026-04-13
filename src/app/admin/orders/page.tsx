@@ -15,7 +15,7 @@ interface Order {
   user_email?: string;
 }
 
-type Filter = "all" | "pending" | "paid" | "refunded";
+type Filter = "all" | "paid" | "refunded";
 type TypeFilter = "all" | "single" | "subscription" | "admin";
 
 const PER_PAGE = 50;
@@ -83,12 +83,31 @@ export default function AdminOrders() {
     setTimeout(() => setMessage(""), 3000);
   };
 
-  const updateStatus = async (id: string, status: string) => {
-    const label = status === "paid" ? "결제 확인" : "환불 처리";
-    if (!confirm(`${label}하시겠습니까?`)) return;
-    await supabase.from("orders").update({ status }).eq("id", id);
-    showMessage(`${label} 완료`);
-    load();
+  const refundOrder = async (orderId: string, amount: number, productName: string) => {
+    if (
+      !confirm(
+        `${productName} 주문을 환불 처리하시겠습니까?\n\n` +
+          `· ₩${amount.toLocaleString("ko-KR")}이 고객 카드로 환불됩니다\n` +
+          `· 해당 주문의 라이선스가 즉시 revoke됩니다\n` +
+          `· 되돌릴 수 없습니다`
+      )
+    )
+      return;
+
+    const res = await fetch("/api/admin/orders/refund", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ order_id: orderId }),
+    });
+    const data = await res.json();
+    if (res.ok) {
+      showMessage(
+        `환불 완료 (₩${data.refunded_amount.toLocaleString("ko-KR")} · 라이선스 ${data.revoked_licenses}개 revoke)`
+      );
+      load();
+    } else {
+      showMessage(`오류: ${data.error}`);
+    }
   };
 
   const filtered = useMemo(() => {
@@ -113,12 +132,10 @@ export default function AdminOrders() {
   const stats = useMemo(() => {
     const paid = orders.filter((o) => o.status === "paid");
     const totalRevenue = paid.reduce((s, o) => s + (o.amount || 0), 0);
-    const pendingCount = orders.filter((o) => o.status === "pending").length;
     const refundedCount = orders.filter((o) => o.status === "refunded").length;
     return {
       total: orders.length,
       paid: paid.length,
-      pending: pendingCount,
       refunded: refundedCount,
       revenue: totalRevenue,
     };
@@ -127,7 +144,7 @@ export default function AdminOrders() {
   if (loading) return <p className="text-[14px] text-[#999]">로딩 중...</p>;
 
   const statusLabel = (s: string) =>
-    s === "paid" ? "결제완료" : s === "refunded" ? "환불됨" : "대기중";
+    s === "paid" ? "결제완료" : s === "refunded" ? "환불됨" : s;
   const statusColor = (s: string) =>
     s === "paid"
       ? "text-green-700 border-green-600 bg-green-50"
@@ -155,9 +172,6 @@ export default function AdminOrders() {
             결제완료 <strong className="text-[#111] text-[14px]">{stats.paid}</strong>
           </span>
           <span>
-            대기 <strong className="text-[#111] text-[14px]">{stats.pending}</strong>
-          </span>
-          <span>
             환불 <strong className="text-[#111] text-[14px]">{stats.refunded}</strong>
           </span>
           <span>
@@ -174,15 +188,13 @@ export default function AdminOrders() {
       {/* Filters + Search */}
       <div className="flex items-center gap-3 mb-5">
         <div className="flex border border-[#ddd]">
-          {(["all", "pending", "paid", "refunded"] as Filter[]).map((f) => {
+          {(["all", "paid", "refunded"] as Filter[]).map((f) => {
             const label =
               f === "all"
                 ? "전체"
-                : f === "pending"
-                  ? "대기중"
-                  : f === "paid"
-                    ? "결제완료"
-                    : "환불됨";
+                : f === "paid"
+                  ? "결제완료"
+                  : "환불됨";
             return (
               <button
                 key={f}
@@ -287,17 +299,15 @@ export default function AdminOrders() {
                   {shortDateTime(order.created_at)}
                 </span>
                 <div className="w-[110px] shrink-0 flex gap-1 justify-end">
-                  {order.status === "pending" && (
+                  {order.status === "paid" && t === "single" && (
                     <button
-                      onClick={() => updateStatus(order.id, "paid")}
-                      className="text-[11px] text-green-700 bg-white border border-green-400 px-2.5 py-1 cursor-pointer hover:bg-green-50"
-                    >
-                      결제 확인
-                    </button>
-                  )}
-                  {order.status === "paid" && (
-                    <button
-                      onClick={() => updateStatus(order.id, "refunded")}
+                      onClick={() =>
+                        refundOrder(
+                          order.id,
+                          order.amount,
+                          order.products?.name ?? "—"
+                        )
+                      }
                       className="text-[11px] text-red-600 bg-white border border-red-300 px-2.5 py-1 cursor-pointer hover:bg-red-50"
                     >
                       환불
