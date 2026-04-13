@@ -11,7 +11,8 @@ import { getUser } from "@/lib/auth";
 const TOSS_CLIENT_KEY = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY!;
 const PENDING_KEY = "iiiaha_pending_billing";
 
-const MONTHLY_PRICE = 39000;
+const MONTHLY_REGULAR = 29000;
+const MONTHLY_PRICE = 24900;
 const ANNUAL_PRICE = 420000;
 const ANNUAL_MONTHLY = Math.round(ANNUAL_PRICE / 12);
 
@@ -161,19 +162,22 @@ export default function SubscribeContent({
                 <span className="text-[12px] text-[#999]">/year</span>
               </div>
               <p className="text-[12px] text-[#999] mb-6">
-                월 {formatPrice(ANNUAL_MONTHLY)} · {Math.round((1 - ANNUAL_PRICE / (MONTHLY_PRICE * 12)) * 100)}% 할인
+                월 {formatPrice(ANNUAL_MONTHLY)}
               </p>
             </>
           ) : (
             <>
               <div className="flex items-baseline gap-2 mb-1">
-                <p className="text-[22px] font-bold">
+                <span className="text-[14px] text-[#ccc] line-through">
+                  {formatPrice(MONTHLY_REGULAR)}
+                </span>
+                <p className="text-[22px] font-bold text-red-600">
                   {formatPrice(MONTHLY_PRICE)}
                 </p>
                 <span className="text-[12px] text-[#999]">/month</span>
               </div>
-              <p className="text-[12px] text-[#999] mb-6">
-                연간 결제 시 {Math.round((1 - ANNUAL_PRICE / (MONTHLY_PRICE * 12)) * 100)}% 할인
+              <p className="text-[11px] text-red-600 font-bold mb-6">
+                디버깅 시즌 {Math.round((1 - MONTHLY_PRICE / MONTHLY_REGULAR) * 100)}% 할인 · ~ 2026.07.31
               </p>
             </>
           )}

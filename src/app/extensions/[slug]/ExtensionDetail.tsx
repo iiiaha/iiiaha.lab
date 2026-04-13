@@ -225,8 +225,16 @@ export default function ExtensionDetail({ product }: { product: Product }) {
                 <p className="text-[13px] text-[rgba(255,255,255,0.8)] mb-1.5">
                   Or get <span className="font-bold text-white">all 17 extensions</span> with a subscription
                 </p>
-                <p className="text-[17px] font-bold text-white tracking-wide">
-                  ₩39,000<span className="text-[12px] font-normal text-[rgba(255,255,255,0.5)]"> /month</span>
+                <div className="flex items-baseline justify-center gap-2">
+                  <span className="text-[12px] text-[rgba(255,255,255,0.4)] line-through">
+                    ₩29,000
+                  </span>
+                  <p className="text-[17px] font-bold text-white tracking-wide">
+                    ₩24,900<span className="text-[12px] font-normal text-[rgba(255,255,255,0.5)]"> /month</span>
+                  </p>
+                </div>
+                <p className="text-[10px] text-[rgba(255,255,255,0.6)] mt-1">
+                  디버깅 시즌 특가 · ~ 2026.07.31
                 </p>
               </div>
             </Link>
