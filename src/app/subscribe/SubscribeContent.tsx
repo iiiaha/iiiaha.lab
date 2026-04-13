@@ -177,7 +177,7 @@ export default function SubscribeContent({
                 <span className="text-[12px] text-[#999]">/month</span>
               </div>
               <p className="text-[11px] text-red-600 font-bold mb-6">
-                디버깅 시즌 {Math.round((1 - MONTHLY_PRICE / MONTHLY_REGULAR) * 100)}% 할인 · ~ 2026.07.31
+                디버깅 기간 내 {Math.round((1 - MONTHLY_PRICE / MONTHLY_REGULAR) * 100)}% 할인 · ~ 2026.07.31
               </p>
             </>
           )}

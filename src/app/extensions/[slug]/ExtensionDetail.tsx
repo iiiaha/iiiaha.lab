@@ -254,7 +254,7 @@ export default function ExtensionDetail({ product }: { product: Product }) {
                   </p>
                 </div>
                 <p className="text-[10px] text-[rgba(255,255,255,0.5)] mt-1">
-                  디버깅 시즌 특가 · ~ 2026.07.31
+                  디버깅 기간 내 특가 · ~ 2026.07.31
                 </p>
               </div>
             </Link>
