@@ -13,7 +13,7 @@ const PENDING_KEY = "iiiaha_pending_billing";
 
 const MONTHLY_REGULAR = 29000;
 const MONTHLY_PRICE = 24900;
-const ANNUAL_PRICE = 420000;
+const ANNUAL_PRICE = 300000;
 const ANNUAL_MONTHLY = Math.round(ANNUAL_PRICE / 12);
 
 type Plan = "monthly" | "annual";
@@ -26,7 +26,7 @@ export default function SubscribeContent({
   totalPrice: number;
 }) {
   const router = useRouter();
-  const [plan, setPlan] = useState<Plan>("annual");
+  const [plan, setPlan] = useState<Plan>("monthly");
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState("");
 
