@@ -89,7 +89,7 @@ export default function SubscribeContent({
         </h2>
         <p className="text-[14px] text-[#666] max-w-[400px] mx-auto">
           개별 구매 시 총 {formatPrice(totalPrice)}인 모든 익스텐션을<br />
-          월 구독으로 자유롭게 이용하세요.
+          멤버쉽 구독으로 자유롭게 이용하세요.
         </p>
       </div>
 
