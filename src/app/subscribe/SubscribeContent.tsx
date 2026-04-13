@@ -82,10 +82,10 @@ export default function SubscribeContent({
       {/* Hero */}
       <div className="text-center py-10 mb-8">
         <p className="text-[13px] text-[#999] tracking-[0.1em] uppercase mb-4">
-          iiiaha.lab subscription
+          iiiaha.lab Membership
         </p>
         <h2 className="text-[22px] font-bold tracking-[-0.01em] mb-3">
-          All {extensions.length} Extensions. One Plan.
+          All Extensions. One Plan.
         </h2>
         <p className="text-[14px] text-[#666] max-w-[400px] mx-auto">
           개별 구매 시 총 {formatPrice(totalPrice)}인 모든 익스텐션을<br />
