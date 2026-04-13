@@ -18,14 +18,19 @@ interface Order {
   payment_key: string | null;
   subscription_id: string | null;
   user_id: string;
-  products: { name: string } | null;
+  products: { id: string; name: string } | null;
 }
 
 interface Subscription {
   id: string;
   user_id: string;
+  plan: "monthly" | "annual";
   status: string;
+  started_at: string;
+  expires_at: string;
   cancel_at_period_end: boolean;
+  amount: number | null;
+  billing_key: string | null;
 }
 
 type Mode = "day" | "week" | "month";
@@ -113,7 +118,7 @@ function buildBuckets(
   return buckets.map(({ label, value }) => ({ label, value }));
 }
 
-// ─── 포맷 유틸 ──────────────────────────────────────────────
+// ─── 포맷 ──────────────────────────────────────────────────
 
 function formatKRW(n: number): string {
   return `₩${n.toLocaleString("ko-KR")}`;
@@ -147,18 +152,25 @@ function relativeTime(iso: string): string {
   return `${d.getMonth() + 1}/${d.getDate()}`;
 }
 
-// ─── 차트 컴포넌트 ──────────────────────────────────────────
+function shortDate(iso: string): string {
+  const d = new Date(iso);
+  return `${d.getFullYear().toString().slice(2)}.${d.getMonth() + 1}.${d.getDate()}`;
+}
+
+// ─── 차트 ──────────────────────────────────────────────────
 
 function BarChart({
   data,
   formatValue,
   formatAxis,
   unit,
+  height = 240,
 }: {
   data: { label: string; value: number }[];
   formatValue: (n: number) => string;
   formatAxis: (n: number) => string;
   unit: string;
+  height?: number;
 }) {
   const [hover, setHover] = useState<number | null>(null);
   const rawMax = Math.max(0, ...data.map((d) => d.value));
@@ -167,7 +179,6 @@ function BarChart({
 
   const isEmpty = rawMax === 0;
 
-  const height = 240;
   const ticks = [max, Math.round(max / 2), 0];
 
   const labelIdxs = new Set<number>([
@@ -180,7 +191,6 @@ function BarChart({
 
   return (
     <div className="flex">
-      {/* Y축 */}
       <div
         className="flex flex-col justify-between text-[11px] text-[#999] text-right pr-3 w-[56px] shrink-0"
         style={{ height: `${height}px` }}
@@ -193,16 +203,13 @@ function BarChart({
       </div>
 
       <div className="flex-1 min-w-0">
-        {/* 차트 본체 */}
         <div className="relative" style={{ height: `${height}px` }}>
-          {/* 가이드라인 */}
           <div className="absolute inset-0 flex flex-col justify-between pointer-events-none">
             <div className="border-t border-[#f0f0f0]" />
             <div className="border-t border-[#f0f0f0]" />
             <div className="border-t border-[#111]" />
           </div>
 
-          {/* 평균선 */}
           {!isEmpty && avg > 0 && (
             <div
               className="absolute left-0 right-0 border-t border-dashed border-[#bbb] pointer-events-none"
@@ -214,10 +221,9 @@ function BarChart({
             </div>
           )}
 
-          {/* 막대 */}
           <div className="absolute inset-0 flex items-end gap-[2px]">
             {isEmpty ? (
-              <div className="flex-1 flex items-center justify-center text-[11px] text-[#ccc]">
+              <div className="flex-1 flex items-center justify-center text-[12px] text-[#ccc]">
                 데이터 없음
               </div>
             ) : (
@@ -252,7 +258,6 @@ function BarChart({
           </div>
         </div>
 
-        {/* X축 라벨 */}
         <div className="flex gap-[2px] mt-2">
           {data.map((d, i) => (
             <div
@@ -264,7 +269,6 @@ function BarChart({
           ))}
         </div>
 
-        {/* 범례 */}
         <div className="flex items-center gap-4 mt-5 text-[11px] text-[#999]">
           <span className="flex items-center gap-1.5">
             <span className="inline-block w-2.5 h-2.5 bg-[#111]" />
@@ -309,7 +313,7 @@ function ModeToggle({
   );
 }
 
-// ─── 스탯 카드 ──────────────────────────────────────────────
+// ─── 카드 / 섹션 헤더 ───────────────────────────────────────
 
 function StatCard({
   label,
@@ -325,7 +329,7 @@ function StatCard({
   accent?: "up" | "neutral";
 }) {
   return (
-    <div className="border border-[#111] p-8 relative">
+    <div className="border border-[#111] p-8">
       <p className="text-[11px] text-[#999] font-bold uppercase tracking-[0.08em] mb-4">
         {label}
       </p>
@@ -348,23 +352,62 @@ function StatCard({
   );
 }
 
+function SectionHeader({
+  title,
+  description,
+  right,
+}: {
+  title: string;
+  description: string;
+  right?: React.ReactNode;
+}) {
+  return (
+    <div className="flex items-end justify-between mb-6">
+      <div>
+        <h2 className="text-[18px] font-bold tracking-[-0.01em]">{title}</h2>
+        <p className="text-[13px] text-[#999] mt-1.5">{description}</p>
+      </div>
+      {right}
+    </div>
+  );
+}
+
+function KpiRow({
+  items,
+}: {
+  items: { label: string; value: string }[];
+}) {
+  return (
+    <div className="flex flex-wrap items-baseline gap-x-8 gap-y-2 mb-6 py-4 border-y border-[#eee]">
+      {items.map((kpi, i) => (
+        <div key={i} className="flex items-baseline gap-2">
+          <span className="text-[11px] text-[#999] uppercase tracking-[0.05em]">
+            {kpi.label}
+          </span>
+          <span className="text-[15px] font-bold">{kpi.value}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 // ─── 스켈레톤 ───────────────────────────────────────────────
 
 function Skeleton() {
   return (
     <div>
-      <h1 className="text-[16px] font-bold tracking-[0.03em] mb-6">대시보드</h1>
-      <div className="border-t border-[#111] mb-8" />
-      <div className="grid grid-cols-4 gap-3 mb-10 max-md:grid-cols-2 max-sm:grid-cols-1">
+      <div className="h-10 w-48 bg-[#f5f5f5] mb-8" />
+      <div className="border-t border-[#111] mb-10" />
+      <div className="grid grid-cols-4 gap-5 mb-16 max-md:grid-cols-2">
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="border border-[#ddd] p-5 h-[110px]">
-            <div className="h-3 bg-[#f5f5f5] w-1/2 mb-4" />
-            <div className="h-6 bg-[#f5f5f5] w-2/3" />
+          <div key={i} className="border border-[#ddd] p-8 h-[140px]">
+            <div className="h-3 bg-[#f5f5f5] w-1/2 mb-5" />
+            <div className="h-7 bg-[#f5f5f5] w-2/3" />
           </div>
         ))}
       </div>
-      <div className="border border-[#ddd] p-5 h-[240px] mb-6 animate-pulse" />
-      <div className="border border-[#ddd] p-5 h-[240px] animate-pulse" />
+      <div className="border border-[#ddd] p-8 h-[320px] mb-10 animate-pulse" />
+      <div className="border border-[#ddd] p-8 h-[320px] animate-pulse" />
     </div>
   );
 }
@@ -377,7 +420,8 @@ export default function AdminDashboard() {
   const [subs, setSubs] = useState<Subscription[]>([]);
   const [loading, setLoading] = useState(true);
   const [userMode, setUserMode] = useState<Mode>("day");
-  const [revenueMode, setRevenueMode] = useState<Mode>("day");
+  const [singleRevenueMode, setSingleRevenueMode] = useState<Mode>("day");
+  const [subGrowthMode, setSubGrowthMode] = useState<Mode>("month");
 
   useEffect(() => {
     const load = async () => {
@@ -387,12 +431,13 @@ export default function AdminDashboard() {
         supabase
           .from("orders")
           .select(
-            "id, amount, status, created_at, payment_key, subscription_id, user_id, products(name)"
+            "id, amount, status, created_at, payment_key, subscription_id, user_id, products(id, name)"
           )
           .order("created_at", { ascending: false }),
         supabase
           .from("subscriptions")
-          .select("id, user_id, status, cancel_at_period_end"),
+          .select("*")
+          .order("started_at", { ascending: false }),
       ]);
 
       setUsers((usersRes.users as User[]) ?? []);
@@ -405,83 +450,199 @@ export default function AdminDashboard() {
 
   // ─── 파생 상태 ─────────────────────────────────────────
 
-  const now = useMemo(() => Date.now(), []);
+  const now = Date.now();
   const weekAgo = now - 7 * 86400 * 1000;
+
   const monthStart = useMemo(() => {
     const d = new Date();
     return new Date(d.getFullYear(), d.getMonth(), 1).getTime();
   }, []);
+  const nextMonthStart = useMemo(() => {
+    const d = new Date();
+    return new Date(d.getFullYear(), d.getMonth() + 1, 1).getTime();
+  }, []);
 
-  const stats = useMemo(() => {
+  // 단건 구매 주문 분리
+  const singlePaidOrders = useMemo(() => {
+    return orders.filter(
+      (o) =>
+        o.status === "paid" &&
+        (o.amount || 0) > 0 &&
+        !o.subscription_id &&
+        !(o.payment_key || "").startsWith("admin") &&
+        !(o.payment_key || "").startsWith("subscription:")
+    );
+  }, [orders]);
+
+  // 활성 구독
+  const activeSubs = useMemo(
+    () =>
+      subs.filter((s) => s.status === "active" && !s.cancel_at_period_end),
+    [subs]
+  );
+  const cancelingSubs = useMemo(
+    () =>
+      subs.filter((s) => s.status === "active" && s.cancel_at_period_end),
+    [subs]
+  );
+
+  // ─── 상단 카드용 stats ────────────────────────────────
+
+  const topStats = useMemo(() => {
     const totalUsers = users.length;
     const newUsersThisWeek = users.filter(
       (u) => new Date(u.created_at).getTime() >= weekAgo
     ).length;
 
-    const activeSubs = subs.filter(
-      (s) => s.status === "active" && !s.cancel_at_period_end
-    ).length;
-    const cancelingSubs = subs.filter(
-      (s) => s.status === "active" && s.cancel_at_period_end
-    ).length;
+    const totalRevenue =
+      singlePaidOrders.reduce((s, o) => s + (o.amount || 0), 0) +
+      subs
+        .filter((s) => s.amount && s.amount > 0)
+        .reduce((s, sub) => s + (sub.amount || 0), 0);
 
-    const paidOrders = orders.filter((o) => o.status === "paid");
-    const totalRevenue = paidOrders.reduce((s, o) => s + (o.amount || 0), 0);
-    const revenueThisMonth = paidOrders
-      .filter((o) => new Date(o.created_at).getTime() >= monthStart)
-      .reduce((s, o) => s + (o.amount || 0), 0);
+    const revenueThisMonth = [
+      ...singlePaidOrders.filter(
+        (o) => new Date(o.created_at).getTime() >= monthStart
+      ),
+      ...subs.filter(
+        (s) =>
+          s.amount &&
+          s.amount > 0 &&
+          new Date(s.started_at).getTime() >= monthStart
+      ),
+    ].reduce((s, item) => s + ((item as Order | Subscription).amount || 0), 0);
 
-    // 단건 vs 구독 매출 (payment_key로 구분)
-    const indivRevenue = paidOrders
-      .filter((o) => !o.subscription_id && (o.amount || 0) > 0)
-      .reduce((s, o) => s + (o.amount || 0), 0);
-    const subRevenue = paidOrders
-      .filter(
-        (o) =>
-          o.payment_key?.startsWith("bill_") ||
-          (o.subscription_id && (o.amount || 0) > 0)
-      )
-      .reduce((s, o) => s + (o.amount || 0), 0);
+    // MRR: active subscriptions' monthly-normalized amount
+    const mrr = activeSubs.reduce((s, sub) => {
+      const amt = sub.amount || 0;
+      return s + (sub.plan === "annual" ? Math.round(amt / 12) : amt);
+    }, 0);
 
-    const paidOrderCount = paidOrders.filter((o) => (o.amount || 0) > 0).length;
-    const ordersThisMonth = paidOrders
-      .filter(
-        (o) =>
-          new Date(o.created_at).getTime() >= monthStart && (o.amount || 0) > 0
-      ).length;
+    // 이번 달 자동결제 예정: active subs whose expires_at is within current month
+    const upcomingCharges = activeSubs
+      .filter((s) => {
+        const ea = new Date(s.expires_at).getTime();
+        return ea >= now && ea < nextMonthStart;
+      })
+      .reduce((s, sub) => s + (sub.amount || 0), 0);
 
     return {
       totalUsers,
       newUsersThisWeek,
-      activeSubs,
-      cancelingSubs,
       totalRevenue,
       revenueThisMonth,
-      indivRevenue,
-      subRevenue,
-      paidOrderCount,
-      ordersThisMonth,
+      activeSubCount: activeSubs.length,
+      cancelingSubCount: cancelingSubs.length,
+      mrr,
+      upcomingCharges,
     };
-  }, [users, orders, subs, weekAgo, monthStart]);
+  }, [users, singlePaidOrders, subs, activeSubs, cancelingSubs, weekAgo, monthStart, nextMonthStart, now]);
+
+  // ─── 사용자 차트 ────────────────────────────────────
 
   const userChart = useMemo(() => {
     const events = users.map((u) => ({ date: u.created_at, value: 1 }));
     return buildBuckets(events, userMode);
   }, [users, userMode]);
 
-  const revenueChart = useMemo(() => {
-    const events = orders
-      .filter((o) => o.status === "paid" && (o.amount || 0) > 0)
-      .map((o) => ({ date: o.created_at, value: o.amount }));
-    return buildBuckets(events, revenueMode);
-  }, [orders, revenueMode]);
+  // ─── 개별 구매 KPIs + 차트 ───────────────────────────
+
+  const singleKpis = useMemo(() => {
+    const total = singlePaidOrders.reduce((s, o) => s + (o.amount || 0), 0);
+    const thisMonth = singlePaidOrders
+      .filter((o) => new Date(o.created_at).getTime() >= monthStart)
+      .reduce((s, o) => s + (o.amount || 0), 0);
+    const count = singlePaidOrders.length;
+    const avg = count > 0 ? Math.round(total / count) : 0;
+    return { total, thisMonth, count, avg };
+  }, [singlePaidOrders, monthStart]);
+
+  const singleRevenueChart = useMemo(() => {
+    const events = singlePaidOrders.map((o) => ({
+      date: o.created_at,
+      value: o.amount,
+    }));
+    return buildBuckets(events, singleRevenueMode);
+  }, [singlePaidOrders, singleRevenueMode]);
+
+  // ─── 제품별 판매 순위 ────────────────────────────────
+
+  const productRanking = useMemo(() => {
+    const map = new Map<
+      string,
+      { id: string; name: string; count: number; revenue: number }
+    >();
+    for (const o of singlePaidOrders) {
+      const pid = o.products?.id ?? "unknown";
+      const name = o.products?.name ?? "—";
+      if (!map.has(pid)) {
+        map.set(pid, { id: pid, name, count: 0, revenue: 0 });
+      }
+      const entry = map.get(pid)!;
+      entry.count += 1;
+      entry.revenue += o.amount;
+    }
+    return Array.from(map.values()).sort((a, b) => b.revenue - a.revenue);
+  }, [singlePaidOrders]);
+
+  const productRankingTotalRevenue = productRanking.reduce(
+    (s, p) => s + p.revenue,
+    0
+  );
+
+  // ─── 구독 KPIs ───────────────────────────────────────
+
+  const subKpis = useMemo(() => {
+    const monthlyCount = activeSubs.filter((s) => s.plan === "monthly").length;
+    const annualCount = activeSubs.filter((s) => s.plan === "annual").length;
+    const avgMRR =
+      activeSubs.length > 0
+        ? Math.round(topStats.mrr / activeSubs.length)
+        : 0;
+    return {
+      monthlyCount,
+      annualCount,
+      avgMRR,
+    };
+  }, [activeSubs, topStats.mrr]);
+
+  const planTotal = subKpis.monthlyCount + subKpis.annualCount;
+  const monthlyRatio =
+    planTotal > 0 ? Math.round((subKpis.monthlyCount / planTotal) * 100) : 0;
+  const annualRatio = planTotal > 0 ? 100 - monthlyRatio : 0;
+
+  // ─── 구독 증가 차트 ─────────────────────────────────
+
+  const subGrowthChart = useMemo(() => {
+    const events = subs.map((s) => ({ date: s.started_at, value: 1 }));
+    return buildBuckets(events, subGrowthMode);
+  }, [subs, subGrowthMode]);
+
+  // ─── 활성 구독자 목록 (이메일 조인) ──────────────────
+
+  const userEmailById = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const u of users) m.set(u.id, u.email);
+    return m;
+  }, [users]);
+
+  const activeSubList = useMemo(() => {
+    return activeSubs
+      .map((s) => ({
+        ...s,
+        email: userEmailById.get(s.user_id) ?? s.user_id.slice(0, 8),
+      }))
+      .sort(
+        (a, b) =>
+          new Date(a.expires_at).getTime() - new Date(b.expires_at).getTime()
+      );
+  }, [activeSubs, userEmailById]);
+
+  // ─── 최근 활동 ──────────────────────────────────────
 
   const recentPaidOrders = useMemo(
-    () =>
-      orders
-        .filter((o) => o.status === "paid" && (o.amount || 0) > 0)
-        .slice(0, 5),
-    [orders]
+    () => singlePaidOrders.slice(0, 5),
+    [singlePaidOrders]
   );
 
   const recentUsers = useMemo(
@@ -498,16 +659,11 @@ export default function AdminDashboard() {
   if (loading) return <Skeleton />;
 
   const userChartTotal = userChart.reduce((s, d) => s + d.value, 0);
-  const revenueChartTotal = revenueChart.reduce((s, d) => s + d.value, 0);
-
-  const subRatio =
-    stats.totalRevenue > 0
-      ? Math.round((stats.subRevenue / stats.totalRevenue) * 100)
-      : 0;
-  const indivRatio =
-    stats.totalRevenue > 0
-      ? Math.round((stats.indivRevenue / stats.totalRevenue) * 100)
-      : 0;
+  const singleRevenueChartTotal = singleRevenueChart.reduce(
+    (s, d) => s + d.value,
+    0
+  );
+  const subGrowthChartTotal = subGrowthChart.reduce((s, d) => s + d.value, 0);
 
   return (
     <div>
@@ -533,50 +689,49 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-4 gap-5 mb-16 max-md:grid-cols-2 max-sm:grid-cols-1">
         <StatCard
           label="전체 사용자"
-          value={stats.totalUsers.toLocaleString("ko-KR")}
+          value={topStats.totalUsers.toLocaleString("ko-KR")}
           sublabel="이번 주 신규"
-          subvalue={`+${stats.newUsersThisWeek}`}
-          accent={stats.newUsersThisWeek > 0 ? "up" : "neutral"}
+          subvalue={`+${topStats.newUsersThisWeek}`}
+          accent={topStats.newUsersThisWeek > 0 ? "up" : "neutral"}
         />
         <StatCard
           label="활성 구독자"
-          value={stats.activeSubs.toLocaleString("ko-KR")}
+          value={topStats.activeSubCount.toLocaleString("ko-KR")}
           sublabel="해지 예정"
-          subvalue={stats.cancelingSubs.toLocaleString("ko-KR")}
+          subvalue={topStats.cancelingSubCount.toLocaleString("ko-KR")}
         />
         <StatCard
           label="누적 매출"
-          value={formatKRW(stats.totalRevenue)}
+          value={formatKRW(topStats.totalRevenue)}
           sublabel={`${new Date().getMonth() + 1}월`}
-          subvalue={formatKRW(stats.revenueThisMonth)}
+          subvalue={formatKRW(topStats.revenueThisMonth)}
         />
         <StatCard
-          label="결제 건수"
-          value={stats.paidOrderCount.toLocaleString("ko-KR")}
-          sublabel={`${new Date().getMonth() + 1}월`}
-          subvalue={stats.ordersThisMonth.toLocaleString("ko-KR")}
+          label="월간 MRR"
+          value={formatKRW(topStats.mrr)}
+          sublabel="이번 달 자동결제"
+          subvalue={formatKRW(topStats.upcomingCharges)}
         />
       </div>
 
-      {/* 사용자 증가 */}
-      <section className="mb-16">
-        <div className="flex items-end justify-between mb-6">
-          <div>
-            <h2 className="text-[16px] font-bold tracking-[-0.01em]">사용자 증가</h2>
-            <p className="text-[12px] text-[#999] mt-1.5">
-              {userMode === "day"
-                ? "최근 30일"
-                : userMode === "week"
-                  ? "최근 12주"
-                  : "최근 12개월"}{" "}
-              · 기간 내 신규 가입{" "}
-              <strong className="text-[#111]">
-                {userChartTotal.toLocaleString("ko-KR")}명
-              </strong>
-            </p>
-          </div>
-          <ModeToggle value={userMode} onChange={setUserMode} />
-        </div>
+      {/* ──────────── 사용자 섹션 ──────────── */}
+      <section className="mb-20">
+        <SectionHeader
+          title="사용자"
+          description="가입 추이와 최근 가입자를 확인합니다"
+          right={<ModeToggle value={userMode} onChange={setUserMode} />}
+        />
+        <p className="text-[12px] text-[#999] mb-4">
+          {userMode === "day"
+            ? "최근 30일"
+            : userMode === "week"
+              ? "최근 12주"
+              : "최근 12개월"}{" "}
+          · 기간 내 신규 가입{" "}
+          <strong className="text-[#111]">
+            {userChartTotal.toLocaleString("ko-KR")}명
+          </strong>
+        </p>
         <div className="border border-[#ddd] p-8">
           <BarChart
             data={userChart}
@@ -587,75 +742,253 @@ export default function AdminDashboard() {
         </div>
       </section>
 
-      {/* 결제 매출 */}
-      <section className="mb-16">
-        <div className="flex items-end justify-between mb-6">
-          <div>
-            <h2 className="text-[16px] font-bold tracking-[-0.01em]">결제 매출</h2>
-            <p className="text-[12px] text-[#999] mt-1.5">
-              {revenueMode === "day"
-                ? "최근 30일"
-                : revenueMode === "week"
-                  ? "최근 12주"
-                  : "최근 12개월"}{" "}
-              · 기간 내 매출{" "}
-              <strong className="text-[#111]">
-                {formatKRW(revenueChartTotal)}
-              </strong>
-            </p>
-          </div>
-          <ModeToggle value={revenueMode} onChange={setRevenueMode} />
-        </div>
-        <div className="border border-[#ddd] p-8">
+      {/* ──────────── 개별 구매 섹션 ──────────── */}
+      <section className="mb-20">
+        <SectionHeader
+          title="개별 구매"
+          description="단건 결제 매출, 제품별 판매 실적"
+          right={
+            <ModeToggle
+              value={singleRevenueMode}
+              onChange={setSingleRevenueMode}
+            />
+          }
+        />
+
+        <KpiRow
+          items={[
+            { label: "누적 매출", value: formatKRW(singleKpis.total) },
+            { label: "이번 달", value: formatKRW(singleKpis.thisMonth) },
+            { label: "결제 건수", value: singleKpis.count.toLocaleString("ko-KR") },
+            { label: "평균 주문", value: formatKRW(singleKpis.avg) },
+          ]}
+        />
+
+        <p className="text-[12px] text-[#999] mb-4">
+          {singleRevenueMode === "day"
+            ? "최근 30일"
+            : singleRevenueMode === "week"
+              ? "최근 12주"
+              : "최근 12개월"}{" "}
+          · 기간 내 매출{" "}
+          <strong className="text-[#111]">
+            {formatKRW(singleRevenueChartTotal)}
+          </strong>
+        </p>
+
+        <div className="border border-[#ddd] p-8 mb-8">
           <BarChart
-            data={revenueChart}
+            data={singleRevenueChart}
             formatValue={(n) => formatKRW(n)}
             formatAxis={(n) => formatShortKRW(n)}
-            unit="결제 매출"
+            unit="단건 매출"
           />
         </div>
 
-        {/* 매출 구성 */}
-        {stats.totalRevenue > 0 && (
-          <div className="mt-6 border border-[#ddd] p-6">
-            <p className="text-[11px] text-[#999] font-bold uppercase tracking-[0.08em] mb-4">
-              매출 구성 (누적)
+        {/* 제품별 판매 순위 */}
+        <div className="border border-[#ddd] p-8">
+          <p className="text-[11px] text-[#999] font-bold uppercase tracking-[0.08em] mb-5">
+            제품별 판매 순위
+          </p>
+          {productRanking.length === 0 ? (
+            <p className="text-[13px] text-[#ccc] py-6 text-center">
+              판매 이력 없음
+            </p>
+          ) : (
+            <div>
+              <div className="flex items-center gap-4 px-2 py-2 text-[11px] text-[#999] font-bold tracking-[0.08em] uppercase border-b border-[#111]">
+                <span className="w-8 shrink-0 text-right">#</span>
+                <span className="flex-1">상품</span>
+                <span className="w-20 shrink-0 text-right">판매수</span>
+                <span className="w-28 shrink-0 text-right">매출</span>
+                <span className="w-[200px] shrink-0">비중</span>
+                <span className="w-12 shrink-0 text-right">%</span>
+              </div>
+              {productRanking.map((p, i) => {
+                const ratio =
+                  productRankingTotalRevenue > 0
+                    ? (p.revenue / productRankingTotalRevenue) * 100
+                    : 0;
+                return (
+                  <div
+                    key={p.id}
+                    className="flex items-center gap-4 px-2 py-3 text-[13px] border-b border-[#eee] last:border-0"
+                  >
+                    <span className="w-8 shrink-0 text-right text-[#999]">
+                      {i + 1}
+                    </span>
+                    <span className="flex-1 font-bold truncate">{p.name}</span>
+                    <span className="w-20 shrink-0 text-right text-[#666]">
+                      {p.count.toLocaleString("ko-KR")}건
+                    </span>
+                    <span className="w-28 shrink-0 text-right font-bold">
+                      {formatKRW(p.revenue)}
+                    </span>
+                    <div className="w-[200px] shrink-0 h-1.5 bg-[#f0f0f0] relative">
+                      <div
+                        className="absolute inset-y-0 left-0 bg-[#111]"
+                        style={{ width: `${ratio}%` }}
+                      />
+                    </div>
+                    <span className="w-12 shrink-0 text-right text-[11px] text-[#999]">
+                      {ratio.toFixed(1)}%
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* ──────────── 구독 섹션 ──────────── */}
+      <section className="mb-20">
+        <SectionHeader
+          title="구독"
+          description="반복 결제 매출과 구독자 추이"
+          right={
+            <ModeToggle value={subGrowthMode} onChange={setSubGrowthMode} />
+          }
+        />
+
+        <KpiRow
+          items={[
+            {
+              label: "활성 구독자",
+              value: `${topStats.activeSubCount.toLocaleString("ko-KR")}명`,
+            },
+            { label: "월간 MRR", value: formatKRW(topStats.mrr) },
+            {
+              label: "이번 달 자동결제",
+              value: formatKRW(topStats.upcomingCharges),
+            },
+            {
+              label: "평균 구독 가치",
+              value: formatKRW(subKpis.avgMRR),
+            },
+          ]}
+        />
+
+        {/* 플랜 분포 */}
+        {planTotal > 0 && (
+          <div className="border border-[#ddd] p-8 mb-8">
+            <p className="text-[11px] text-[#999] font-bold uppercase tracking-[0.08em] mb-5">
+              플랜 분포
             </p>
             <div className="flex h-2.5 mb-5 border border-[#eee]">
               <div
                 className="bg-[#111]"
-                style={{ width: `${indivRatio}%` }}
+                style={{ width: `${monthlyRatio}%` }}
               />
               <div
                 className="bg-[#888]"
-                style={{ width: `${subRatio}%` }}
+                style={{ width: `${annualRatio}%` }}
               />
             </div>
             <div className="flex justify-between text-[13px]">
               <div className="flex items-center gap-2">
                 <span className="inline-block w-2.5 h-2.5 bg-[#111]" />
-                <span className="text-[#111] font-bold">단건 구매</span>
+                <span className="text-[#111] font-bold">월간</span>
                 <span className="text-[#999]">
-                  {formatKRW(stats.indivRevenue)} · {indivRatio}%
+                  {subKpis.monthlyCount}명 · {monthlyRatio}%
                 </span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="inline-block w-2.5 h-2.5 bg-[#888]" />
-                <span className="text-[#111] font-bold">구독</span>
+                <span className="text-[#111] font-bold">연간</span>
                 <span className="text-[#999]">
-                  {formatKRW(stats.subRevenue)} · {subRatio}%
+                  {subKpis.annualCount}명 · {annualRatio}%
                 </span>
               </div>
             </div>
           </div>
         )}
+
+        {/* 신규 구독 차트 */}
+        <p className="text-[12px] text-[#999] mb-4">
+          {subGrowthMode === "day"
+            ? "최근 30일"
+            : subGrowthMode === "week"
+              ? "최근 12주"
+              : "최근 12개월"}{" "}
+          · 기간 내 신규 구독{" "}
+          <strong className="text-[#111]">{subGrowthChartTotal}건</strong>
+        </p>
+        <div className="border border-[#ddd] p-8 mb-8">
+          <BarChart
+            data={subGrowthChart}
+            formatValue={(n) => `${n}건`}
+            formatAxis={(n) => `${n}`}
+            unit="신규 구독"
+          />
+        </div>
+
+        {/* 활성 구독자 목록 */}
+        <div className="border border-[#ddd] p-8">
+          <p className="text-[11px] text-[#999] font-bold uppercase tracking-[0.08em] mb-5">
+            활성 구독자 목록 · 다음 결제일 순
+          </p>
+          {activeSubList.length === 0 ? (
+            <p className="text-[13px] text-[#ccc] py-6 text-center">
+              활성 구독자 없음
+            </p>
+          ) : (
+            <div>
+              <div className="flex items-center gap-4 px-2 py-2 text-[11px] text-[#999] font-bold tracking-[0.08em] uppercase border-b border-[#111]">
+                <span className="flex-1">이메일</span>
+                <span className="w-16 shrink-0 text-center">플랜</span>
+                <span className="w-24 shrink-0 text-right">시작일</span>
+                <span className="w-24 shrink-0 text-right">다음 결제</span>
+                <span className="w-24 shrink-0 text-right">결제액</span>
+                <span className="w-24 shrink-0 text-right">월 환산</span>
+              </div>
+              {activeSubList.map((s) => {
+                const normalized =
+                  s.plan === "annual" && s.amount
+                    ? Math.round(s.amount / 12)
+                    : s.amount || 0;
+                return (
+                  <div
+                    key={s.id}
+                    className="flex items-center gap-4 px-2 py-3 text-[13px] border-b border-[#eee] last:border-0"
+                  >
+                    <span className="flex-1 font-bold truncate">{s.email}</span>
+                    <span className="w-16 shrink-0 flex justify-center">
+                      <span
+                        className={`text-[10px] font-bold px-2 py-0.5 border ${
+                          s.plan === "annual"
+                            ? "text-[#111] border-[#888] bg-[#f5f5f5]"
+                            : "text-[#111] border-[#ddd]"
+                        }`}
+                      >
+                        {s.plan === "annual" ? "연간" : "월간"}
+                      </span>
+                    </span>
+                    <span className="w-24 shrink-0 text-right text-[11px] text-[#999]">
+                      {shortDate(s.started_at)}
+                    </span>
+                    <span className="w-24 shrink-0 text-right text-[11px] text-[#666]">
+                      {shortDate(s.expires_at)}
+                    </span>
+                    <span className="w-24 shrink-0 text-right font-bold">
+                      {s.amount ? formatKRW(s.amount) : "무상"}
+                    </span>
+                    <span className="w-24 shrink-0 text-right text-[11px] text-[#999]">
+                      {normalized > 0 ? formatKRW(normalized) : "—"}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </section>
 
-      {/* 최근 활동 */}
+      {/* ──────────── 최근 활동 ──────────── */}
       <section className="grid grid-cols-2 gap-5 max-md:grid-cols-1">
         <div className="border border-[#ddd] p-8">
           <h3 className="text-[11px] font-bold text-[#999] uppercase tracking-[0.08em] mb-5">
-            최근 결제
+            최근 단건 결제
           </h3>
           {recentPaidOrders.length === 0 ? (
             <p className="text-[13px] text-[#ccc] py-6 text-center">
