@@ -258,14 +258,14 @@ export default function CartPage() {
         {/* Subscription CTA */}
         <Link
           href="/subscribe"
-          className="sub-cta group block no-underline mt-4 rounded-sm overflow-hidden relative"
+          className="sub-cta group block no-underline mt-4 overflow-hidden relative"
         >
           <div className="sub-cta-bg absolute inset-0" />
           <div className="sub-cta-aurora absolute inset-0" />
-          <div className="text-center px-5 py-5 relative">
-            <p className="text-[13px] text-[rgba(255,255,255,0.8)] mb-1.5">
-              Or get <span className="font-bold text-white">all 17 extensions</span> with a subscription
-            </p>
+          <div className="text-center px-5 py-4 relative">
+            <div className="text-[11px] font-normal text-[rgba(255,255,255,0.65)] mb-1">
+              구독 멤버십으로 모든 익스텐션 자유롭게 사용
+            </div>
             <div className="flex items-baseline justify-center gap-2">
               <span className="text-[12px] text-[rgba(255,255,255,0.4)] line-through">
                 ₩29,000
@@ -274,7 +274,7 @@ export default function CartPage() {
                 ₩24,900<span className="text-[12px] font-normal text-[rgba(255,255,255,0.5)]"> /month</span>
               </p>
             </div>
-            <p className="text-[10px] text-[rgba(255,255,255,0.6)] mt-1">
+            <p className="text-[10px] text-[rgba(255,255,255,0.5)] mt-1">
               디버깅 기간 내 특가 · ~ 2026.07.31
             </p>
           </div>
