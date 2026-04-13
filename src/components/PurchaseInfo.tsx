@@ -29,7 +29,7 @@ export default function PurchaseInfo({ variant }: { variant: Variant }) {
   const rows = ROWS[variant];
 
   return (
-    <div className="mt-6 border-t border-[#ddd] pt-4">
+    <div className="mt-6 border-y border-[#ddd] py-4">
       <p className="text-[11px] text-[#999] tracking-[0.1em] uppercase mb-3">
         Purchase Info
       </p>
