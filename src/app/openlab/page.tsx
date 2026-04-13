@@ -116,39 +116,7 @@ export default function OpenLabPage() {
           )}
         </div>
       </div>
-      <div className="border-b border-[#111] mb-6 sticky-divider" />
-
-      {/* Intro */}
-      <div className="text-[13px] text-[#666] leading-[1.85] mb-8">
-        <p className="text-[#111] font-bold mb-3">
-          안녕하세요. iiiaha.lab의 이상훈입니다.
-        </p>
-        <p>
-          Open Lab은 사용자 여러분의 의견과 제보를 바탕으로 iiiaha.lab의 익스텐션을
-          함께 발전시켜 나가기 위한 공개 게시판입니다. 두 개의 카테고리로 구분되어
-          운영됩니다.
-        </p>
-        <div className="mt-5">
-          <p className="text-[#111] font-bold mb-1">아이디어 (Ideas)</p>
-          <p>
-            실무에서 해결되었으면 하는 문제, 혹은 새로운 익스텐션에 대한 참신한
-            아이디어를 자유롭게 남겨주시기 바랍니다. 검토 후 가치 있다고 판단되는
-            아이디어는 실제 익스텐션 개발에 반영되며, 멤버십 구독자에게는 신규
-            출시 익스텐션 이용권이 자동으로 제공됩니다.
-          </p>
-        </div>
-        <div className="mt-4">
-          <p className="text-[#111] font-bold mb-1">버그 (Bug Reports)</p>
-          <p>
-            익스텐션 사용 중 발생하는 버그를 제보해 주시면 최대한 신속하게
-            수정하여 배포하겠습니다. 2026년 7월까지는 서비스 안정화를 위한
-            집중 디버깅 기간으로, 모든 익스텐션을 20% 할인된 가격으로 제공하고
-            있습니다.
-          </p>
-        </div>
-      </div>
-
-      <div className="border-t border-[#ddd] mb-6" />
+      <div className="border-b border-[#111] mb-4 sticky-divider" />
 
       {/* Filter tabs */}
       <div className="flex items-center min-h-[32px] gap-6 text-[13px] tracking-[0.05em] mb-6">
