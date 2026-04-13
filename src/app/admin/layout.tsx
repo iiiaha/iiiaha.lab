@@ -10,11 +10,10 @@ const NAV = [
   { href: "/admin", label: "대시보드", icon: "~" },
   { href: "/admin/products", label: "제품 관리", icon: "P" },
   { href: "/admin/orders", label: "주문 관리", icon: "O" },
-  { href: "/admin/licenses", label: "라이선스", icon: "L" },
+  { href: "/admin/users", label: "사용자 · 라이선스", icon: "U" },
   { href: "/admin/courses", label: "강의 관리", icon: "C" },
   { href: "/admin/openlab", label: "오픈랩", icon: "!" },
   { href: "/admin/coupons", label: "쿠폰", icon: "%" },
-  { href: "/admin/users", label: "사용자", icon: "U" },
 ];
 
 export default function AdminLayout({

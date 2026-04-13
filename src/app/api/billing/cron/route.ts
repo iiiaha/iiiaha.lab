@@ -81,8 +81,13 @@ export async function GET(req: NextRequest) {
       continue;
     }
 
+    // 관리자 무상 구독(billing_key 없음) → 만료 시점에 자동 만료
     if (!sub.billing_key || !sub.customer_key || !sub.amount) {
-      results.push({ id: sub.id, result: "skipped", detail: "missing billing info" });
+      await serviceSupabase
+        .from("subscriptions")
+        .update({ status: "expired" })
+        .eq("id", sub.id);
+      results.push({ id: sub.id, result: "expired", detail: "comp subscription" });
       continue;
     }
 
