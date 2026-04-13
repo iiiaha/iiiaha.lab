@@ -44,12 +44,15 @@ export default function AdminLayout({
     check();
   }, [router]);
 
-  // 관리자 페이지에서는 상단 헤더 메뉴 숨김
+  // 관리자 페이지에서는 상단 헤더와 푸터 숨김 (화면 꽉 채우기 위해)
   useEffect(() => {
     const header = document.querySelector("header");
+    const footer = document.querySelector("footer");
     if (header) header.style.display = "none";
+    if (footer) footer.style.display = "none";
     return () => {
       if (header) header.style.display = "";
+      if (footer) footer.style.display = "";
     };
   }, []);
 
@@ -64,9 +67,9 @@ export default function AdminLayout({
   if (!authorized) return null;
 
   return (
-    <div className="flex gap-0 min-h-[70vh] -mx-10 -my-8 max-sm:-mx-5">
+    <div className="flex min-h-screen">
       {/* Sidebar */}
-      <aside className="w-[200px] shrink-0 border-r border-[#ddd] py-8 px-6">
+      <aside className="w-[220px] shrink-0 border-r border-[#ddd] py-8 px-6 sticky top-0 h-screen overflow-y-auto">
         <h2 className="text-[13px] font-bold tracking-[0.05em] mb-6">관리자</h2>
         <nav className="flex flex-col gap-1">
           {NAV.map(({ href, label, icon }) => {
@@ -101,7 +104,7 @@ export default function AdminLayout({
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 py-8 px-8 overflow-auto">{children}</main>
+      <main className="flex-1 min-w-0 py-8 px-10 overflow-auto">{children}</main>
     </div>
   );
 }
