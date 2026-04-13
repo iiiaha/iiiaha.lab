@@ -36,15 +36,16 @@ interface OrderWithProduct {
 
 const REFUND_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
 
-function isRefundEligible(order: OrderWithProduct): boolean {
-  if (order.status !== "paid") return false;
-  if ((order.amount || 0) <= 0) return false;
-  if (order.subscription_id) return false;
-  if (order.payment_key?.startsWith("admin")) return false;
-  if (order.download_acknowledged_at) return false;
+// 환불 불가 사유. null이면 환불 가능.
+function refundDisabledReason(order: OrderWithProduct): string | null {
+  if (order.status !== "paid") return "결제 완료 상태 아님";
+  if (order.subscription_id) return "구독으로 발급된 라이선스는 구독 해지를 통해서만 환불됩니다";
+  if (order.payment_key?.startsWith("admin")) return "관리자 무상 발급은 환불 대상이 아닙니다";
+  if ((order.amount || 0) <= 0) return "환불할 금액이 없습니다";
   const age = Date.now() - new Date(order.created_at).getTime();
-  if (age > REFUND_WINDOW_MS) return false;
-  return true;
+  if (age > REFUND_WINDOW_MS) return "환불 가능 기간(7일)이 지났습니다";
+  if (order.download_acknowledged_at) return "다운로드 후에는 환불할 수 없습니다";
+  return null;
 }
 
 interface VersionInfo {
@@ -438,18 +439,23 @@ export default function MyPage() {
                             Update to v{ver.latest}
                           </button>
                         )}
-                        {isRefundEligible(order) && (
-                          <button
-                            onClick={() => handleRefund(order)}
-                            className="w-full text-[11px] text-red-600 border border-red-300 bg-white px-4 py-1 cursor-pointer hover:bg-red-50 transition-colors text-center"
-                          >
-                            환불 요청
-                          </button>
-                        )}
                         <Link href={`/openlab/new?product=${slug}`}
                           className="w-full text-[12px] text-[#111] border border-[#111] px-4 py-1.5 no-underline hover:bg-[#111] hover:text-white transition-colors text-center">
                           Questions & Bugs
                         </Link>
+                        {(() => {
+                          const disabledReason = refundDisabledReason(order);
+                          return (
+                            <button
+                              onClick={() => handleRefund(order)}
+                              disabled={!!disabledReason}
+                              title={disabledReason ?? "환불 요청"}
+                              className="w-full text-[12px] text-[#111] border border-[#111] bg-white px-4 py-1.5 cursor-pointer hover:bg-[#111] hover:text-white transition-colors text-center disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-[#111]"
+                            >
+                              Refund
+                            </button>
+                          );
+                        })()}
                       </>
                     )}
                   </div>

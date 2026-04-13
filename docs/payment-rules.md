@@ -160,23 +160,47 @@
 
 ## 7. 환불 정책
 
-진실의 출처: `/terms` §4 + 운영 규칙
+진실의 출처: `/terms` §7 + `src/app/api/orders/refund/route.ts` + `src/app/api/admin/orders/refund/route.ts`
 
-- **활성화 전 7일 이내**: 환불 가능. license.hwid가 null이면 자동 판별 가능.
-- **활성화 후**: 케이스 바이 케이스 (현재는 수동, contact@iiiahalab.com)
-- **운영 절차**:
-  1. 사용자 메일 수신 → order/license 확인
-  2. 활성화 여부 확인 → 정책 적용
-  3. Toss 콘솔에서 환불 처리
-  4. `orders.status`를 `refunded`로 업데이트 (현재 enum에 있는지 확인 필요 — TBD)
-  5. 해당 라이선스 `status: "revoked"`로 변경 → 다음 verify 사이클에서 클라이언트 캐시 자동 삭제됨
+### 7.1 정책 (단건 구매 익스텐션)
 
-**불변 규칙**
-- 환불 처리 시 라이선스를 **반드시 revoke**한다. 환불 후 라이선스가 살아있으면 사용자가 무료로 계속 쓰게 됨.
+**환불 기준은 라이선스 활성화가 아니라 `.rbz` 다운로드 여부**다. 사용자가 마이페이지에서 `Download .rbz`를 누르고 안내 모달에서 "진행"을 확인하는 순간 **`orders.download_acknowledged_at` 컬럼에 타임스탬프가 찍히고 그 시점부터 환불 불가**. 이 컬럼이 단일 진실의 원천.
 
-**TBD**
-- 환불 자동화 엔드포인트(`/api/admin/refund` 등)가 있어야 수동 실수를 줄일 수 있음. 현재는 없음.
-- 부분 환불 (구독 중도 해지) 정책 — 미정.
+- **`amount > 0` AND `subscription_id IS NULL` AND `payment_key NOT LIKE 'admin%'` AND `download_acknowledged_at IS NULL` AND `now() - created_at <= 7일`** → 환불 가능
+- 위 조건 중 하나라도 깨지면 환불 불가, 마이페이지의 Refund 버튼은 disabled 상태로 표시되고 hover 시 사유가 툴팁으로 노출된다.
+
+### 7.2 자가 환불 (`/api/orders/refund`)
+
+사용자가 마이페이지에서 직접 환불 요청. 서버가 위 모든 조건을 다시 검증한 뒤 토스 `POST /v1/payments/{paymentKey}/cancel`을 `cancelAmount=order.amount`로 호출 (다중 아이템 주문 부분 환불). 성공 시:
+1. `orders.status = 'refunded'`
+2. `licenses` 중 해당 `order_id`의 모든 행 `status = 'revoked'`
+
+### 7.3 관리자 환불 (`/api/admin/orders/refund`)
+
+`/admin/users` 행 펼침 영역의 개별 라이선스 행에서 사용. 자가 환불과 거의 동일하지만 **다운로드 여부·기간 제약 없음**. 운영자가 케이스 바이 케이스로 처리할 때 사용. 구독으로 발급된 행은 여기서도 거부됨 (구독 해지 플로우로).
+
+### 7.4 다운로드 acknowledge 흐름
+
+`POST /api/orders/acknowledge-download`은 사용자 본인 주문에 대해 호출되며, 이미 acknowledge된 주문이거나 구독·관리자 발급 주문이면 no-op. 클라이언트는 acknowledge 호출 → `/api/download/{slug}` 리다이렉트 순으로 진행한다. 다운로드 URL이 직접 노출되더라도 acknowledge 없이 다운로드되는 경로는 일반 사용자 UI에 없음 (관리자가 강제로 시킨다면 그건 운영자 책임).
+
+### 7.5 구독 환불
+
+구독 결제는 개별 주문 환불 대상이 아니다. 구독 해지(`/api/subscribe/cancel` 또는 관리자 즉시 해지)를 통해 처리. fan-out 주문은 amount=0이라 환불할 금액 자체가 없음.
+
+### 7.6 강의 환불
+
+(현재 미구현) 강의는 본 문서 작성 시점에 자가 환불 UI 없음. 환불 정책 명시(§7.1)는 익스텐션에 한정. 강의 환불은 일단 contact@iiiahalab.com 수동 처리.
+
+### 7.7 불변 규칙
+
+- 환불 처리 시 **반드시 `licenses.status = 'revoked'`** 까지 같이 한다. orders 상태만 바꾸면 사용자가 계속 라이선스를 쓸 수 있게 된다.
+- 토스 cancel API 응답이 200이 아니면 DB에 어떤 변경도 하지 않는다 (실패 시 사용자에게 에러 메시지만 반환).
+- 자가 환불 엔드포인트는 클라이언트 조건 검사를 신뢰하지 말고 **서버에서 모든 조건을 다시 검증**한다.
+
+### 7.8 TBD
+
+- 다중 아이템 한 결제 안에서 부분 환불을 반복 호출할 때 토스 잔액 추적이 정확한지 모니터링 필요 (이론상 cancelAmount 합이 결제액을 넘으면 토스가 거부함).
+- Webhook으로 토스 환불 결과를 비동기로 받는 흐름은 미구현 — 동기 호출 결과만 신뢰.
 
 ---
 
