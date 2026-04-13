@@ -6,6 +6,7 @@ import { Product, formatPrice } from "@/lib/types";
 import { getUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase";
 import { useCart } from "@/lib/cart";
+import PurchaseInfo from "@/components/PurchaseInfo";
 
 export default function ExtensionDetail({ product }: { product: Product }) {
   const [purchased, setPurchased] = useState(false);
@@ -163,6 +164,8 @@ export default function ExtensionDetail({ product }: { product: Product }) {
           </div>
         )}
       </div>
+
+      <PurchaseInfo variant="extension" />
 
       {/* Purchase / Purchased */}
       <div className="mt-6">

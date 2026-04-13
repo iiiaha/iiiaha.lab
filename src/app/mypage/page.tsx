@@ -10,9 +10,10 @@ import { formatPrice } from "@/lib/types";
 interface Subscription {
   id: string;
   plan: "monthly" | "annual";
-  status: "active" | "cancelled" | "expired";
+  status: "active" | "cancelled" | "expired" | "past_due";
   started_at: string;
   expires_at: string;
+  cancel_at_period_end: boolean;
 }
 
 interface OrderWithProduct {
@@ -160,6 +161,27 @@ export default function MyPage() {
     router.push("/");
   };
 
+  const handleCancelSubscription = async () => {
+    if (!subscription) return;
+    if (
+      !confirm(
+        "구독을 해지하시겠습니까? 현재 결제 기간이 끝나는 날까지는 계속 이용하실 수 있습니다."
+      )
+    )
+      return;
+    try {
+      const res = await fetch("/api/subscribe/cancel", { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.error || "해지에 실패했습니다.");
+        return;
+      }
+      setSubscription({ ...subscription, cancel_at_period_end: true });
+    } catch {
+      alert("네트워크 오류가 발생했습니다.");
+    }
+  };
+
   if (loading)
     return (
       <div className="pt-20 text-center text-[14px] text-[#999]">
@@ -206,13 +228,27 @@ export default function MyPage() {
                 </p>
               </div>
               <span className="text-[11px] font-bold tracking-[0.05em] text-white border border-[rgba(255,255,255,0.3)] px-3 py-1">
-                Active
+                {subscription.cancel_at_period_end ? "Canceling" : "Active"}
               </span>
             </div>
           </div>
-          <p className="text-[11px] text-[#999]">
-            All extensions are available for download during your subscription period.
-          </p>
+          {subscription.cancel_at_period_end ? (
+            <p className="text-[11px] text-[#999]">
+              구독이 해지되었습니다. {new Date(subscription.expires_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })}까지 계속 이용하실 수 있으며, 이후 자동으로 만료됩니다.
+            </p>
+          ) : (
+            <div className="flex items-center justify-between">
+              <p className="text-[11px] text-[#999]">
+                구독 기간 동안 모든 익스텐션을 이용하실 수 있습니다.
+              </p>
+              <button
+                onClick={handleCancelSubscription}
+                className="text-[11px] text-[#999] bg-transparent border-0 cursor-pointer hover:text-red-600"
+              >
+                구독 해지
+              </button>
+            </div>
+          )}
         </div>
       )}
 

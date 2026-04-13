@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase";
 import { Product, formatPrice } from "@/lib/types";
 import { getUser } from "@/lib/auth";
 import EpisodeList from "./EpisodeList";
+import PurchaseInfo from "@/components/PurchaseInfo";
 
 interface Episode {
   id: string;
@@ -98,8 +99,10 @@ export default function CourseDetailPage() {
 
       <EpisodeList episodes={episodes} purchased={purchased} courseSlug={slug} productId={product.id} />
 
+      <PurchaseInfo variant="course" />
+
       {!purchased && (
-        <div className="mt-10">
+        <div className="mt-6">
           <button className="w-full bg-[#111] text-white text-[14px] font-bold tracking-[0.05em] py-4 border-0 cursor-pointer hover:bg-[#333] transition-colors duration-200">
             Purchase &mdash; {formatPrice(product.price)}
           </button>

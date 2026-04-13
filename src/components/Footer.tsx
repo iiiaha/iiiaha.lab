@@ -20,6 +20,13 @@ export default function Footer() {
             <Link href="/privacy">Privacy</Link>
           </div>
         </div>
+        <div className="mt-6 text-[11px] text-[#999] leading-[1.7] flex flex-wrap gap-x-3 gap-y-0.5">
+          <span>상호: 이아하랩</span>
+          <span>대표: 이상훈</span>
+          <span>사업자등록번호: 367-02-03753</span>
+          <span>주소: 서울특별시 강남구 언주로135길 32-8, 103호</span>
+          <span>문의: 010-4005-7606</span>
+        </div>
       </div>
     </footer>
   );

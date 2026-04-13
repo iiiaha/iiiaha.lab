@@ -2,8 +2,14 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { loadTossPayments, ANONYMOUS } from "@tosspayments/tosspayments-sdk";
 import { useCart } from "@/lib/cart";
 import { formatPrice } from "@/lib/types";
+import { getUser } from "@/lib/auth";
+
+const TOSS_CLIENT_KEY = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY!;
+const PENDING_KEY = "iiiaha_pending_payment";
 
 interface Coupon {
   code: string;
@@ -13,11 +19,14 @@ interface Coupon {
 }
 
 export default function CartPage() {
+  const router = useRouter();
   const { items, removeItem, total } = useCart();
   const [couponCode, setCouponCode] = useState("");
   const [coupon, setCoupon] = useState<Coupon | null>(null);
   const [couponError, setCouponError] = useState("");
   const [applying, setApplying] = useState(false);
+  const [checkoutError, setCheckoutError] = useState("");
+  const [processing, setProcessing] = useState(false);
 
   const applyCoupon = async () => {
     if (!couponCode.trim()) return;
@@ -57,6 +66,66 @@ export default function CartPage() {
     : 0;
 
   const finalTotal = Math.max(0, total - discount);
+
+  const handleCheckout = async () => {
+    setCheckoutError("");
+    if (items.length === 0) return;
+    if (finalTotal <= 0) {
+      setCheckoutError("결제 금액이 올바르지 않습니다.");
+      return;
+    }
+
+    setProcessing(true);
+    try {
+      const user = await getUser();
+      if (!user) {
+        router.push("/login?redirect=/cart");
+        return;
+      }
+
+      const orderId = `order_${Date.now()}_${crypto.randomUUID().replace(/-/g, "").slice(0, 16)}`;
+      const orderName =
+        items.length === 1
+          ? items[0].name
+          : `${items[0].name} 외 ${items.length - 1}건`;
+
+      localStorage.setItem(
+        PENDING_KEY,
+        JSON.stringify({
+          orderId,
+          items: items.map((i) => ({ productId: i.id })),
+          couponCode: coupon?.code,
+          amount: finalTotal,
+        })
+      );
+
+      const tossPayments = await loadTossPayments(TOSS_CLIENT_KEY);
+      const payment = tossPayments.payment({
+        customerKey: user.id || ANONYMOUS,
+      });
+
+      await payment.requestPayment({
+        method: "CARD",
+        amount: { currency: "KRW", value: finalTotal },
+        orderId,
+        orderName,
+        successUrl: `${window.location.origin}/payment/success`,
+        failUrl: `${window.location.origin}/payment/fail`,
+        customerEmail: user.email,
+        customerName: user.user_metadata?.full_name ?? user.email?.split("@")[0],
+        card: {
+          useEscrow: false,
+          flowMode: "DEFAULT",
+          useCardPoint: false,
+          useAppCardOnly: false,
+        },
+      });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "결제 요청에 실패했습니다.";
+      setCheckoutError(message);
+      setProcessing(false);
+    }
+  };
 
   if (items.length === 0) {
     return (
@@ -173,12 +242,17 @@ export default function CartPage() {
         </div>
 
         <button
-          className="w-full bg-[#111] text-white text-[14px] font-bold tracking-[0.05em] py-3 border-0 cursor-pointer hover:bg-[#333] transition-colors duration-200"
+          onClick={handleCheckout}
+          disabled={processing}
+          className="w-full bg-[#111] text-white text-[14px] font-bold tracking-[0.05em] py-3 border-0 cursor-pointer hover:bg-[#333] transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Checkout &mdash; {formatPrice(finalTotal)}
+          {processing ? "결제창을 여는 중..." : `Checkout — ${formatPrice(finalTotal)}`}
         </button>
+        {checkoutError && (
+          <p className="text-[11px] text-red-600 text-center mt-2">{checkoutError}</p>
+        )}
         <p className="text-[11px] text-[#999] text-center mt-2">
-          Payment will be available soon.
+          결제는 토스페이먼츠를 통해 안전하게 처리됩니다.
         </p>
 
         {/* Subscription CTA */}

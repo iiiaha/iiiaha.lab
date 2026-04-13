@@ -1,0 +1,205 @@
+import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
+import { createServerSupabase } from "@/lib/supabase-server";
+import { generateLicenseKey } from "@/lib/license-utils";
+
+const serviceSupabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+type Plan = "monthly" | "annual";
+
+interface ConfirmBody {
+  authKey: string;
+  customerKey: string;
+  plan: Plan;
+  amount: number;
+}
+
+// JS 기준 end-of-month clamping이 필요한 경우를 처리한다.
+function addPeriod(from: Date, plan: Plan): Date {
+  const result = new Date(from);
+  if (plan === "annual") {
+    result.setFullYear(result.getFullYear() + 1);
+  } else {
+    const expectedMonth = (result.getMonth() + 1) % 12;
+    result.setMonth(result.getMonth() + 1);
+    if (result.getMonth() !== expectedMonth) {
+      result.setDate(0); // 이전 달의 말일로 clamp
+    }
+  }
+  return result;
+}
+
+export async function POST(req: NextRequest) {
+  const body = (await req.json()) as ConfirmBody;
+  const { authKey, customerKey, plan, amount } = body;
+
+  if (!authKey || !customerKey || !plan || typeof amount !== "number") {
+    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+  }
+  if (plan !== "monthly" && plan !== "annual") {
+    return NextResponse.json({ error: "Invalid plan" }, { status: 400 });
+  }
+
+  // 1. 인증
+  const supabase = await createServerSupabase();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // customerKey는 user.id와 일치해야 함 (변조 방지)
+  if (customerKey !== user.id) {
+    return NextResponse.json({ error: "Customer key mismatch" }, { status: 403 });
+  }
+
+  // 2. 이미 활성 구독이 있으면 중복 가입 금지
+  const { data: existing } = await serviceSupabase
+    .from("subscriptions")
+    .select("id")
+    .eq("user_id", user.id)
+    .eq("status", "active")
+    .limit(1)
+    .maybeSingle();
+  if (existing) {
+    return NextResponse.json(
+      { error: "이미 활성 구독이 있습니다" },
+      { status: 400 }
+    );
+  }
+
+  if (!process.env.TOSS_SECRET_KEY) {
+    return NextResponse.json(
+      { error: "Payment gateway not configured" },
+      { status: 500 }
+    );
+  }
+
+  const tossAuth = `Basic ${Buffer.from(process.env.TOSS_SECRET_KEY + ":").toString("base64")}`;
+
+  // 3. authKey → billingKey 교환
+  const issueRes = await fetch(
+    "https://api.tosspayments.com/v1/billing/authorizations/issue",
+    {
+      method: "POST",
+      headers: { Authorization: tossAuth, "Content-Type": "application/json" },
+      body: JSON.stringify({ authKey, customerKey }),
+    }
+  );
+  if (!issueRes.ok) {
+    const err = await issueRes.json().catch(() => ({}));
+    return NextResponse.json(
+      { error: err.message || "빌링 키 발급에 실패했습니다" },
+      { status: 400 }
+    );
+  }
+  const billingData = await issueRes.json();
+  const billingKey: string = billingData.billingKey;
+
+  // 4. 첫 결제
+  const orderId = `bill_${Date.now()}_${crypto.randomUUID().replace(/-/g, "").slice(0, 16)}`;
+  const orderName =
+    plan === "annual"
+      ? "iiiaha.lab 연간 구독"
+      : "iiiaha.lab 월간 구독";
+
+  const chargeRes = await fetch(
+    `https://api.tosspayments.com/v1/billing/${billingKey}`,
+    {
+      method: "POST",
+      headers: { Authorization: tossAuth, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        customerKey,
+        amount,
+        orderId,
+        orderName,
+        customerEmail: user.email,
+        customerName:
+          (user.user_metadata as { full_name?: string } | null)?.full_name ??
+          user.email?.split("@")[0],
+      }),
+    }
+  );
+
+  if (!chargeRes.ok) {
+    const err = await chargeRes.json().catch(() => ({}));
+    return NextResponse.json(
+      { error: err.message || "첫 결제에 실패했습니다" },
+      { status: 400 }
+    );
+  }
+  const chargeData = await chargeRes.json();
+  const paymentKey: string = chargeData.paymentKey;
+
+  // 5. 구독 레코드 생성
+  const now = new Date();
+  const expiresAt = addPeriod(now, plan);
+
+  const { data: subscription, error: subErr } = await serviceSupabase
+    .from("subscriptions")
+    .insert({
+      user_id: user.id,
+      plan,
+      status: "active",
+      started_at: now.toISOString(),
+      expires_at: expiresAt.toISOString(),
+      billing_key: billingKey,
+      customer_key: customerKey,
+      amount,
+      last_payment_key: paymentKey,
+      last_charged_at: now.toISOString(),
+    })
+    .select("id")
+    .single();
+
+  if (subErr || !subscription) {
+    return NextResponse.json(
+      { error: "구독 저장에 실패했습니다", detail: subErr?.message },
+      { status: 500 }
+    );
+  }
+
+  // 6. 모든 활성 익스텐션 fan-out
+  const { data: extensions } = await serviceSupabase
+    .from("products")
+    .select("id")
+    .eq("type", "extension")
+    .eq("is_active", true);
+
+  if (extensions) {
+    for (const ext of extensions) {
+      const { data: order } = await serviceSupabase
+        .from("orders")
+        .insert({
+          user_id: user.id,
+          product_id: ext.id,
+          amount: 0,
+          status: "paid",
+          payment_key: `subscription:${subscription.id}`,
+          subscription_id: subscription.id,
+        })
+        .select("id")
+        .single();
+
+      if (!order) continue;
+
+      await serviceSupabase.from("licenses").insert({
+        order_id: order.id,
+        user_id: user.id,
+        product_id: ext.id,
+        license_key: generateLicenseKey(),
+        subscription_id: subscription.id,
+      });
+    }
+  }
+
+  return NextResponse.json({
+    status: "success",
+    subscription_id: subscription.id,
+    expires_at: expiresAt.toISOString(),
+  });
+}

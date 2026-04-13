@@ -2,7 +2,14 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { loadTossPayments, ANONYMOUS } from "@tosspayments/tosspayments-sdk";
 import { Product, formatPrice } from "@/lib/types";
+import PurchaseInfo from "@/components/PurchaseInfo";
+import { getUser } from "@/lib/auth";
+
+const TOSS_CLIENT_KEY = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY!;
+const PENDING_KEY = "iiiaha_pending_billing";
 
 const MONTHLY_PRICE = 39000;
 const ANNUAL_PRICE = 420000;
@@ -17,7 +24,48 @@ export default function SubscribeContent({
   extensions: Product[];
   totalPrice: number;
 }) {
+  const router = useRouter();
   const [plan, setPlan] = useState<Plan>("annual");
+  const [processing, setProcessing] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSubscribe = async () => {
+    setError("");
+    setProcessing(true);
+    try {
+      const user = await getUser();
+      if (!user) {
+        router.push("/login?redirect=/subscribe");
+        return;
+      }
+
+      const amount = plan === "annual" ? ANNUAL_PRICE : MONTHLY_PRICE;
+
+      localStorage.setItem(
+        PENDING_KEY,
+        JSON.stringify({ plan, amount })
+      );
+
+      const tossPayments = await loadTossPayments(TOSS_CLIENT_KEY);
+      const payment = tossPayments.payment({
+        customerKey: user.id || ANONYMOUS,
+      });
+
+      await payment.requestBillingAuth({
+        method: "CARD",
+        successUrl: `${window.location.origin}/billing/success`,
+        failUrl: `${window.location.origin}/billing/fail`,
+        customerEmail: user.email,
+        customerName:
+          (user.user_metadata as { full_name?: string } | null)?.full_name ??
+          user.email?.split("@")[0],
+      });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "구독 요청에 실패했습니다.";
+      setError(message);
+      setProcessing(false);
+    }
+  };
 
   const savingsVsBuy = plan === "monthly"
     ? totalPrice - MONTHLY_PRICE
@@ -137,10 +185,17 @@ export default function SubscribeContent({
           </div>
           <div className="mt-6">
             <button
-              className="w-full bg-[#111] text-white text-[13px] font-bold tracking-[0.05em] py-3 border-0 cursor-pointer hover:bg-[#333] transition-colors"
+              onClick={handleSubscribe}
+              disabled={processing}
+              className="w-full bg-[#111] text-white text-[13px] font-bold tracking-[0.05em] py-3 border-0 cursor-pointer hover:bg-[#333] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Subscribe — {plan === "annual" ? formatPrice(ANNUAL_PRICE) : `${formatPrice(MONTHLY_PRICE)}/mo`}
+              {processing
+                ? "결제창을 여는 중..."
+                : `Subscribe — ${plan === "annual" ? formatPrice(ANNUAL_PRICE) : `${formatPrice(MONTHLY_PRICE)}/mo`}`}
             </button>
+            {error && (
+              <p className="text-[11px] text-red-600 text-center mt-2">{error}</p>
+            )}
           </div>
         </div>
       </div>
@@ -182,8 +237,10 @@ export default function SubscribeContent({
         </div>
       </div>
 
+      <PurchaseInfo variant="subscription" />
+
       {/* FAQ */}
-      <div className="mb-10">
+      <div className="mt-10 mb-10">
         <p className="text-[11px] text-[#999] tracking-[0.1em] uppercase mb-4">
           FAQ
         </p>
