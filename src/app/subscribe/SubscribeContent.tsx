@@ -151,7 +151,7 @@ export default function SubscribeContent({
         </div>
 
         {/* Subscription */}
-        <div className="sub-cta relative overflow-hidden flex flex-col">
+        <div className="sub-cta relative overflow-hidden flex flex-col border border-transparent">
           <div className="sub-cta-bg absolute inset-0" />
           <div className="sub-cta-aurora absolute inset-0" />
           <div className="relative p-6 flex flex-col flex-1">
