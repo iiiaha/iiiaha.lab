@@ -215,40 +215,40 @@ export default function SubscribeContent({
         </div>
       </div>
 
-      {/* Extension List */}
+      {/* Extension Grid */}
       <div className="mb-10">
         <p className="text-[11px] text-[#999] tracking-[0.1em] uppercase mb-4">
           Included Extensions
+          <span className="ml-2 text-[#ccc] font-normal normal-case tracking-normal">
+            {extensions.length}개
+          </span>
         </p>
-        <div className="border-t border-[#ddd]">
+        <div className="grid grid-cols-5 gap-3 max-sm:grid-cols-3">
           {extensions.map((ext) => (
             <Link
               key={ext.slug}
               href={`/extensions/${ext.slug}`}
-              className="flex items-center justify-between border-b border-[#ddd] py-2.5 no-underline hover:bg-[#fafafa] transition-colors px-1"
+              title={ext.name}
+              className="group no-underline"
             >
-              <div className="flex items-center gap-3">
-                {ext.thumbnail_url && (
+              <div className="aspect-square bg-[#f5f5f5] border border-[#ddd] flex items-center justify-center p-[20%]">
+                {ext.thumbnail_url ? (
                   <img
                     src={ext.thumbnail_url}
-                    alt=""
-                    className="w-7 h-7 object-contain bg-[#f5f5f5] shrink-0"
+                    alt={ext.name}
+                    className="w-full h-full object-contain group-hover:opacity-85 transition-opacity duration-200"
                   />
-                )}
-                <span className="text-[13px] font-bold">{ext.name}</span>
-                {ext.subtitle && (
-                  <span className="text-[11px] text-[#999] max-sm:hidden">{ext.subtitle}</span>
+                ) : (
+                  <span className="text-[10px] text-[#999] text-center">
+                    {ext.name}
+                  </span>
                 )}
               </div>
-              <span className="text-[12px] text-[#999] shrink-0">
-                {formatPrice(ext.original_price ?? ext.price)}
-              </span>
+              <p className="text-[10px] text-[#666] text-center mt-1.5 truncate group-hover:text-[#111]">
+                {ext.name}
+              </p>
             </Link>
           ))}
-        </div>
-        <div className="flex justify-between pt-3 px-1">
-          <span className="text-[13px] font-bold">Total if purchased individually</span>
-          <span className="text-[13px] font-bold">{formatPrice(totalPrice)}</span>
         </div>
       </div>
 
