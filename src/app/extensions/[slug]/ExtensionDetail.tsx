@@ -186,58 +186,69 @@ export default function ExtensionDetail({ product }: { product: Product }) {
             </div>
           </div>
         ) : (
-          <div className="flex flex-col gap-2">
-            {items.some((i) => i.id === product.id) || added ? (
-              <Link
-                href="/cart"
-                className="w-full bg-[#111] text-white text-[14px] font-bold tracking-[0.05em] py-3 border-0 text-center no-underline hover:bg-[#333] transition-colors duration-200"
-              >
-                Go to Cart
-              </Link>
-            ) : (
-              <button
-                onClick={() => {
-                  addItem({
-                    id: product.id,
-                    slug: product.slug,
-                    name: product.name,
-                    price: product.price,
-                    original_price: product.original_price,
-                    discount_percent: product.discount_percent,
-                    thumbnail_url: product.thumbnail_url,
-                  });
-                  setAdded(true);
-                }}
-                className="w-full bg-[#111] text-white text-[14px] font-bold tracking-[0.05em] py-3 border-0 cursor-pointer hover:bg-[#333] transition-colors duration-200"
-              >
-                Add to Cart &mdash; {formatPrice(product.price)}
-              </button>
-            )}
+          <div className="flex flex-col gap-4">
+            {/* 개별 구매 옵션 */}
+            <div>
+              <p className="text-[11px] text-[#999] text-center mb-2 tracking-[0.03em]">
+                이 익스텐션 하나만 <strong className="text-[#111]">영구 소장</strong>
+              </p>
+              {items.some((i) => i.id === product.id) || added ? (
+                <Link
+                  href="/cart"
+                  className="w-full bg-[#111] text-white text-[14px] font-bold tracking-[0.05em] py-3 border-0 text-center no-underline hover:bg-[#333] transition-colors duration-200 block"
+                >
+                  Go to Cart
+                </Link>
+              ) : (
+                <button
+                  onClick={() => {
+                    addItem({
+                      id: product.id,
+                      slug: product.slug,
+                      name: product.name,
+                      price: product.price,
+                      original_price: product.original_price,
+                      discount_percent: product.discount_percent,
+                      thumbnail_url: product.thumbnail_url,
+                    });
+                    setAdded(true);
+                  }}
+                  className="w-full bg-[#111] text-white text-[14px] font-bold tracking-[0.05em] py-3 border-0 cursor-pointer hover:bg-[#333] transition-colors duration-200"
+                >
+                  Add to Cart &mdash; {formatPrice(product.price)}
+                </button>
+              )}
+            </div>
 
-            {/* Subscription CTA */}
-            <Link
-              href="/subscribe"
-              className="sub-cta group block no-underline mt-2 rounded-sm overflow-hidden relative"
-            >
-              <div className="sub-cta-bg absolute inset-0" />
-              <div className="sub-cta-aurora absolute inset-0" />
-              <div className="text-center px-5 py-5 relative">
-                <p className="text-[13px] text-[rgba(255,255,255,0.8)] mb-1.5">
-                  Or get <span className="font-bold text-white">all 17 extensions</span> with a subscription
-                </p>
-                <div className="flex items-baseline justify-center gap-2">
-                  <span className="text-[12px] text-[rgba(255,255,255,0.4)] line-through">
-                    ₩29,000
-                  </span>
-                  <p className="text-[17px] font-bold text-white tracking-wide">
-                    ₩24,900<span className="text-[12px] font-normal text-[rgba(255,255,255,0.5)]"> /month</span>
+            {/* 구독 옵션 */}
+            <div>
+              <p className="text-[11px] text-[#999] text-center mb-2 tracking-[0.03em]">
+                또는 <strong className="text-[#111]">구독 멤버십</strong>으로 모든 익스텐션 자유롭게 사용
+              </p>
+              <Link
+                href="/subscribe"
+                className="sub-cta group block no-underline overflow-hidden relative"
+              >
+                <div className="sub-cta-bg absolute inset-0" />
+                <div className="sub-cta-aurora absolute inset-0" />
+                <div className="text-center px-5 py-5 relative">
+                  <p className="text-[13px] text-[rgba(255,255,255,0.8)] mb-1.5">
+                    <span className="font-bold text-white">모든 익스텐션</span>을 구독으로 한 번에
+                  </p>
+                  <div className="flex items-baseline justify-center gap-2">
+                    <span className="text-[12px] text-[rgba(255,255,255,0.4)] line-through">
+                      ₩29,000
+                    </span>
+                    <p className="text-[17px] font-bold text-white tracking-wide">
+                      ₩24,900<span className="text-[12px] font-normal text-[rgba(255,255,255,0.5)]"> /month</span>
+                    </p>
+                  </div>
+                  <p className="text-[10px] text-[rgba(255,255,255,0.6)] mt-1">
+                    디버깅 시즌 특가 · ~ 2026.07.31
                   </p>
                 </div>
-                <p className="text-[10px] text-[rgba(255,255,255,0.6)] mt-1">
-                  디버깅 시즌 특가 · ~ 2026.07.31
-                </p>
-              </div>
-            </Link>
+              </Link>
+            </div>
           </div>
         )}
       </div>
