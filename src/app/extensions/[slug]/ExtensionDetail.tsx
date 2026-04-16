@@ -243,7 +243,7 @@ export default function ExtensionDetail({ product }: { product: Product }) {
               <div className="sub-cta-aurora absolute inset-0" />
               <div className="text-center px-5 py-4 relative">
                 <div className="text-[11px] font-normal text-[rgba(255,255,255,0.65)] mb-1">
-                  구독 멤버십으로 모든 익스텐션 자유롭게 사용
+                  스케치업 멤버십으로 모든 익스텐션 자유롭게 사용
                 </div>
                 <div className="flex items-baseline justify-center gap-2">
                   <span className="text-[12px] text-[rgba(255,255,255,0.4)] line-through">

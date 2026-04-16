@@ -25,7 +25,7 @@ function BillingSuccessInner() {
     const customerKey = params.get("customerKey");
 
     if (!authKey || !customerKey) {
-      setError("구독 인증 정보가 올바르지 않습니다.");
+      setError("멤버십 인증 정보가 올바르지 않습니다.");
       setState("error");
       return;
     }
@@ -38,7 +38,7 @@ function BillingSuccessInner() {
 
     if (!pending) {
       setError(
-        "구독 세션을 찾을 수 없습니다. 결제는 진행되지 않았으니 구독 페이지로 돌아가 다시 시도해 주세요."
+        "멤버십 세션을 찾을 수 없습니다. 결제는 진행되지 않았으니 멤버십 페이지로 돌아가 다시 시도해 주세요."
       );
       setState("error");
       return;
@@ -58,14 +58,14 @@ function BillingSuccessInner() {
         });
         const data = await res.json();
         if (!res.ok) {
-          setError(data.error || "구독 결제에 실패했습니다.");
+          setError(data.error || "멤버십 결제에 실패했습니다.");
           setState("error");
           return;
         }
         setState("success");
         localStorage.removeItem(STORAGE_KEY);
       } catch {
-        setError("네트워크 오류로 구독 처리에 실패했습니다.");
+        setError("네트워크 오류로 멤버십 처리에 실패했습니다.");
         setState("error");
       }
     };
@@ -75,13 +75,13 @@ function BillingSuccessInner() {
   return (
     <div>
       <div className="flex items-baseline justify-between mb-[10px]">
-        <h1 className="text-[16px] font-bold tracking-[0.03em]">Subscription</h1>
+        <h1 className="text-[16px] font-bold tracking-[0.03em]">Membership</h1>
       </div>
       <div className="border-b border-[#111] mb-8 sticky-divider" />
 
       {state === "loading" && (
         <div className="text-center py-20 text-[14px] text-[#999]">
-          구독을 처리하고 있습니다...
+          멤버십을 처리하고 있습니다...
         </div>
       )}
 
@@ -93,7 +93,7 @@ function BillingSuccessInner() {
               href="/subscribe"
               className="text-[13px] border border-[#111] px-6 py-2 no-underline hover:bg-[#111] hover:text-white transition-colors"
             >
-              구독 페이지로
+              멤버십 페이지로
             </Link>
             <Link
               href="/mypage"
@@ -108,9 +108,9 @@ function BillingSuccessInner() {
       {state === "success" && (
         <div>
           <div className="text-center py-16 mb-6">
-            <p className="text-[22px] font-bold mb-3">구독이 시작되었습니다</p>
+            <p className="text-[22px] font-bold mb-3">멤버십이 시작되었습니다</p>
             <p className="text-[12px] text-[#999] mt-6 leading-[1.8]">
-              모든 익스텐션 라이선스가 발급되었습니다.
+              모든 스케치업 익스텐션 라이선스가 발급되었습니다.
               <br />
               <strong className="text-[#111]">마이페이지</strong>에서 확인하실 수
               있습니다.

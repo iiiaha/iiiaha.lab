@@ -39,7 +39,7 @@ const REFUND_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
 // 환불 불가 사유. null이면 환불 가능.
 function refundDisabledReason(order: OrderWithProduct): string | null {
   if (order.status !== "paid") return "결제 완료 상태 아님";
-  if (order.subscription_id) return "구독으로 발급된 라이선스는 구독 해지를 통해서만 환불됩니다";
+  if (order.subscription_id) return "멤버십으로 발급된 라이선스는 멤버십 해지를 통해서만 환불됩니다";
   if (order.payment_key?.startsWith("admin")) return "관리자 무상 발급은 환불 대상이 아닙니다";
   if ((order.amount || 0) <= 0) return "환불할 금액이 없습니다";
   const age = Date.now() - new Date(order.created_at).getTime();
@@ -290,7 +290,7 @@ export default function MyPage() {
       {subscription && (
         <div className="mb-10">
           <h2 className="text-[12px] font-bold text-[#999] tracking-[0.05em] uppercase mb-4">
-            Subscription
+            Membership
           </h2>
           <div
             className="sub-cta relative overflow-hidden rounded-sm p-5 mb-2"
@@ -300,7 +300,7 @@ export default function MyPage() {
             <div className="relative flex items-center justify-between">
               <div>
                 <p className="text-[14px] font-bold text-white mb-1">
-                  All Extensions — {subscription.plan === "annual" ? "Annual" : "Monthly"} Plan
+                  SketchUp Membership — {subscription.plan === "annual" ? "Annual" : "Monthly"}
                 </p>
                 <p className="text-[12px] text-[rgba(255,255,255,0.6)]">
                   {new Date(subscription.started_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })}
@@ -315,18 +315,18 @@ export default function MyPage() {
           </div>
           {subscription.cancel_at_period_end ? (
             <p className="text-[11px] text-[#999]">
-              구독이 해지되었습니다. {new Date(subscription.expires_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })}까지 계속 이용하실 수 있으며, 이후 자동으로 만료됩니다.
+              멤버십이 해지되었습니다. {new Date(subscription.expires_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })}까지 계속 이용하실 수 있으며, 이후 자동으로 만료됩니다.
             </p>
           ) : (
             <div className="flex items-center justify-between">
               <p className="text-[11px] text-[#999]">
-                구독 기간 동안 모든 익스텐션을 이용하실 수 있습니다.
+                멤버십 기간 동안 모든 스케치업 익스텐션을 이용하실 수 있습니다.
               </p>
               <button
                 onClick={handleCancelSubscription}
                 className="text-[11px] text-[#999] bg-transparent border-0 cursor-pointer hover:text-red-600"
               >
-                구독 해지
+                멤버십 해지
               </button>
             </div>
           )}

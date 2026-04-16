@@ -12,12 +12,12 @@ function BillingFailInner() {
   return (
     <div>
       <div className="flex items-baseline justify-between mb-[10px]">
-        <h1 className="text-[16px] font-bold tracking-[0.03em]">Subscription</h1>
+        <h1 className="text-[16px] font-bold tracking-[0.03em]">Membership</h1>
       </div>
       <div className="border-b border-[#111] mb-8 sticky-divider" />
 
       <div className="text-center py-20">
-        <p className="text-[16px] font-bold mb-3">구독 등록에 실패했습니다</p>
+        <p className="text-[16px] font-bold mb-3">멤버십 등록에 실패했습니다</p>
         {message && <p className="text-[13px] text-red-600 mb-1">{message}</p>}
         {code && <p className="text-[11px] text-[#999] mb-6">오류 코드: {code}</p>}
         <p className="text-[12px] text-[#999] mb-6 leading-[1.7]">
