@@ -4,10 +4,10 @@ import { useState } from "react";
 import { Product, Platform } from "@/lib/types";
 import ProductCard from "@/components/ProductCard";
 
-const FILTERS: { key: string; label: string; value: Platform | undefined }[] = [
-  { key: "all", label: "All", value: undefined },
+const FILTERS: { key: string; label: string; value: Platform }[] = [
   { key: "sketchup", label: "SketchUp", value: "sketchup" },
   { key: "autocad", label: "AutoCAD", value: "autocad" },
+  { key: "windows", label: "Windows", value: "windows" },
 ];
 
 export default function ExtensionsList({
@@ -15,10 +15,8 @@ export default function ExtensionsList({
 }: {
   products: Product[];
 }) {
-  const [filter, setFilter] = useState<Platform | undefined>(undefined);
-  const filtered = filter
-    ? products.filter((p) => p.platform === filter)
-    : products;
+  const [filter, setFilter] = useState<Platform>("sketchup");
+  const filtered = products.filter((p) => p.platform === filter);
 
   return (
     <div>
