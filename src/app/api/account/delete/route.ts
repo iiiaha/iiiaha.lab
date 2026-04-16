@@ -31,7 +31,20 @@ export async function POST() {
     );
   }
 
-  // 유저 삭제 (auth.users에서 제거 — 관련 RLS 데이터는 CASCADE 또는 남겨둠)
+  // 1. 활성 구독 만료 처리
+  await serviceSupabase
+    .from("subscriptions")
+    .update({ status: "expired", canceled_at: new Date().toISOString() })
+    .eq("user_id", user.id)
+    .in("status", ["active", "past_due"]);
+
+  // 2. 모든 라이선스 revoke
+  await serviceSupabase
+    .from("licenses")
+    .update({ status: "revoked" })
+    .eq("user_id", user.id);
+
+  // 3. 유저 삭제 (auth.users에서 제거)
   const { error } = await serviceSupabase.auth.admin.deleteUser(user.id);
 
   if (error) {

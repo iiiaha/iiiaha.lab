@@ -27,6 +27,7 @@ export default function CartPage() {
   const [applying, setApplying] = useState(false);
   const [checkoutError, setCheckoutError] = useState("");
   const [processing, setProcessing] = useState(false);
+  const [agreed, setAgreed] = useState(false);
 
   const applyCoupon = async () => {
     if (!couponCode.trim()) return;
@@ -241,9 +242,21 @@ export default function CartPage() {
           <span>{formatPrice(finalTotal)}</span>
         </div>
 
+        <label className="flex items-start gap-2 mb-4 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={agreed}
+            onChange={(e) => setAgreed(e.target.checked)}
+            className="mt-0.5 cursor-pointer"
+          />
+          <span className="text-[11px] text-[#666] leading-relaxed">
+            This extension requires <b>SketchUp 2021 or later</b>. Version incompatibility is not eligible for a refund.
+          </span>
+        </label>
+
         <button
           onClick={handleCheckout}
-          disabled={processing}
+          disabled={processing || !agreed}
           className="w-full bg-[#111] text-white text-[14px] font-bold tracking-[0.05em] py-3 border-0 cursor-pointer hover:bg-[#333] transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {processing ? "결제창을 여는 중..." : `Checkout — ${formatPrice(finalTotal)}`}

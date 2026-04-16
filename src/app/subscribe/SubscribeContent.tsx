@@ -29,6 +29,7 @@ export default function SubscribeContent({
   const [plan, setPlan] = useState<Plan>("monthly");
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState("");
+  const [agreed, setAgreed] = useState(false);
 
   const handleSubscribe = async () => {
     setError("");
@@ -198,9 +199,20 @@ export default function SubscribeContent({
               <Row label="멤버십 기간 중 업데이트 포함" dark />
             </div>
             <div className="mt-6">
+              <label className="flex items-start gap-2 mb-3 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={agreed}
+                  onChange={(e) => setAgreed(e.target.checked)}
+                  className="mt-0.5 cursor-pointer"
+                />
+                <span className="text-[10px] text-[rgba(255,255,255,0.6)] leading-relaxed">
+                  Extensions require <b>SketchUp 2021 or later</b>. Version incompatibility is not eligible for a refund.
+                </span>
+              </label>
               <button
                 onClick={handleSubscribe}
-                disabled={processing}
+                disabled={processing || !agreed}
                 className="w-full bg-white text-[#111] text-[13px] font-bold tracking-[0.05em] py-3 border-0 cursor-pointer hover:bg-[rgba(255,255,255,0.85)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {processing

@@ -212,7 +212,7 @@ module Iiiaha
             elsif result[:error]&.include?("revoked")
               # 해지됨 → 캐시 삭제, 라이선스 창 표시
               delete_cache(product_slug)
-              show_license_dialog(product_slug, &on_success)
+              show_license_dialog(product_slug, expired_msg: "Your license has expired or been revoked.\nPlease renew your membership or enter a new license key.", &on_success)
               return false
             else
               # 유예 기간 (3일)
@@ -235,7 +235,7 @@ module Iiiaha
     end
 
     # ─── 라이선스 입력 다이얼로그 ───
-    def self.show_license_dialog(product_slug, &on_success)
+    def self.show_license_dialog(product_slug, expired_msg: nil, &on_success)
       ext_dir = @_caller_dirs && @_caller_dirs[product_slug] || File.dirname(__FILE__)
       html_path = File.join(ext_dir, 'html', 'license.html')
 
@@ -276,6 +276,14 @@ module Iiiaha
 
       dlg.add_action_callback('getProductInfo') do |_ctx|
         dlg.execute_script("setProductInfo(#{display_name.to_json}, #{icon_url.to_json})")
+      end
+
+      # 만료 메시지가 있으면 다이얼로그 로드 후 표시
+      saved_expired_msg = expired_msg
+      dlg.add_action_callback('ready') do |_ctx|
+        if saved_expired_msg
+          dlg.execute_script("showExpiredMsg(#{saved_expired_msg.to_json})")
+        end
       end
 
       dlg.set_file(html_path)

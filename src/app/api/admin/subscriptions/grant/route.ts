@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { createServerSupabase } from "@/lib/supabase-server";
-import { generateLicenseKey } from "@/lib/license-utils";
 
 const serviceSupabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -94,43 +93,20 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // 모든 활성 익스텐션 fan-out
-  const { data: extensions } = await serviceSupabase
-    .from("products")
-    .select("id")
-    .eq("type", "extension")
-    .eq("is_active", true);
-
-  let granted = 0;
-  for (const ext of extensions ?? []) {
-    const { data: order } = await serviceSupabase
-      .from("orders")
-      .insert({
-        user_id,
-        product_id: ext.id,
-        amount: 0,
-        status: "paid",
-        payment_key: `admin-comp:${subscription.id}`,
-        subscription_id: subscription.id,
-      })
-      .select("id")
-      .single();
-    if (!order) continue;
-    await serviceSupabase.from("licenses").insert({
-      order_id: order.id,
-      user_id,
-      product_id: ext.id,
-      license_key: generateLicenseKey(),
-      subscription_id: subscription.id,
-    });
-    granted++;
-  }
+  // 기존 revoked 멤버십 라이선스 복구 (재수여 시)
+  const { data: revived } = await serviceSupabase
+    .from("licenses")
+    .update({ status: "active", subscription_id: subscription.id, hwid: null, activated_at: null })
+    .eq("user_id", user_id)
+    .eq("status", "revoked")
+    .not("subscription_id", "is", null)
+    .select("id");
 
   return NextResponse.json({
     status: "granted",
     subscription_id: subscription.id,
     plan,
     expires_at: expiresAt.toISOString(),
-    licenses_granted: granted,
+    licenses_revived: revived?.length ?? 0,
   });
 }

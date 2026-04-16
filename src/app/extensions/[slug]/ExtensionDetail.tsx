@@ -8,20 +8,74 @@ import { createClient } from "@/lib/supabase";
 import { useCart } from "@/lib/cart";
 import PurchaseInfo from "@/components/PurchaseInfo";
 
+type OwnershipState =
+  | "loading"
+  | "not_logged_in"
+  | "purchased"           // 영구구매
+  | "membership_owned"    // 멤버십으로 get 완료
+  | "membership_available" // 멤버십 있지만 아직 get 안 함
+  | "not_owned";          // 비회원 또는 멤버십 없음
+
 export default function ExtensionDetail({ product }: { product: Product }) {
-  const [purchased, setPurchased] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [ownership, setOwnership] = useState<OwnershipState>("loading");
   const [added, setAdded] = useState(false);
+  const [getting, setGetting] = useState(false);
   const { addItem, items } = useCart();
 
   useEffect(() => {
     const check = async () => {
       const user = await getUser();
       if (!user) {
-        setLoading(false);
+        setOwnership("not_logged_in");
         return;
       }
       const supabase = createClient();
+
+      // 영구구매 확인 (subscription_id가 null인 라이선스)
+      const { data: permLicense } = await supabase
+        .from("licenses")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("product_id", product.id)
+        .is("subscription_id", null)
+        .eq("status", "active")
+        .limit(1)
+        .maybeSingle();
+
+      if (permLicense) {
+        setOwnership("purchased");
+        return;
+      }
+
+      // 멤버십 확인
+      const { data: subscription } = await supabase
+        .from("subscriptions")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("status", "active")
+        .limit(1)
+        .maybeSingle();
+
+      if (subscription) {
+        // 멤버십으로 이미 get 했는지 확인
+        const { data: memLicense } = await supabase
+          .from("licenses")
+          .select("id, status")
+          .eq("user_id", user.id)
+          .eq("product_id", product.id)
+          .not("subscription_id", "is", null)
+          .limit(1)
+          .maybeSingle();
+
+        if (memLicense && memLicense.status === "active") {
+          setOwnership("membership_owned");
+        } else {
+          setOwnership("membership_available");
+        }
+        return;
+      }
+
+      // 구매 여부 확인 (기존 orders 기반 — 하위 호환)
       const { data: order } = await supabase
         .from("orders")
         .select("id")
@@ -32,12 +86,30 @@ export default function ExtensionDetail({ product }: { product: Product }) {
         .maybeSingle();
 
       if (order) {
-        setPurchased(true);
+        setOwnership("purchased");
+        return;
       }
-      setLoading(false);
+
+      setOwnership("not_owned");
     };
     check();
   }, [product.id]);
+
+  const handleGet = async () => {
+    setGetting(true);
+    try {
+      const res = await fetch("/api/membership/get", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ product_slug: product.slug }),
+      });
+      if (res.ok) {
+        setOwnership("membership_owned");
+      }
+    } finally {
+      setGetting(false);
+    }
+  };
 
   const info = [
     { label: "Version", value: product.version },
@@ -167,13 +239,13 @@ export default function ExtensionDetail({ product }: { product: Product }) {
 
       <PurchaseInfo variant="extension" />
 
-      {/* Purchase / Purchased */}
+      {/* Purchase / Get / Purchased */}
       <div className="mt-6">
-        {loading ? (
+        {ownership === "loading" ? (
           <div className="w-full py-4 text-center text-[14px] text-[#999]">
             ...
           </div>
-        ) : purchased ? (
+        ) : ownership === "purchased" ? (
           <div className="border border-[#ddd] p-5">
             <div className="flex items-center justify-between">
               <span className="text-[14px] font-bold">Purchased</span>
@@ -185,9 +257,29 @@ export default function ExtensionDetail({ product }: { product: Product }) {
               </a>
             </div>
           </div>
+        ) : ownership === "membership_owned" ? (
+          <div className="border border-[#ddd] p-5">
+            <div className="flex items-center justify-between">
+              <span className="text-[14px] font-bold">Added to Membership</span>
+              <span className="text-[12px] text-[#999]">Available in My Page</span>
+            </div>
+          </div>
+        ) : ownership === "membership_available" ? (
+          <button
+            onClick={handleGet}
+            disabled={getting}
+            className="w-full bg-[#111] text-white border-0 cursor-pointer py-4 hover:bg-[#333] transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <div className="text-[11px] font-normal text-[rgba(255,255,255,0.65)] mb-1">
+              Membership
+            </div>
+            <div className="text-[14px] font-bold tracking-[0.05em]">
+              {getting ? "Adding..." : "Get — Included in your membership"}
+            </div>
+          </button>
         ) : (
           <div className="flex flex-col gap-3">
-            {/* 개별 구매 버튼 (캡션 인라인) */}
+            {/* 개별 구매 버튼 */}
             {items.some((i) => i.id === product.id) || added ? (
               <Link
                 href="/cart"
@@ -234,7 +326,7 @@ export default function ExtensionDetail({ product }: { product: Product }) {
               <div className="flex-1 border-t border-[#ddd]" />
             </div>
 
-            {/* 구독 CTA (캡션 인라인) */}
+            {/* 구독 CTA */}
             <Link
               href="/subscribe"
               className="sub-cta group block no-underline overflow-hidden relative"

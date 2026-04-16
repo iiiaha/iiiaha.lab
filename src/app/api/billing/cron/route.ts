@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { generateLicenseKey } from "@/lib/license-utils";
+import { Resend } from "resend";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const serviceSupabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -127,11 +129,31 @@ export async function GET(req: NextRequest) {
 
     if (!chargeRes.ok) {
       const err = await chargeRes.json().catch(() => ({}));
-      // 실패: past_due로 마킹 (추후 재시도 또는 수동 해결)
+      // 실패: past_due로 마킹
       await serviceSupabase
         .from("subscriptions")
         .update({ status: "past_due" })
         .eq("id", sub.id);
+
+      // 결제 실패 이메일 알림
+      try {
+        const { data: authUser } =
+          await serviceSupabase.auth.admin.getUserById(sub.user_id);
+        if (authUser?.user?.email) {
+          await resend.emails.send({
+            from: "iiiaha.lab <noreply@iiiahalab.com>",
+            to: authUser.user.email,
+            subject: "Payment failed — iiiaha.lab membership",
+            html: `<p>Hi,</p>
+<p>We were unable to process your membership renewal payment.</p>
+<p>Please update your payment method at <a href="https://iiiahalab.com/mypage">your account page</a> to continue using your extensions.</p>
+<p>— iiiaha.lab</p>`,
+          });
+        }
+      } catch {
+        // 이메일 발송 실패는 cron 전체를 중단시키지 않음
+      }
+
       results.push({
         id: sub.id,
         result: "failed",
@@ -154,47 +176,28 @@ export async function GET(req: NextRequest) {
       })
       .eq("id", sub.id);
 
-    // 신규 출시된 익스텐션이 있으면 자동 fan-out
-    const { data: allExtensions } = await serviceSupabase
-      .from("products")
-      .select("id")
-      .eq("type", "extension")
-      .eq("is_active", true);
+    results.push({ id: sub.id, result: "charged" });
+  }
 
-    const { data: existingOrders } = await serviceSupabase
-      .from("orders")
-      .select("product_id")
+  // past_due 구독 중 만료일이 지난 것 → expired + 라이선스 revoke
+  const { data: pastDueSubs } = await serviceSupabase
+    .from("subscriptions")
+    .select("id")
+    .eq("status", "past_due")
+    .lte("expires_at", now.toISOString());
+
+  for (const sub of pastDueSubs ?? []) {
+    await serviceSupabase
+      .from("subscriptions")
+      .update({ status: "expired" })
+      .eq("id", sub.id);
+
+    await serviceSupabase
+      .from("licenses")
+      .update({ status: "revoked" })
       .eq("subscription_id", sub.id);
 
-    const existingSet = new Set(
-      (existingOrders ?? []).map((o) => o.product_id)
-    );
-
-    for (const ext of allExtensions ?? []) {
-      if (existingSet.has(ext.id)) continue;
-      const { data: order } = await serviceSupabase
-        .from("orders")
-        .insert({
-          user_id: sub.user_id,
-          product_id: ext.id,
-          amount: 0,
-          status: "paid",
-          payment_key: `subscription:${sub.id}`,
-          subscription_id: sub.id,
-        })
-        .select("id")
-        .single();
-      if (!order) continue;
-      await serviceSupabase.from("licenses").insert({
-        order_id: order.id,
-        user_id: sub.user_id,
-        product_id: ext.id,
-        license_key: generateLicenseKey(),
-        subscription_id: sub.id,
-      });
-    }
-
-    results.push({ id: sub.id, result: "charged" });
+    results.push({ id: sub.id, result: "expired", detail: "past_due expired" });
   }
 
   return NextResponse.json({ processed: results.length, results });

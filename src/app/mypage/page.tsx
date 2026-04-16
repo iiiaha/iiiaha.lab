@@ -108,12 +108,12 @@ export default function MyPage() {
       setEmail(user.email ?? "");
       const supabase = createClient();
 
-      // 구독 조회
+      // 구독 조회 (active, past_due, expired 모두)
       const { data: subData } = await supabase
         .from("subscriptions")
         .select("*")
         .eq("user_id", user.id)
-        .eq("status", "active")
+        .in("status", ["active", "past_due", "expired"])
         .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle();
@@ -292,43 +292,68 @@ export default function MyPage() {
           <h2 className="text-[12px] font-bold text-[#999] tracking-[0.05em] uppercase mb-4">
             Membership
           </h2>
-          <div
-            className="sub-cta relative overflow-hidden rounded-sm p-5 mb-2"
-          >
-            <div className="sub-cta-bg absolute inset-0" />
-            <div className="sub-cta-aurora absolute inset-0" />
-            <div className="relative flex items-center justify-between">
-              <div>
+          {subscription.status === "expired" || subscription.status === "past_due" ? (
+            /* 만료/결제실패 → 재구독 배너 */
+            <Link
+              href="/subscribe"
+              className="sub-cta group block no-underline overflow-hidden relative rounded-sm mb-2"
+            >
+              <div className="sub-cta-bg absolute inset-0 opacity-40" />
+              <div className="relative p-5">
                 <p className="text-[14px] font-bold text-white mb-1">
-                  SketchUp Membership — {subscription.plan === "annual" ? "Annual" : "Monthly"}
+                  SketchUp Membership — Expired
                 </p>
-                <p className="text-[12px] text-[rgba(255,255,255,0.6)]">
-                  {new Date(subscription.started_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })}
-                  {" — "}
-                  {new Date(subscription.expires_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })}
+                <p className="text-[12px] text-[rgba(255,255,255,0.6)] mb-3">
+                  Your membership expired on {new Date(subscription.expires_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })}.
+                  {subscription.status === "past_due" && " (Payment failed)"}
                 </p>
+                <span className="text-[12px] font-bold text-white border border-white px-4 py-1.5 hover:bg-white hover:text-[#111] transition-colors">
+                  Renew Membership
+                </span>
               </div>
-              <span className="text-[11px] font-bold tracking-[0.05em] text-white border border-[rgba(255,255,255,0.3)] px-3 py-1">
-                {subscription.cancel_at_period_end ? "Canceling" : "Active"}
-              </span>
-            </div>
-          </div>
-          {subscription.cancel_at_period_end ? (
-            <p className="text-[11px] text-[#999]">
-              멤버십이 해지되었습니다. {new Date(subscription.expires_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })}까지 계속 이용하실 수 있으며, 이후 자동으로 만료됩니다.
-            </p>
+            </Link>
           ) : (
-            <div className="flex items-center justify-between">
-              <p className="text-[11px] text-[#999]">
-                멤버십 기간 동안 모든 스케치업 익스텐션을 이용하실 수 있습니다.
-              </p>
-              <button
-                onClick={handleCancelSubscription}
-                className="text-[11px] text-[#999] bg-transparent border-0 cursor-pointer hover:text-red-600"
+            /* 활성 멤버십 */
+            <>
+              <div
+                className="sub-cta relative overflow-hidden rounded-sm p-5 mb-2"
               >
-                멤버십 해지
-              </button>
-            </div>
+                <div className="sub-cta-bg absolute inset-0" />
+                <div className="sub-cta-aurora absolute inset-0" />
+                <div className="relative flex items-center justify-between">
+                  <div>
+                    <p className="text-[14px] font-bold text-white mb-1">
+                      SketchUp Membership — {subscription.plan === "annual" ? "Annual" : "Monthly"}
+                    </p>
+                    <p className="text-[12px] text-[rgba(255,255,255,0.6)]">
+                      {new Date(subscription.started_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })}
+                      {" — "}
+                      {new Date(subscription.expires_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })}
+                    </p>
+                  </div>
+                  <span className="text-[11px] font-bold tracking-[0.05em] text-white border border-[rgba(255,255,255,0.3)] px-3 py-1">
+                    {subscription.cancel_at_period_end ? "Canceling" : "Active"}
+                  </span>
+                </div>
+              </div>
+              {subscription.cancel_at_period_end ? (
+                <p className="text-[11px] text-[#999]">
+                  멤버십이 해지되었습니다. {new Date(subscription.expires_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })}까지 계속 이용하실 수 있으며, 이후 자동으로 만료됩니다.
+                </p>
+              ) : (
+                <div className="flex items-center justify-between">
+                  <p className="text-[11px] text-[#999]">
+                    멤버십 기간 동안 모든 스케치업 익스텐션을 이용하실 수 있습니다.
+                  </p>
+                  <button
+                    onClick={handleCancelSubscription}
+                    className="text-[11px] text-[#999] bg-transparent border-0 cursor-pointer hover:text-red-600"
+                  >
+                    멤버십 해지
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
       )}

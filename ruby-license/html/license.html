@@ -123,13 +123,26 @@
   }
   .result.success { color: #27ae60; }
   .result.error { color: #e74c3c; }
+  .expired-msg {
+    display: none;
+    background: #fff3cd;
+    border: 1px solid #e0c36a;
+    border-radius: 2px;
+    padding: 6px;
+    margin-bottom: 4px;
+    font-size: 10px;
+    color: #856404;
+    line-height: 1.4;
+    white-space: pre-line;
+  }
 </style>
 </head>
 <body>
   <div class="header">
     <h3>License activation</h3>
-    <span class="credit">by <a href="#" onclick="sketchup.callback('openLink','https://iiiahalab.com');return false;">iiiaha.lab</a></span>
+    <span class="credit">by <a href="#" onclick="sketchup.openLink('https://iiiahalab.com');return false;">iiiaha.lab</a></span>
   </div>
+  <div class="expired-msg" id="expired-msg"></div>
   <div class="product-info" id="product-info">
     <img id="product-icon" src="" style="display:none;" />
     <span class="name" id="product-name"></span>
@@ -139,7 +152,7 @@
     <input type="text" id="key" placeholder="XXXX-XXXX-XXXX-XXXX" spellcheck="false">
   </div>
   <div class="action-bar">
-    <button class="btn-site" onclick="sketchup.callback('openLink','https://iiiahalab.com')">Visit iiiaha.lab</button>
+    <button class="btn-site" onclick="sketchup.openLink('https://iiiahalab.com')">Visit iiiaha.lab</button>
     <button class="btn-activate" id="btn" onclick="doActivate()">Activate</button>
   </div>
   <div class="result" id="result"></div>
@@ -152,9 +165,10 @@
     }
     fitDialog();
 
-    // 페이지 로드 후 Ruby에 제품 정보 요청
+    // 페이지 로드 후 Ruby에 제품 정보 요청 + ready 신호
     window.addEventListener('load', function() {
       sketchup.getProductInfo();
+      sketchup.ready();
     });
 
     function setProductInfo(name, iconPath) {
@@ -174,6 +188,13 @@
       document.getElementById('result').className = 'result';
       document.getElementById('result').textContent = '...';
       sketchup.activate(key);
+    }
+
+    function showExpiredMsg(msg) {
+      var el = document.getElementById('expired-msg');
+      el.textContent = msg;
+      el.style.display = 'block';
+      fitDialog();
     }
 
     function showResult(msg, success) {
