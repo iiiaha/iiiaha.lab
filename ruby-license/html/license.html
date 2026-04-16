@@ -128,7 +128,7 @@
 <body>
   <div class="header">
     <h3>License activation</h3>
-    <span class="credit">by <a href="#" onclick="sketchup.openLink('https://iiiahalab.com');return false;">iiiaha.lab</a></span>
+    <span class="credit">by <a href="#" onclick="sketchup.callback('openLink','https://iiiahalab.com');return false;">iiiaha.lab</a></span>
   </div>
   <div class="product-info" id="product-info">
     <img id="product-icon" src="" style="display:none;" />
@@ -139,7 +139,7 @@
     <input type="text" id="key" placeholder="XXXX-XXXX-XXXX-XXXX" spellcheck="false">
   </div>
   <div class="action-bar">
-    <button class="btn-site" onclick="sketchup.openLink('https://iiiahalab.com')">Visit iiiaha.lab</button>
+    <button class="btn-site" onclick="sketchup.callback('openLink','https://iiiahalab.com')">Visit iiiaha.lab</button>
     <button class="btn-activate" id="btn" onclick="doActivate()">Activate</button>
   </div>
   <div class="result" id="result"></div>

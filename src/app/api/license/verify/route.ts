@@ -51,6 +51,44 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // 구독 라이선스인 경우 구독 상태 확인
+  if (license.subscription_id) {
+    const { data: subscription } = await supabase
+      .from("subscriptions")
+      .select("status, expires_at")
+      .eq("id", license.subscription_id)
+      .single();
+
+    if (!subscription || subscription.status === "expired") {
+      // 구독 만료 → 라이선스도 revoke 처리
+      await supabase
+        .from("licenses")
+        .update({ status: "revoked" })
+        .eq("id", license.id);
+
+      return NextResponse.json(
+        { error: "License has been revoked" },
+        { status: 403 }
+      );
+    }
+
+    // past_due 상태에서 만료일도 지난 경우
+    if (
+      subscription.status === "past_due" &&
+      new Date(subscription.expires_at) < new Date()
+    ) {
+      await supabase
+        .from("licenses")
+        .update({ status: "revoked" })
+        .eq("id", license.id);
+
+      return NextResponse.json(
+        { error: "License has been revoked" },
+        { status: 403 }
+      );
+    }
+  }
+
   const tokenData = {
     license_key,
     product_slug,

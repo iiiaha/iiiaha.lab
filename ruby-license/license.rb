@@ -256,7 +256,7 @@ module Iiiaha
             on_success.call if on_success
           end
         else
-          dlg.execute_script("showResult('#{result[:error].gsub("'", "\\\\'")}', false)")
+          dlg.execute_script("showResult(#{result[:error].to_json}, false)")
         end
       end
 
@@ -275,8 +275,7 @@ module Iiiaha
       display_name = product_slug
 
       dlg.add_action_callback('getProductInfo') do |_ctx|
-        js = "setProductInfo('#{display_name}', '#{icon_url}')"
-        dlg.execute_script(js)
+        dlg.execute_script("setProductInfo(#{display_name.to_json}, #{icon_url.to_json})")
       end
 
       dlg.set_file(html_path)

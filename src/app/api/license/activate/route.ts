@@ -47,6 +47,42 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // 구독 라이선스인 경우 구독 상태 확인
+  if (license.subscription_id) {
+    const { data: subscription } = await supabase
+      .from("subscriptions")
+      .select("status, expires_at")
+      .eq("id", license.subscription_id)
+      .single();
+
+    if (!subscription || subscription.status === "expired") {
+      await supabase
+        .from("licenses")
+        .update({ status: "revoked" })
+        .eq("id", license.id);
+
+      return NextResponse.json(
+        { error: "License has been revoked" },
+        { status: 403 }
+      );
+    }
+
+    if (
+      subscription.status === "past_due" &&
+      new Date(subscription.expires_at) < new Date()
+    ) {
+      await supabase
+        .from("licenses")
+        .update({ status: "revoked" })
+        .eq("id", license.id);
+
+      return NextResponse.json(
+        { error: "License has been revoked" },
+        { status: 403 }
+      );
+    }
+  }
+
   // 아직 활성화 안 됨 → 바인딩
   if (!license.hwid) {
     await supabase

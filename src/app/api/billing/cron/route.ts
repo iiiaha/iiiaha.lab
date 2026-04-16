@@ -77,6 +77,13 @@ export async function GET(req: NextRequest) {
         .from("subscriptions")
         .update({ status: "expired" })
         .eq("id", sub.id);
+
+      // 구독 라이선스 일괄 revoke
+      await serviceSupabase
+        .from("licenses")
+        .update({ status: "revoked" })
+        .eq("subscription_id", sub.id);
+
       results.push({ id: sub.id, result: "expired" });
       continue;
     }
@@ -87,6 +94,13 @@ export async function GET(req: NextRequest) {
         .from("subscriptions")
         .update({ status: "expired" })
         .eq("id", sub.id);
+
+      // 구독 라이선스 일괄 revoke
+      await serviceSupabase
+        .from("licenses")
+        .update({ status: "revoked" })
+        .eq("subscription_id", sub.id);
+
       results.push({ id: sub.id, result: "expired", detail: "comp subscription" });
       continue;
     }
