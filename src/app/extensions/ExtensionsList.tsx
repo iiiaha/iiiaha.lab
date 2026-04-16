@@ -52,7 +52,7 @@ export default function ExtensionsList({
             </div>
             <p className="text-[13px] text-[rgba(255,255,255,0.85)] leading-[1.6]">
               서비스 초기 안정화 기간 동안{" "}
-              <strong className="text-white">모든 익스텐션을 20% 할인된 가격으로 배포</strong>합니다.
+              <strong className="text-white">모든 익스텐션을 20% 인하된 가격으로 배포</strong>합니다.
               <br />
               사용 중 발생되는 버그에 대하여{" "}
               <a
