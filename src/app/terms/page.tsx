@@ -104,6 +104,13 @@ export default function TermsPage() {
               불가능한 경우, 활성화 여부와 무관하게 환불 또는 교체가
               가능합니다.
             </li>
+            <li>
+              <strong>버전 호환성</strong>: 본 서비스의 모든 스케치업 익스텐션은
+              <strong>SketchUp 2021 이상</strong>에서만 동작하며, 이는
+              결제 과정에서 이용자에게 고지됩니다. 이용자의 스케치업 버전이
+              요구 사양에 미달하여 익스텐션을 사용할 수 없는 경우, 이는
+              환불 사유에 해당하지 않습니다.
+            </li>
           </ul>
           <p className="mt-3">
             환불을 원하시는 경우 contact@iiiahalab.com으로 주문번호와 함께

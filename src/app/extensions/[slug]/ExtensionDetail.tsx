@@ -6,7 +6,6 @@ import { Product, formatPrice } from "@/lib/types";
 import { getUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase";
 import { useCart } from "@/lib/cart";
-import PurchaseInfo from "@/components/PurchaseInfo";
 
 type OwnershipState =
   | "loading"
@@ -173,7 +172,7 @@ export default function ExtensionDetail({ product }: { product: Product }) {
         {/* Description */}
         {product.description && (
           <div className="pt-1.5 pb-4">
-            <div className="flex mb-3">
+            <div className="flex mb-10">
               <span className="w-[140px] shrink-0 text-[13px] text-[#666]">
                 Description
               </span>
@@ -184,18 +183,18 @@ export default function ExtensionDetail({ product }: { product: Product }) {
                 if (match) {
                   return (
                     <div key={i} className="flex gap-2">
-                      <span className="text-[13px] text-[#999] mt-px">•</span>
+                      <span className="text-[13px] text-[#ccc] mt-px">•</span>
                       <div>
-                        <p className="text-[13px] font-bold mb-0.5">
+                        <p className="text-[13px] font-bold text-[#666] mb-0.5">
                           {match[1]}
                         </p>
-                        <p className="text-[13px] text-[#666]">{match[2]}</p>
+                        <p className="text-[12px] text-[#999]">{match[2]}</p>
                       </div>
                     </div>
                   );
                 }
                 return line.trim() ? (
-                  <p key={i} className="text-[13px]">
+                  <p key={i} className="text-[13px] text-[#666]">
                     {line}
                   </p>
                 ) : null;
@@ -237,7 +236,31 @@ export default function ExtensionDetail({ product }: { product: Product }) {
         )}
       </div>
 
-      <PurchaseInfo variant="extension" />
+      {/* Purchase Info — 박스로 묶기 */}
+      <div className="border border-[#ddd] rounded mt-8 p-5">
+        <h2 className="text-[13px] font-bold tracking-[0.03em] mb-4">
+          Purchase Info
+        </h2>
+        <div className="flex flex-col gap-0">
+          {[
+            ["제공 형태", "디지털 다운로드 (.rbz 파일)"],
+            ["사용 기간", "영구 사용권"],
+            ["업데이트", "지속 무상 제공"],
+            ["기기", "1대 바인딩 · 기기 변경은 지원 문의"],
+            ["환불", ".rbz 다운로드 전, 구매 후 7일 이내 마이페이지에서 자가 환불"],
+          ].map(([label, value]) => (
+            <div key={label} className="flex py-1.5 border-b border-[#eee] last:border-0">
+              <span className="w-[100px] shrink-0 text-[12px] text-[#999]">{label}</span>
+              <span className="text-[12px] text-[#444]">{value}</span>
+            </div>
+          ))}
+        </div>
+        <p className="text-[10px] text-[#bbb] leading-[1.6] mt-3">
+          디지털 콘텐츠 특성상 활성화·시청 이후에는 「전자상거래 등에서의
+          소비자보호에 관한 법률」 제17조 제2항 제5호에 따라 청약철회가 제한될
+          수 있습니다.
+        </p>
+      </div>
 
       {/* Purchase / Get / Purchased */}
       <div className="mt-6">
@@ -246,19 +269,19 @@ export default function ExtensionDetail({ product }: { product: Product }) {
             ...
           </div>
         ) : ownership === "purchased" ? (
-          <div className="border border-[#ddd] p-5">
+          <div className="border border-[#ddd] rounded p-5">
             <div className="flex items-center justify-between">
               <span className="text-[14px] font-bold">Purchased</span>
               <a
                 href={`/api/download/${product.slug}`}
-                className="text-[12px] text-[#111] border border-[#111] px-4 py-1.5 no-underline hover:bg-[#111] hover:text-white transition-colors"
+                className="text-[12px] text-[#111] border border-[#111] px-4 py-1.5 rounded no-underline hover:bg-[#111] hover:text-white transition-colors"
               >
                 Download .rbz
               </a>
             </div>
           </div>
         ) : ownership === "membership_owned" ? (
-          <div className="border border-[#ddd] p-5">
+          <div className="border border-[#ddd] rounded p-5">
             <div className="flex items-center justify-between">
               <span className="text-[14px] font-bold">Added to Membership</span>
               <span className="text-[12px] text-[#999]">Available in My Page</span>
@@ -268,91 +291,76 @@ export default function ExtensionDetail({ product }: { product: Product }) {
           <button
             onClick={handleGet}
             disabled={getting}
-            className="w-full bg-[#111] text-white border-0 cursor-pointer py-4 hover:bg-[#333] transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-[#111] text-white border-0 cursor-pointer py-3 rounded hover:bg-[#333] active:bg-[#000] transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <div className="text-[11px] font-normal text-[rgba(255,255,255,0.65)] mb-1">
-              Membership
-            </div>
-            <div className="text-[14px] font-bold tracking-[0.05em]">
+            <span className="text-[13px] font-bold tracking-[0.03em]">
               {getting ? "Adding..." : "Get — Included in your membership"}
-            </div>
+            </span>
           </button>
         ) : (
-          <div className="flex flex-col gap-3">
-            {/* 개별 구매 버튼 */}
-            {items.some((i) => i.id === product.id) || added ? (
-              <Link
-                href="/cart"
-                className="w-full block bg-[#111] text-white text-center border-0 no-underline py-4 hover:bg-[#333] transition-colors duration-200"
-              >
-                <div className="text-[11px] font-normal text-[rgba(255,255,255,0.65)] mb-1">
-                  이 익스텐션 영구 소장하기
-                </div>
-                <div className="text-[14px] font-bold tracking-[0.05em]">
-                  Go to Cart
-                </div>
-              </Link>
-            ) : (
-              <button
-                onClick={() => {
-                  addItem({
-                    id: product.id,
-                    slug: product.slug,
-                    name: product.name,
-                    price: product.price,
-                    original_price: product.original_price,
-                    discount_percent: product.discount_percent,
-                    thumbnail_url: product.thumbnail_url,
-                  });
-                  setAdded(true);
-                }}
-                className="w-full bg-[#111] text-white border-0 cursor-pointer py-4 hover:bg-[#333] transition-colors duration-200"
-              >
-                <div className="text-[11px] font-normal text-[rgba(255,255,255,0.65)] mb-1">
-                  이 익스텐션 영구 소장하기
-                </div>
-                <div className="text-[14px] font-bold tracking-[0.05em]">
-                  Add to Cart &mdash; {formatPrice(product.price)}
-                </div>
-              </button>
-            )}
-
-            {/* OR 구분선 */}
-            <div className="flex items-center gap-3 my-1">
-              <div className="flex-1 border-t border-[#ddd]" />
-              <span className="text-[10px] text-[#999] tracking-[0.15em] font-bold uppercase">
-                or
-              </span>
-              <div className="flex-1 border-t border-[#ddd]" />
+          <div className="flex gap-3">
+            {/* 개별 구매 */}
+            <div className="flex-1 flex flex-col gap-2">
+              <span className="text-[11px] text-[#999]">이 익스텐션 영구 소장하기</span>
+              {items.some((i) => i.id === product.id) || added ? (
+                <Link
+                  href="/cart"
+                  className="flex-1 flex flex-col items-center justify-center bg-[#111] text-white text-center no-underline py-3 rounded hover:bg-[#333] active:bg-[#000] transition-colors duration-150"
+                >
+                  <span className="text-[13px] font-bold tracking-[0.03em]">Go to Cart</span>
+                </Link>
+              ) : (
+                <button
+                  onClick={() => {
+                    addItem({
+                      id: product.id,
+                      slug: product.slug,
+                      name: product.name,
+                      price: product.price,
+                      original_price: product.original_price,
+                      discount_percent: product.discount_percent,
+                      thumbnail_url: product.thumbnail_url,
+                    });
+                    setAdded(true);
+                  }}
+                  className="flex-1 flex flex-col items-center justify-center bg-[#111] text-white border-0 cursor-pointer py-3 rounded hover:bg-[#333] active:bg-[#000] transition-colors duration-150"
+                >
+                  <span className="text-[13px] font-bold tracking-[0.03em]">Add to Cart</span>
+                  <span className="text-[10px] text-[rgba(255,255,255,0.5)] mt-0.5">이 익스텐션에 대한 영구 라이선스 획득</span>
+                  {(product.discount_percent ?? 0) > 0 && product.original_price ? (
+                    <div className="flex items-baseline gap-1 mt-1">
+                      <span className="text-[10px] text-[rgba(255,255,255,0.35)] line-through">{formatPrice(product.original_price)}</span>
+                      <span className="text-[12px] font-bold text-white">{formatPrice(product.price)}</span>
+                    </div>
+                  ) : (
+                    <span className="text-[12px] font-bold text-white mt-1">{formatPrice(product.price)}</span>
+                  )}
+                  {(product.discount_percent ?? 0) > 0 && (
+                    <span className="text-[9px] text-[rgba(255,255,255,0.4)] mt-0.5">디버깅 기간 내 가격 인하 · ~ 2026.07.31</span>
+                  )}
+                </button>
+              )}
             </div>
 
-            {/* 구독 CTA */}
-            <Link
-              href="/subscribe"
-              className="sub-cta group block no-underline overflow-hidden relative"
-            >
-              <div className="sub-cta-bg absolute inset-0" />
-              <div className="sub-cta-aurora absolute inset-0" />
-              <div className="text-center px-5 py-4 relative">
-                <p className="text-[11px] font-bold tracking-[0.1em] uppercase text-white mb-1">
-                  SketchUp Membership
-                </p>
-                <div className="text-[11px] font-normal text-[rgba(255,255,255,0.65)] mb-1">
-                  모든 스케치업 익스텐션을 자유롭게 사용
+            {/* 멤버십 */}
+            <div className="flex-1 flex flex-col gap-2">
+              <span className="text-[11px] text-[#999]">스케치업 멤버십 가입하기</span>
+              <Link
+                href="/subscribe"
+                className="sub-cta flex-1 flex flex-col items-center justify-center no-underline overflow-hidden relative py-3 rounded"
+              >
+                <div className="sub-cta-bg absolute inset-0" />
+                <div className="sub-cta-aurora absolute inset-0" />
+                <span className="relative text-[13px] font-bold text-white tracking-[0.03em]">SketchUp Membership</span>
+                <span className="relative text-[10px] text-[rgba(255,255,255,0.5)] mt-0.5">모든 익스텐션 자유롭게 이용</span>
+                <div className="relative flex items-baseline gap-1 mt-1">
+                  <span className="text-[10px] text-[rgba(255,255,255,0.35)] line-through">₩29,000</span>
+                  <span className="text-[12px] font-bold text-white">₩24,900</span>
+                  <span className="text-[10px] text-[rgba(255,255,255,0.45)]">/mo</span>
                 </div>
-                <div className="flex items-baseline justify-center gap-2">
-                  <span className="text-[12px] text-[rgba(255,255,255,0.4)] line-through">
-                    ₩29,000
-                  </span>
-                  <p className="text-[17px] font-bold text-white tracking-wide">
-                    ₩24,900<span className="text-[12px] font-normal text-[rgba(255,255,255,0.5)]"> /month</span>
-                  </p>
-                </div>
-                <p className="text-[10px] text-[rgba(255,255,255,0.5)] mt-1">
-                  디버깅 기간 내 특가 · ~ 2026.07.31
-                </p>
-              </div>
-            </Link>
+                <span className="relative text-[9px] text-[rgba(255,255,255,0.4)] mt-0.5">디버깅 기간 내 가격 인하 · ~ 2026.07.31</span>
+              </Link>
+            </div>
           </div>
         )}
       </div>
