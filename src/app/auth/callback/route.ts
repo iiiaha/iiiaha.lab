@@ -51,5 +51,6 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  return NextResponse.redirect(new URL("/mypage", req.url));
+  const next = searchParams.get("next") || "/mypage";
+  return NextResponse.redirect(new URL(next, req.url));
 }

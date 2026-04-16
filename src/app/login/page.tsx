@@ -55,7 +55,12 @@ function LoginInner() {
           {loading ? "..." : "Login"}
         </button>
       </form>
-      <p className="text-[13px] text-[#999] mt-6">
+      <p className="text-[13px] text-[#999] mt-4">
+        <a href="/forgot-password" className="text-[#999] underline hover:text-[#111] transition-colors">
+          비밀번호를 잊으셨나요?
+        </a>
+      </p>
+      <p className="text-[13px] text-[#999] mt-2">
         {"Don't have an account? "}
         <a href="/signup" className="text-[#111] underline">
           Sign up
