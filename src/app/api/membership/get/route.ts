@@ -106,10 +106,31 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // 5. 새 라이선스 발급
+  // 5. 주문 생성 + 라이선스 발급
+  const { data: order, error: orderErr } = await serviceSupabase
+    .from("orders")
+    .insert({
+      user_id: user.id,
+      product_id: product.id,
+      amount: 0,
+      status: "paid",
+      payment_key: `membership:${subscription.id}`,
+      subscription_id: subscription.id,
+    })
+    .select("id")
+    .single();
+
+  if (orderErr || !order) {
+    return NextResponse.json(
+      { error: "Failed to create order" },
+      { status: 500 }
+    );
+  }
+
   const { error: insertErr } = await serviceSupabase
     .from("licenses")
     .insert({
+      order_id: order.id,
       user_id: user.id,
       product_id: product.id,
       license_key: generateLicenseKey(),
