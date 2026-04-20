@@ -46,16 +46,18 @@ export default function AdminProducts() {
   const [newProduct, setNewProduct] = useState<Partial<Product>>(EMPTY_PRODUCT);
   const [message, setMessage] = useState("");
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
-  const [platformTab, setPlatformTab] = useState<"all" | "sketchup" | "autocad" | "course">("all");
+  const [platformTab, setPlatformTab] = useState<"sketchup" | "autocad" | "windows">("sketchup");
   const [dragIdx, setDragIdx] = useState<number | null>(null);
   const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [uploadingInstaller, setUploadingInstaller] = useState(false);
+  const busy = uploading || uploadingInstaller;
 
-  const filteredProducts = useMemo(() => {
-    if (platformTab === "all") return products;
-    if (platformTab === "course") return products.filter(p => p.type === "course");
-    return products.filter(p => p.platform === platformTab);
-  }, [products, platformTab]);
+  const extensionProducts = useMemo(() => products.filter(p => p.type === "extension"), [products]);
+  const filteredProducts = useMemo(
+    () => extensionProducts.filter(p => p.platform === platformTab),
+    [extensionProducts, platformTab]
+  );
 
   const load = async () => {
     const { data } = await supabase
@@ -138,6 +140,7 @@ export default function AdminProducts() {
       description: e.description ?? "",
       description_ko: e.description_ko ?? null,
       thumbnail_url: e.thumbnail_url ?? null,
+      file_key: e.file_key ?? null,
       sort_order: e.sort_order ?? 0,
     };
     const { error } = await supabase.from("products").update(payload).eq("id", editing);
@@ -154,9 +157,7 @@ export default function AdminProducts() {
   // Add
   const saveNew = async () => {
     const maxOrder = products.reduce((max, p) => Math.max(max, p.sort_order ?? 0), -1);
-    const type = platformTab === "course" ? "course" : "extension";
-    const platform = platformTab === "course" ? null : (platformTab === "all" ? "sketchup" : platformTab);
-    const { error } = await supabase.from("products").insert([{ ...newProduct, sort_order: maxOrder + 1, type, platform }]);
+    const { error } = await supabase.from("products").insert([{ ...newProduct, sort_order: maxOrder + 1, type: "extension", platform: platformTab }]);
     if (error) { showMessage(`Error: ${error.message}`); return; }
     setAdding(false);
     setNewProduct(EMPTY_PRODUCT);
@@ -194,6 +195,36 @@ export default function AdminProducts() {
       showMessage("Uploaded — Save 눌러야 DB 반영됨");
     } finally {
       setUploading(false);
+    }
+  };
+
+  // Installer upload — sketchup: rbz/{slug}.rbz, others: installers/{slug}.{ext}
+  const uploadInstaller = async (file: File, slug: string, platform: string | null | undefined) => {
+    if (!slug) { showMessage("Upload error: slug 없음"); return; }
+    const ext = (file.name.split(".").pop() || "").toLowerCase();
+    if (platform === "sketchup" && ext !== "rbz") {
+      showMessage("SketchUp 설치파일은 .rbz만 허용");
+      return;
+    }
+    setUploadingInstaller(true);
+    try {
+      const folder = platform === "sketchup" ? "rbz" : "installers";
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("slug", slug);
+      fd.append("folder", folder);
+      const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
+      const json = await res.json();
+      if (!res.ok) {
+        console.error("[admin/products] installer upload error", json);
+        showMessage(`Upload error: ${json.error ?? res.status}`);
+        return;
+      }
+      const fileKey = `${folder}/${slug}.${ext}`;
+      setEditData((prev) => ({ ...prev, file_key: fileKey }));
+      showMessage(`Installer uploaded — Save 눌러야 DB 반영됨`);
+    } finally {
+      setUploadingInstaller(false);
     }
   };
 
@@ -264,14 +295,37 @@ export default function AdminProducts() {
         <div><label className="text-[10px] text-[#999] uppercase block mb-0.5">Desc (KR)</label><textarea value={editData.description_ko ?? ""} onChange={(e) => setEditData({...editData, description_ko: e.target.value})} rows={4} className="w-full border border-[#ddd] px-2 py-1 text-[12px] outline-none focus:border-[#111] resize-y font-[inherit]" /></div>
         <div><label className="text-[10px] text-[#999] uppercase block mb-0.5">Thumbnail URL</label><input value={editData.thumbnail_url ?? ""} onChange={(e) => setEditData({...editData, thumbnail_url: e.target.value})} className="w-full border border-[#ddd] px-2 py-1 text-[12px] outline-none focus:border-[#111]" /></div>
         <div className="flex items-center gap-2">
-          <input type="file" accept="image/*" disabled={uploading} onChange={(e) => { const f = e.target.files?.[0]; if (f && editing && editData.slug) uploadThumbnail(f, editData.slug, "edit"); }} className="text-[11px] disabled:opacity-50" />
+          <input type="file" accept="image/*" disabled={busy} onChange={(e) => { const f = e.target.files?.[0]; if (f && editing && editData.slug) uploadThumbnail(f, editData.slug, "edit"); }} className="text-[11px] disabled:opacity-50" />
           {uploading && <span className="text-[10px] text-[#999]">업로드 중...</span>}
           {editData.thumbnail_url && !uploading && <img src={editData.thumbnail_url} alt="" className="w-6 h-6 object-contain border border-[#ddd]" />}
         </div>
 
+        {/* Installer upload */}
+        <div className="border border-[#eee] p-2.5 mt-2">
+          <p className="text-[10px] text-[#999] font-bold uppercase mb-1.5">설치파일</p>
+          <div className="flex items-center gap-2 mb-1">
+            <input
+              type="file"
+              accept={editData.platform === "sketchup" ? ".rbz" : ".exe,.msi,.zip"}
+              disabled={busy}
+              onChange={(e) => { const f = e.target.files?.[0]; if (f && editing && editData.slug) uploadInstaller(f, editData.slug, editData.platform); }}
+              className="text-[11px] disabled:opacity-50"
+            />
+            {uploadingInstaller && <span className="text-[10px] text-[#999]">업로드 중...</span>}
+          </div>
+          {editData.file_key ? (
+            <p className="text-[10px] text-[#666]">현재: <code className="text-[10px]">{editData.file_key}</code></p>
+          ) : (
+            <p className="text-[10px] text-[#ccc]">업로드된 파일 없음</p>
+          )}
+          <p className="text-[9px] text-[#ccc] mt-1">
+            {editData.platform === "sketchup" ? ".rbz만 허용. uploads/rbz/{slug}.rbz로 저장됨" : "uploads/installers/{slug}.{ext}로 저장됨 (다운로드 라우트 별도 필요)"}
+          </p>
+        </div>
+
         <div className="flex gap-2 mt-3 justify-end">
           <button onClick={() => setEditing(null)} className="text-[11px] text-[#111] px-3 py-1.5 border border-[#ddd] bg-white cursor-pointer hover:bg-[#f5f5f5]">Cancel</button>
-          <button onClick={saveEdit} disabled={uploading} className="text-[11px] text-white bg-[#111] px-3 py-1.5 border-0 cursor-pointer hover:bg-[#333] disabled:opacity-50 disabled:cursor-not-allowed">{uploading ? "업로드 중..." : "Save"}</button>
+          <button onClick={saveEdit} disabled={busy} className="text-[11px] text-white bg-[#111] px-3 py-1.5 border-0 cursor-pointer hover:bg-[#333] disabled:opacity-50 disabled:cursor-not-allowed">{busy ? "업로드 중..." : "Save"}</button>
         </div>
       </div>
     </div>
@@ -284,7 +338,7 @@ export default function AdminProducts() {
         <div>
           <h1 className="text-[22px] font-bold tracking-[-0.01em]">제품 관리</h1>
           <p className="text-[13px] text-[#999] mt-1.5">
-            익스텐션·강의 상품 등록·편집·정렬
+            익스텐션 상품 등록·편집·정렬 (강의는 강의 관리에서)
           </p>
         </div>
         <div className="flex gap-2">
@@ -306,10 +360,9 @@ export default function AdminProducts() {
       {/* Platform tabs */}
       <div className="flex gap-4 mb-0 text-[12px]">
         {([
-          { key: "all", label: "전체" },
           { key: "sketchup", label: "SketchUp" },
           { key: "autocad", label: "AutoCAD" },
-          { key: "course", label: "강의" },
+          { key: "windows", label: "Windows" },
         ] as const).map(({ key, label }) => (
           <button
             key={key}
@@ -318,7 +371,7 @@ export default function AdminProducts() {
               platformTab === key ? "font-bold text-[#111]" : "text-[#999]"
             }`}
           >
-            {label} ({key === "all" ? products.length : key === "course" ? products.filter(p => p.type === "course").length : products.filter(p => p.platform === key).length})
+            {label} ({extensionProducts.filter(p => p.platform === key).length})
           </button>
         ))}
       </div>
