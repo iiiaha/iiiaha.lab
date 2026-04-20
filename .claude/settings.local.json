@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git init:*)",
+      "Bash(git remote:*)",
+      "Bash(git fetch:*)",
+      "Bash(git reset:*)",
+      "Bash(git add:*)",
+      "Bash(git branch:*)",
+      "Bash(git commit -m ':*)",
+      "Bash(git push:*)",
+      "Bash(curl -s 'https://kgveluyjvquypyqxtjze.supabase.co/rest/v1/products?select=name,slug,type,platform,price,version,compatibility,subtitle&order=sort_order.asc' -H 'apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtndmVsdXlqdnF1eXB5cXh0anplIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTI3MjExMCwiZXhwIjoyMDkwODQ4MTEwfQ.nOIqMTtfbAax0b0vvyboMoha-44ZXQhEz1D6tCeGPmA' -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtndmVsdXlqdnF1eXB5cXh0anplIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTI3MjExMCwiZXhwIjoyMDkwODQ4MTEwfQ.nOIqMTtfbAax0b0vvyboMoha-44ZXQhEz1D6tCeGPmA')",
+      "Bash(node -e ':*)",
+      "Bash(curl -s 'https://kgveluyjvquypyqxtjze.supabase.co/rest/v1/products?select=*&limit=1&slug=eq.circuitee' -H 'apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtndmVsdXlqdnF1eXB5cXh0anplIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTI3MjExMCwiZXhwIjoyMDkwODQ4MTEwfQ.nOIqMTtfbAax0b0vvyboMoha-44ZXQhEz1D6tCeGPmA' -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtndmVsdXlqdnF1eXB5cXh0anplIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTI3MjExMCwiZXhwIjoyMDkwODQ4MTEwfQ.nOIqMTtfbAax0b0vvyboMoha-44ZXQhEz1D6tCeGPmA')"
+    ]
+  }
+}

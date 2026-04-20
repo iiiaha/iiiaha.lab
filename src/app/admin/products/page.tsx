@@ -172,21 +172,22 @@ export default function AdminProducts() {
     load();
   };
 
-  // Thumbnail upload
+  // Thumbnail upload (admin API 경유 — RLS 우회, service role 사용)
   const uploadThumbnail = async (file: File, slug: string, target: "edit" | "new") => {
     if (!slug) { showMessage("Upload error: slug 없음"); return; }
-    const ext = (file.name.split(".").pop() || "png").toLowerCase();
-    const path = `thumbnails/${slug}.${ext}`;
-    const { error } = await supabase.storage.from("uploads").upload(path, file, { upsert: true, cacheControl: "3600" });
-    if (error) {
-      console.error("[admin/products] upload error", error);
-      showMessage(`Upload error: ${error.message}`);
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("slug", slug);
+    fd.append("folder", "thumbnails");
+    const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
+    const json = await res.json();
+    if (!res.ok) {
+      console.error("[admin/products] upload error", json);
+      showMessage(`Upload error: ${json.error ?? res.status}`);
       return;
     }
-    const { data: { publicUrl } } = supabase.storage.from("uploads").getPublicUrl(path);
-    const bustedUrl = `${publicUrl}?v=${Date.now()}`;
-    if (target === "edit") setEditData((prev) => ({ ...prev, thumbnail_url: bustedUrl }));
-    else setNewProduct((prev) => ({ ...prev, thumbnail_url: bustedUrl }));
+    if (target === "edit") setEditData((prev) => ({ ...prev, thumbnail_url: json.url }));
+    else setNewProduct((prev) => ({ ...prev, thumbnail_url: json.url }));
     showMessage("Uploaded — 이제 Save 눌러야 DB 반영됨");
   };
 
