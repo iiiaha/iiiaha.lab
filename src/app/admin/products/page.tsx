@@ -117,19 +117,34 @@ export default function AdminProducts() {
 
   const saveEdit = async () => {
     if (!editing) return;
-    const { id, _discountOn, ...rest } = editData as Product & { _discountOn?: boolean };
-    // Calculate final price
-    const orig = rest.original_price ?? rest.price ?? 0;
-    const disc = _discountOn ? (rest.discount_percent ?? 0) : 0;
-    rest.original_price = orig;
-    rest.discount_percent = disc;
-    rest.price = disc > 0 ? Math.round(orig * (1 - disc / 100)) : orig;
-    if (!_discountOn) {
-      rest.discount_start = null as unknown as undefined;
-      rest.discount_end = null as unknown as undefined;
+    const e = editData as Product & { _discountOn?: boolean };
+    const orig = e.original_price ?? e.price ?? 0;
+    const disc = e._discountOn ? (e.discount_percent ?? 0) : 0;
+    const payload = {
+      slug: e.slug,
+      name: e.name,
+      subtitle: e.subtitle ?? null,
+      badge: e.badge ?? null,
+      type: e.type,
+      platform: e.platform ?? null,
+      price: disc > 0 ? Math.round(orig * (1 - disc / 100)) : orig,
+      original_price: orig,
+      discount_percent: disc,
+      discount_start: e._discountOn ? (e.discount_start ?? null) : null,
+      discount_end: e._discountOn ? (e.discount_end ?? null) : null,
+      version: e.version ?? null,
+      compatibility: e.compatibility ?? null,
+      description: e.description ?? "",
+      description_ko: e.description_ko ?? null,
+      thumbnail_url: e.thumbnail_url ?? null,
+      sort_order: e.sort_order ?? 0,
+    };
+    const { error } = await supabase.from("products").update(payload).eq("id", editing);
+    if (error) {
+      console.error("[admin/products] save error", error, payload);
+      showMessage(`Error: ${error.message}`);
+      return;
     }
-    const { error } = await supabase.from("products").update(rest).eq("id", editing);
-    if (error) { showMessage(`Error: ${error.message}`); return; }
     setEditing(null);
     showMessage("Saved");
     load();
@@ -159,15 +174,20 @@ export default function AdminProducts() {
 
   // Thumbnail upload
   const uploadThumbnail = async (file: File, slug: string, target: "edit" | "new") => {
-    const ext = file.name.split(".").pop();
+    if (!slug) { showMessage("Upload error: slug 없음"); return; }
+    const ext = (file.name.split(".").pop() || "png").toLowerCase();
     const path = `thumbnails/${slug}.${ext}`;
-    const { error } = await supabase.storage.from("uploads").upload(path, file, { upsert: true });
-    if (error) { showMessage(`Upload error: ${error.message}`); return; }
+    const { error } = await supabase.storage.from("uploads").upload(path, file, { upsert: true, cacheControl: "3600" });
+    if (error) {
+      console.error("[admin/products] upload error", error);
+      showMessage(`Upload error: ${error.message}`);
+      return;
+    }
     const { data: { publicUrl } } = supabase.storage.from("uploads").getPublicUrl(path);
     const bustedUrl = `${publicUrl}?v=${Date.now()}`;
     if (target === "edit") setEditData((prev) => ({ ...prev, thumbnail_url: bustedUrl }));
     else setNewProduct((prev) => ({ ...prev, thumbnail_url: bustedUrl }));
-    showMessage("Uploaded");
+    showMessage("Uploaded — 이제 Save 눌러야 DB 반영됨");
   };
 
   // Field is defined outside the component below
@@ -237,7 +257,7 @@ export default function AdminProducts() {
         <div><label className="text-[10px] text-[#999] uppercase block mb-0.5">Desc (KR)</label><textarea value={editData.description_ko ?? ""} onChange={(e) => setEditData({...editData, description_ko: e.target.value})} rows={4} className="w-full border border-[#ddd] px-2 py-1 text-[12px] outline-none focus:border-[#111] resize-y font-[inherit]" /></div>
         <div><label className="text-[10px] text-[#999] uppercase block mb-0.5">Thumbnail URL</label><input value={editData.thumbnail_url ?? ""} onChange={(e) => setEditData({...editData, thumbnail_url: e.target.value})} className="w-full border border-[#ddd] px-2 py-1 text-[12px] outline-none focus:border-[#111]" /></div>
         <div className="flex items-center gap-2">
-          <input type="file" accept="image/*" onChange={(e) => { const f = e.target.files?.[0]; if (f && editing) { const ep = filteredProducts.find(p=>p.id===editing); if(ep) uploadThumbnail(f, ep.slug, "edit"); }}} className="text-[11px]" />
+          <input type="file" accept="image/*" onChange={(e) => { const f = e.target.files?.[0]; if (f && editing && editData.slug) uploadThumbnail(f, editData.slug, "edit"); }} className="text-[11px]" />
           {editData.thumbnail_url && <img src={editData.thumbnail_url} alt="" className="w-6 h-6 object-contain border border-[#ddd]" />}
         </div>
 
