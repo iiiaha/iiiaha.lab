@@ -508,7 +508,7 @@ export default function AdminProducts() {
                 </span>
                 <span className="text-[10px] text-[#ccc] w-4 text-center shrink-0">{i + 1}</span>
                 {p.thumbnail_url ? (<img src={p.thumbnail_url} alt="" className="w-5 h-5 object-contain shrink-0" />) : (<div className="w-5 h-5 bg-[#f5f5f5] border border-[#ddd] shrink-0" />)}
-                <span className="text-[12px] font-bold truncate min-w-0 flex-1">{p.name}</span>
+                <span className="text-[12px] font-bold truncate min-w-0 flex-1">{p.name}{p.version && <span className="ml-2 text-[10px] font-normal text-[#999]">v{p.version}</span>}</span>
                 <div className="flex items-center gap-1 shrink-0 text-[11px]">
                   {(p.discount_percent ?? 0) > 0 ? (
                     <>
