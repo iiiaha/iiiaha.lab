@@ -164,8 +164,9 @@ export default function AdminProducts() {
     const { error } = await supabase.storage.from("uploads").upload(path, file, { upsert: true });
     if (error) { showMessage(`Upload error: ${error.message}`); return; }
     const { data: { publicUrl } } = supabase.storage.from("uploads").getPublicUrl(path);
-    if (target === "edit") setEditData((prev) => ({ ...prev, thumbnail_url: publicUrl }));
-    else setNewProduct((prev) => ({ ...prev, thumbnail_url: publicUrl }));
+    const bustedUrl = `${publicUrl}?v=${Date.now()}`;
+    if (target === "edit") setEditData((prev) => ({ ...prev, thumbnail_url: bustedUrl }));
+    else setNewProduct((prev) => ({ ...prev, thumbnail_url: bustedUrl }));
     showMessage("Uploaded");
   };
 
