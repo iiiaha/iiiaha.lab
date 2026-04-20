@@ -49,6 +49,7 @@ export default function AdminProducts() {
   const [platformTab, setPlatformTab] = useState<"all" | "sketchup" | "autocad" | "course">("all");
   const [dragIdx, setDragIdx] = useState<number | null>(null);
   const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   const filteredProducts = useMemo(() => {
     if (platformTab === "all") return products;
@@ -175,20 +176,25 @@ export default function AdminProducts() {
   // Thumbnail upload (admin API 경유 — RLS 우회, service role 사용)
   const uploadThumbnail = async (file: File, slug: string, target: "edit" | "new") => {
     if (!slug) { showMessage("Upload error: slug 없음"); return; }
-    const fd = new FormData();
-    fd.append("file", file);
-    fd.append("slug", slug);
-    fd.append("folder", "thumbnails");
-    const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
-    const json = await res.json();
-    if (!res.ok) {
-      console.error("[admin/products] upload error", json);
-      showMessage(`Upload error: ${json.error ?? res.status}`);
-      return;
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("slug", slug);
+      fd.append("folder", "thumbnails");
+      const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
+      const json = await res.json();
+      if (!res.ok) {
+        console.error("[admin/products] upload error", json);
+        showMessage(`Upload error: ${json.error ?? res.status}`);
+        return;
+      }
+      if (target === "edit") setEditData((prev) => ({ ...prev, thumbnail_url: json.url }));
+      else setNewProduct((prev) => ({ ...prev, thumbnail_url: json.url }));
+      showMessage("Uploaded — Save 눌러야 DB 반영됨");
+    } finally {
+      setUploading(false);
     }
-    if (target === "edit") setEditData((prev) => ({ ...prev, thumbnail_url: json.url }));
-    else setNewProduct((prev) => ({ ...prev, thumbnail_url: json.url }));
-    showMessage("Uploaded — 이제 Save 눌러야 DB 반영됨");
   };
 
   // Field is defined outside the component below
@@ -258,13 +264,14 @@ export default function AdminProducts() {
         <div><label className="text-[10px] text-[#999] uppercase block mb-0.5">Desc (KR)</label><textarea value={editData.description_ko ?? ""} onChange={(e) => setEditData({...editData, description_ko: e.target.value})} rows={4} className="w-full border border-[#ddd] px-2 py-1 text-[12px] outline-none focus:border-[#111] resize-y font-[inherit]" /></div>
         <div><label className="text-[10px] text-[#999] uppercase block mb-0.5">Thumbnail URL</label><input value={editData.thumbnail_url ?? ""} onChange={(e) => setEditData({...editData, thumbnail_url: e.target.value})} className="w-full border border-[#ddd] px-2 py-1 text-[12px] outline-none focus:border-[#111]" /></div>
         <div className="flex items-center gap-2">
-          <input type="file" accept="image/*" onChange={(e) => { const f = e.target.files?.[0]; if (f && editing && editData.slug) uploadThumbnail(f, editData.slug, "edit"); }} className="text-[11px]" />
-          {editData.thumbnail_url && <img src={editData.thumbnail_url} alt="" className="w-6 h-6 object-contain border border-[#ddd]" />}
+          <input type="file" accept="image/*" disabled={uploading} onChange={(e) => { const f = e.target.files?.[0]; if (f && editing && editData.slug) uploadThumbnail(f, editData.slug, "edit"); }} className="text-[11px] disabled:opacity-50" />
+          {uploading && <span className="text-[10px] text-[#999]">업로드 중...</span>}
+          {editData.thumbnail_url && !uploading && <img src={editData.thumbnail_url} alt="" className="w-6 h-6 object-contain border border-[#ddd]" />}
         </div>
 
         <div className="flex gap-2 mt-3 justify-end">
           <button onClick={() => setEditing(null)} className="text-[11px] text-[#111] px-3 py-1.5 border border-[#ddd] bg-white cursor-pointer hover:bg-[#f5f5f5]">Cancel</button>
-          <button onClick={saveEdit} className="text-[11px] text-white bg-[#111] px-3 py-1.5 border-0 cursor-pointer hover:bg-[#333]">Save</button>
+          <button onClick={saveEdit} disabled={uploading} className="text-[11px] text-white bg-[#111] px-3 py-1.5 border-0 cursor-pointer hover:bg-[#333] disabled:opacity-50 disabled:cursor-not-allowed">{uploading ? "업로드 중..." : "Save"}</button>
         </div>
       </div>
     </div>
