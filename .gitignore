@@ -42,3 +42,6 @@ next-env.d.ts
 
 # temp scripts
 update-desc*.js
+
+# claude code local config (may contain secrets in permission allowlist)
+.claude/
