@@ -165,13 +165,63 @@ export default function AdminProducts() {
     load();
   };
 
-  // Delete
-  const deleteProduct = async (id: string, name: string) => {
-    if (!confirm(`Delete "${name}"?`)) return;
-    const { error } = await supabase.from("products").delete().eq("id", id);
+  // 공개 URL에서 스토리지 상대 경로 추출 (uploads/... 이후)
+  const pathFromPublicUrl = (url: string | null | undefined): string | null => {
+    if (!url) return null;
+    try {
+      const u = new URL(url);
+      const m = u.pathname.match(/\/storage\/v1\/object\/public\/uploads\/(.+)$/);
+      return m ? m[1] : null;
+    } catch { return null; }
+  };
+
+  // Delete product + 관련 스토리지 파일 청소
+  const deleteProduct = async (p: Product) => {
+    if (!confirm(`Delete "${p.name}"? 썸네일·설치파일도 스토리지에서 같이 삭제됩니다.`)) return;
+    const paths: string[] = [];
+    if (p.file_key) paths.push(p.file_key);
+    const thumbPath = pathFromPublicUrl(p.thumbnail_url);
+    if (thumbPath) paths.push(thumbPath);
+    if (paths.length > 0) {
+      const res = await fetch("/api/admin/delete-file", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ paths }),
+      });
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        console.error("[admin/products] storage delete error", j);
+        // storage 실패해도 DB 행은 지울지 사용자에게 재확인
+        if (!confirm(`스토리지 파일 삭제 실패 (${j.error ?? res.status}). DB 행만 삭제하고 계속할까요?`)) return;
+      }
+    }
+    const { error } = await supabase.from("products").delete().eq("id", p.id);
     if (error) { showMessage(`Error: ${error.message}`); return; }
     showMessage("Deleted");
     load();
+  };
+
+  // 편집 중인 제품의 설치파일만 삭제 (제품 row는 유지)
+  const deleteInstaller = async () => {
+    if (!editing || !editData.file_key) return;
+    if (!confirm("설치파일을 스토리지에서 삭제합니다. 제품은 유지됩니다.")) return;
+    setUploadingInstaller(true);
+    try {
+      const res = await fetch("/api/admin/delete-file", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ paths: [editData.file_key] }),
+      });
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        showMessage(`Delete error: ${j.error ?? res.status}`);
+        return;
+      }
+      setEditData((prev) => ({ ...prev, file_key: undefined }));
+      showMessage("Installer deleted — Save 눌러야 file_key가 null로 반영됨");
+    } finally {
+      setUploadingInstaller(false);
+    }
   };
 
   // Thumbnail upload (admin API 경유 — RLS 우회, service role 사용)
@@ -314,7 +364,17 @@ export default function AdminProducts() {
             {uploadingInstaller && <span className="text-[10px] text-[#999]">업로드 중...</span>}
           </div>
           {editData.file_key ? (
-            <p className="text-[10px] text-[#666]">현재: <code className="text-[10px]">{editData.file_key}</code></p>
+            <div className="flex items-center gap-2">
+              <p className="text-[10px] text-[#666] flex-1 truncate">현재: <code className="text-[10px]">{editData.file_key}</code></p>
+              <button
+                type="button"
+                onClick={deleteInstaller}
+                disabled={busy}
+                className="text-[10px] text-red-500 bg-transparent border border-[#ddd] px-2 py-0.5 cursor-pointer hover:bg-red-50 disabled:opacity-50"
+              >
+                설치파일 삭제
+              </button>
+            </div>
           ) : (
             <p className="text-[10px] text-[#ccc]">업로드된 파일 없음</p>
           )}
@@ -461,7 +521,7 @@ export default function AdminProducts() {
                   )}
                 </div>
                 <button onClick={() => startEdit(p)} className={`text-[10px] bg-transparent border px-2 py-0.5 cursor-pointer shrink-0 ${editing === p.id ? "text-[#111] border-[#111] font-bold" : "text-[#999] border-[#ddd] hover:bg-[#f5f5f5]"}`}>편집</button>
-                <button onClick={() => deleteProduct(p.id, p.name)} className="text-[10px] text-red-500 bg-transparent border border-[#ddd] px-2 py-0.5 cursor-pointer hover:bg-red-50 shrink-0">삭제</button>
+                <button onClick={() => deleteProduct(p)} className="text-[10px] text-red-500 bg-transparent border border-[#ddd] px-2 py-0.5 cursor-pointer hover:bg-red-50 shrink-0">삭제</button>
               </div>
           </div>
         ))}
