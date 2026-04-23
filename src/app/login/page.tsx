@@ -38,7 +38,7 @@ function LoginInner() {
       </h1>
       <div className="border-b border-[#111] mb-8" />
       {error && <p className="text-[13px] text-red-600 mb-4">{error}</p>}
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         <div>
           <label className="block text-[12px] text-[#666] font-bold mb-1 tracking-[0.05em] uppercase">
             이메일
@@ -51,7 +51,7 @@ function LoginInner() {
           </label>
           <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className="w-full border border-[#ddd] px-3 py-2.5 text-[14px] outline-none focus:border-[#111] transition-colors" />
         </div>
-        <button type="submit" disabled={loading} className="mt-2 bg-[#111] text-white text-[13px] font-bold tracking-[0.05em] py-3 border-0 cursor-pointer hover:bg-[#333] transition-colors duration-200 disabled:opacity-40">
+        <button type="submit" disabled={loading} className="mt-3 bg-[#111] text-white text-[13px] font-bold tracking-[0.05em] py-3 border-0 cursor-pointer hover:bg-[#333] transition-colors duration-200 disabled:opacity-40">
           {loading ? "..." : "로그인"}
         </button>
       </form>
