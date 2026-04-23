@@ -111,7 +111,7 @@ export default function OpenLabPage() {
           {loggedIn && (
             <Link href={`/openlab/new${filter === "bug" ? "?category=bug" : "?category=idea"}`}
               className="text-[12px] text-[#999] no-underline hover:underline">
-              + New Post
+              + 글 쓰기
             </Link>
           )}
         </div>
@@ -164,7 +164,7 @@ export default function OpenLabPage() {
             </div>
           )}
           {paged.length === 0 ? (
-            <p className="text-[14px] text-[#999] py-6">No posts yet.</p>
+            <p className="text-[14px] text-[#999] py-6">작성된 글이 없습니다.</p>
           ) : (
             paged.map((post) => (
                 <div key={post.id} className={`flex items-center border-b border-[#ddd] py-3 ${post.category === "notice" ? "bg-[#f5f5f5]" : ""}`}>

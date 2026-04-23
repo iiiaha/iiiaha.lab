@@ -116,7 +116,7 @@ function PostForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() || !description.trim()) {
-      setError("Please fill in both title and description.");
+      setError("제목과 내용을 모두 입력해 주세요.");
       return;
     }
     setLoading(true);
@@ -200,7 +200,7 @@ function PostForm() {
       </Link>
 
       <h1 className="text-[16px] font-bold tracking-[0.03em] mb-6">
-        {isEdit ? "Edit Post" : "New Post"}
+        {isEdit ? "글 편집" : "글 쓰기"}
       </h1>
       <div className="border-t border-[#111] mb-8" />
 
@@ -209,20 +209,20 @@ function PostForm() {
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         {/* Category */}
         <div>
-          <label className="block text-[12px] text-[#666] font-bold mb-2 tracking-[0.05em] uppercase">Category</label>
+          <label className="block text-[12px] text-[#666] font-bold mb-2 tracking-[0.05em] uppercase">카테고리</label>
           <div className="flex gap-2">
             <button type="button" onClick={() => setCategory("idea")}
               className={`text-[13px] px-4 py-2 border cursor-pointer transition-colors ${category === "idea" ? "bg-[#111] text-white border-[#111]" : "bg-white text-[#666] border-[#ddd] hover:border-[#111]"}`}>
-              Idea
+              아이디어
             </button>
             <button type="button" onClick={() => setCategory("bug")}
               className={`text-[13px] px-4 py-2 border cursor-pointer transition-colors ${category === "bug" ? "bg-[#111] text-white border-[#111]" : "bg-white text-[#666] border-[#ddd] hover:border-[#111]"}`}>
-              Question / Bug
+              질문 · 버그
             </button>
             {isAdmin && (
               <button type="button" onClick={() => setCategory("notice")}
                 className={`text-[13px] px-4 py-2 border cursor-pointer transition-colors ${category === "notice" ? "bg-[#00c9a7] text-white border-[#00c9a7]" : "bg-white text-[#666] border-[#ddd] hover:border-[#00c9a7]"}`}>
-                Notice
+                공지
               </button>
             )}
           </div>
@@ -230,10 +230,10 @@ function PostForm() {
 
         {/* Product */}
         <div>
-          <label className="block text-[12px] text-[#666] font-bold mb-1 tracking-[0.05em] uppercase">Related Extension (optional)</label>
+          <label className="block text-[12px] text-[#666] font-bold mb-1 tracking-[0.05em] uppercase">관련 익스텐션 (선택)</label>
           <select value={productId} onChange={(e) => setProductId(e.target.value)}
             className="w-full border border-[#ddd] px-3 py-2.5 text-[14px] outline-none focus:border-[#111] transition-colors bg-white">
-            <option value="">None</option>
+            <option value="">선택 안 함</option>
             {(["sketchup", "autocad"] as const).map((plat) => {
               const items = products.filter((p) => p.platform === plat);
               if (items.length === 0) return null;
@@ -259,18 +259,18 @@ function PostForm() {
         {/* Program Versions */}
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-[12px] text-[#666] font-bold mb-1 tracking-[0.05em] uppercase">SketchUp Version</label>
+            <label className="block text-[12px] text-[#666] font-bold mb-1 tracking-[0.05em] uppercase">SketchUp 버전</label>
             <select value={sketchupVersion} onChange={(e) => setSketchupVersion(e.target.value)}
               className="w-full border border-[#ddd] px-3 py-2.5 text-[14px] outline-none focus:border-[#111] transition-colors bg-white">
-              <option value="">Not used</option>
+              <option value="">사용 안 함</option>
               {SKETCHUP_VERSIONS.map((v) => <option key={v} value={v}>SketchUp {v}</option>)}
             </select>
           </div>
           <div>
-            <label className="block text-[12px] text-[#666] font-bold mb-1 tracking-[0.05em] uppercase">AutoCAD Version</label>
+            <label className="block text-[12px] text-[#666] font-bold mb-1 tracking-[0.05em] uppercase">AutoCAD 버전</label>
             <select value={autocadVersion} onChange={(e) => setAutocadVersion(e.target.value)}
               className="w-full border border-[#ddd] px-3 py-2.5 text-[14px] outline-none focus:border-[#111] transition-colors bg-white">
-              <option value="">Not used</option>
+              <option value="">사용 안 함</option>
               <optgroup label="AutoCAD">
                 {AUTOCAD_YEARS.map((v) => <option key={v} value={v}>AutoCAD {v}</option>)}
               </optgroup>
@@ -283,21 +283,21 @@ function PostForm() {
 
         {/* Title */}
         <div>
-          <label className="block text-[12px] text-[#666] font-bold mb-1 tracking-[0.05em] uppercase">Title</label>
-          <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Brief summary" required
+          <label className="block text-[12px] text-[#666] font-bold mb-1 tracking-[0.05em] uppercase">제목</label>
+          <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="간단한 요약" required
             className="w-full border border-[#ddd] px-3 py-2.5 text-[14px] outline-none focus:border-[#111] transition-colors" />
         </div>
 
         {/* Description */}
         <div>
-          <label className="block text-[12px] text-[#666] font-bold mb-1 tracking-[0.05em] uppercase">Description</label>
-          <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Describe in detail..." required rows={8}
+          <label className="block text-[12px] text-[#666] font-bold mb-1 tracking-[0.05em] uppercase">내용</label>
+          <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="자세한 내용을 적어 주세요..." required rows={8}
             className="w-full border border-[#ddd] px-3 py-2.5 text-[14px] outline-none focus:border-[#111] transition-colors resize-y font-[inherit]" />
         </div>
 
         {/* Attachment */}
         <div>
-          <label className="block text-[12px] text-[#666] font-bold mb-1 tracking-[0.05em] uppercase">Attachment (optional)</label>
+          <label className="block text-[12px] text-[#666] font-bold mb-1 tracking-[0.05em] uppercase">첨부파일 (선택)</label>
           <div
             onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add("border-[#111]"); }}
             onDragLeave={(e) => { e.currentTarget.classList.remove("border-[#111]"); }}
@@ -331,7 +331,7 @@ function PostForm() {
                   <circle cx="8.5" cy="8.5" r="1.5" />
                   <path d="M21 15l-5-5L5 21" />
                 </svg>
-                <p className="text-[13px] text-[#999] mt-2">Drop an image here or click to upload</p>
+                <p className="text-[13px] text-[#999] mt-2">이미지를 드래그하거나 클릭해서 업로드</p>
               </>
             )}
           </div>
@@ -342,11 +342,11 @@ function PostForm() {
         <div className="flex gap-3 mt-2 justify-end">
           <Link href={isEdit ? `/openlab/${editId}` : "/openlab"}
             className="text-[#111] text-[13px] font-bold px-6 py-3 border border-[#ddd] no-underline hover:bg-[#f5f5f5] transition-colors flex items-center">
-            Cancel
+            취소
           </Link>
           <button type="submit" disabled={loading}
             className="bg-[#111] text-white text-[13px] font-bold px-6 py-3 border-0 cursor-pointer hover:bg-[#333] transition-colors disabled:opacity-40">
-            {loading ? "Saving..." : isEdit ? "Save" : "Submit"}
+            {loading ? "저장 중..." : isEdit ? "저장" : "등록"}
           </button>
         </div>
       </form>
