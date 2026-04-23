@@ -31,7 +31,7 @@ export default function PurchaseInfo({ variant }: { variant: Variant }) {
   return (
     <div className="mt-6 border-y border-[#ddd] py-4">
       <p className="text-[11px] text-[#999] tracking-[0.1em] uppercase mb-3">
-        Purchase Info
+        구매 정보
       </p>
       <div className="flex flex-col gap-1.5 mb-3">
         {rows.map(([label, value]) => (

@@ -79,7 +79,7 @@ export default function SubscribeContent({
   return (
     <div>
       <div className="flex items-baseline justify-between mb-[10px]">
-        <h1 className="text-[16px] font-bold tracking-[0.03em]">Membership</h1>
+        <h1 className="text-[16px] font-bold tracking-[0.03em]">멤버십</h1>
       </div>
       <div className="border-b border-[#111] mb-8 sticky-divider" />
 
@@ -142,7 +142,7 @@ export default function SubscribeContent({
         <div className="border border-[#ddd] p-6 flex flex-col">
           <div className="min-h-[120px]">
             <p className="text-[11px] text-[#999] tracking-[0.1em] uppercase mb-4">
-              Individual
+              개별 구매 시
             </p>
             <p className="text-[22px] font-bold mb-1">
               {formatPrice(totalPrice)}
@@ -162,7 +162,7 @@ export default function SubscribeContent({
               href="/extensions"
               className="block w-full text-[13px] text-[#111] border border-[#111] py-3 text-center no-underline hover:bg-[#111] hover:text-white transition-colors"
             >
-              Browse Extensions
+              제품 페이지로 이동
             </Link>
           </div>
         </div>
@@ -174,7 +174,7 @@ export default function SubscribeContent({
           <div className="relative p-6 flex flex-col flex-1">
             <div className="min-h-[120px]">
               <p className="text-[11px] text-[rgba(255,255,255,0.5)] tracking-[0.1em] uppercase mb-4">
-                Membership
+                멤버십 이용 시
               </p>
               {plan === "annual" ? (
                 <>
@@ -233,7 +233,7 @@ export default function SubscribeContent({
               >
                 {processing
                   ? "결제창을 여는 중..."
-                  : `Subscribe — ${plan === "annual" ? formatPrice(ANNUAL_PRICE) : `${formatPrice(MONTHLY_PRICE)}/mo`}`}
+                  : `멤버십 가입하기 — ${plan === "annual" ? formatPrice(ANNUAL_PRICE) : `${formatPrice(MONTHLY_PRICE)}/mo`}`}
               </button>
               {error && (
                 <p className="text-[11px] text-red-300 text-center mt-2">{error}</p>
@@ -246,7 +246,7 @@ export default function SubscribeContent({
       {/* Extension Grid */}
       <div className="mb-10">
         <p className="text-[11px] text-[#999] tracking-[0.1em] uppercase mb-4">
-          Included Extensions
+          멤버십에 포함된 익스텐션
           <span className="ml-2 text-[#ccc] font-normal normal-case tracking-normal">
             {extensions.length}개
           </span>
