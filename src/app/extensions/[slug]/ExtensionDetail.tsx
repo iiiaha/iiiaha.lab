@@ -305,8 +305,8 @@ export default function ExtensionDetail({ product }: { product: Product }) {
                   href="/cart"
                   className="flex-1 flex flex-col items-center justify-center bg-[#111] text-white text-center no-underline py-3 rounded hover:bg-[#333] active:bg-[#000] transition-colors duration-150"
                 >
-                  <span className="text-[13px] font-bold tracking-[0.03em]">Go to Cart</span>
-                  <span className="text-[10px] text-[rgba(255,255,255,0.5)] mt-0.5">장바구니에 담았습니다 · 장바구니로 이동하기</span>
+                  <span className="text-[13px] font-bold tracking-[0.03em]">장바구니에 담았습니다.</span>
+                  <span className="text-[10px] text-[rgba(255,255,255,0.5)] mt-0.5">장바구니로 이동하기</span>
                 </Link>
               ) : (
                 <button
