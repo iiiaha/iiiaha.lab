@@ -71,14 +71,14 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  if (!process.env.TOSS_SECRET_KEY) {
+  if (!process.env.TOSS_BILLING_SECRET_KEY) {
     return NextResponse.json(
       { error: "Payment gateway not configured" },
       { status: 500 }
     );
   }
 
-  const tossAuth = `Basic ${Buffer.from(process.env.TOSS_SECRET_KEY + ":").toString("base64")}`;
+  const tossAuth = `Basic ${Buffer.from(process.env.TOSS_BILLING_SECRET_KEY + ":").toString("base64")}`;
 
   // 3. authKey → billingKey 교환
   const issueRes = await fetch(

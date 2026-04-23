@@ -45,14 +45,14 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  if (!process.env.TOSS_SECRET_KEY) {
+  if (!process.env.TOSS_BILLING_SECRET_KEY) {
     return NextResponse.json(
       { error: "Payment gateway not configured" },
       { status: 500 }
     );
   }
 
-  const tossAuth = `Basic ${Buffer.from(process.env.TOSS_SECRET_KEY + ":").toString("base64")}`;
+  const tossAuth = `Basic ${Buffer.from(process.env.TOSS_BILLING_SECRET_KEY + ":").toString("base64")}`;
   const now = new Date();
 
   // 오늘까지 만료되는 활성 구독 조회

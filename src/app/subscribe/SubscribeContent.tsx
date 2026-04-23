@@ -8,7 +8,7 @@ import { Product, formatPrice } from "@/lib/types";
 import PurchaseInfo from "@/components/PurchaseInfo";
 import { getUser } from "@/lib/auth";
 
-const TOSS_CLIENT_KEY = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY!;
+const TOSS_CLIENT_KEY = process.env.NEXT_PUBLIC_TOSS_BILLING_CLIENT_KEY!;
 const PENDING_KEY = "iiiaha_pending_billing";
 
 const MONTHLY_REGULAR = 29000;
