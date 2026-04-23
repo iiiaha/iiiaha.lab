@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { getUser, signOut } from "@/lib/auth";
 import { createClient } from "@/lib/supabase";
 
-const CONFIRM_TEXT = "delete my account";
+const CONFIRM_TEXT = "계정 삭제";
 
 export default function DeleteAccountPage() {
   const router = useRouter();
@@ -28,7 +28,7 @@ export default function DeleteAccountPage() {
 
       const supabase = createClient();
 
-      // 구매한 익스텐션 수
+      // 구매한 익스텐션/강의 수
       const { data: extOrders } = await supabase
         .from("orders")
         .select("id, products(type)")
@@ -62,7 +62,7 @@ export default function DeleteAccountPage() {
       router.push("/");
     } else {
       const data = await res.json();
-      setError(data.error || "Failed to delete account");
+      setError(data.error || "계정 삭제에 실패했습니다.");
       setLoading(false);
     }
   };
@@ -76,26 +76,19 @@ export default function DeleteAccountPage() {
   }
 
   return (
-    <div className="pt-10">
-      <h1 className="text-[16px] font-bold tracking-[0.03em] mb-6">
+    <div>
+      <h1 className="text-[16px] font-bold tracking-[0.03em] mb-[10px]">
         Delete Account
       </h1>
-      <div className="border-t border-[#111] mb-8" />
+      <div className="border-b border-[#111] mb-8 sticky-divider" />
 
       {/* Warning */}
       <div className="border border-red-200 bg-red-50 p-5 mb-8">
         <p className="text-[14px] font-bold text-red-600 mb-2">
-          This action is permanent and cannot be undone.
-        </p>
-        <p className="text-[12px] text-red-500">
           이 작업은 영구적이며 되돌릴 수 없습니다.
         </p>
-        <p className="text-[13px] text-[#666] leading-relaxed mt-3">
-          Once you delete your account, all of your data will be permanently
-          removed. This includes:
-        </p>
-        <p className="text-[12px] text-[#999]">
-          계정을 삭제하면 모든 데이터가 영구적으로 제거됩니다. 여기에는 다음이 포함됩니다:
+        <p className="text-[13px] text-[#666] leading-relaxed">
+          계정을 삭제하시면 아래의 모든 데이터가 영구적으로 제거됩니다.
         </p>
       </div>
 
@@ -104,13 +97,8 @@ export default function DeleteAccountPage() {
         <div className="flex items-start gap-2">
           <span className="text-[13px] text-red-500 mt-px">×</span>
           <div>
-            <p className="text-[13px] font-bold">
-              {productCount} extension license{productCount !== 1 ? "s" : ""}
-            </p>
+            <p className="text-[13px] font-bold">익스텐션 라이선스 {productCount}개</p>
             <p className="text-[12px] text-[#999]">
-              All purchased extension licenses and download access will be permanently revoked.
-            </p>
-            <p className="text-[12px] text-[#bbb]">
               구매한 모든 익스텐션 라이선스와 다운로드 권한이 영구적으로 취소됩니다.
             </p>
           </div>
@@ -118,13 +106,8 @@ export default function DeleteAccountPage() {
         <div className="flex items-start gap-2">
           <span className="text-[13px] text-red-500 mt-px">×</span>
           <div>
-            <p className="text-[13px] font-bold">
-              {courseCount} course{courseCount !== 1 ? "s" : ""}
-            </p>
+            <p className="text-[13px] font-bold">강의 {courseCount}개</p>
             <p className="text-[12px] text-[#999]">
-              All purchased courses, progress, and viewing access will be permanently removed.
-            </p>
-            <p className="text-[12px] text-[#bbb]">
               구매한 모든 강의, 시청 진도, 열람 권한이 영구적으로 삭제됩니다.
             </p>
           </div>
@@ -132,11 +115,8 @@ export default function DeleteAccountPage() {
         <div className="flex items-start gap-2">
           <span className="text-[13px] text-red-500 mt-px">×</span>
           <div>
-            <p className="text-[13px] font-bold">Account data</p>
+            <p className="text-[13px] font-bold">계정 정보</p>
             <p className="text-[12px] text-[#999]">
-              Your email ({email}), order history, and all associated data will be deleted.
-            </p>
-            <p className="text-[12px] text-[#bbb]">
               이메일({email}), 주문 내역 및 모든 관련 데이터가 삭제됩니다.
             </p>
           </div>
@@ -144,11 +124,8 @@ export default function DeleteAccountPage() {
         <div className="flex items-start gap-2">
           <span className="text-[13px] text-red-500 mt-px">×</span>
           <div>
-            <p className="text-[13px] font-bold">No refunds</p>
+            <p className="text-[13px] font-bold">환불 불가</p>
             <p className="text-[12px] text-[#999]">
-              Deleting your account does not entitle you to a refund for any purchases.
-            </p>
-            <p className="text-[12px] text-[#bbb]">
               계정 삭제 시 기존 구매에 대한 환불은 제공되지 않습니다.
             </p>
           </div>
@@ -160,11 +137,11 @@ export default function DeleteAccountPage() {
       {/* Confirmation input */}
       <div className="mb-6">
         <p className="text-[13px] text-[#666] mb-3">
-          To confirm, type{" "}
+          계정 삭제를 확인하려면 아래 입력란에{" "}
           <code className="bg-[#f5f5f5] px-1.5 py-0.5 text-[12px] font-bold">
             {CONFIRM_TEXT}
           </code>{" "}
-          below:
+          라고 입력해 주세요.
         </p>
         <input
           type="text"
@@ -186,13 +163,13 @@ export default function DeleteAccountPage() {
           disabled={input !== CONFIRM_TEXT || loading}
           className="bg-red-600 text-white text-[13px] font-bold px-6 py-3 border-0 cursor-pointer hover:bg-red-700 transition-colors disabled:opacity-30 disabled:cursor-default"
         >
-          {loading ? "Deleting..." : "Permanently delete account"}
+          {loading ? "삭제 중..." : "계정 영구 삭제"}
         </button>
         <button
           onClick={() => router.push("/mypage")}
           className="bg-white text-[#111] text-[13px] font-bold px-6 py-3 border border-[#ddd] cursor-pointer hover:bg-[#f5f5f5] transition-colors"
         >
-          Cancel
+          취소
         </button>
       </div>
     </div>
