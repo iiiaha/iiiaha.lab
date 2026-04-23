@@ -9,6 +9,7 @@ import { createClient } from "@/lib/supabase";
 interface ProductOption {
   id: string;
   name: string;
+  platform: string | null;
 }
 
 const SKETCHUP_VERSIONS = ["2026", "2025", "2024", "2023", "2022", "2021", "2020", "2019", "2018", "2017"];
@@ -57,7 +58,7 @@ function PostForm() {
 
       const { data } = await supabase
         .from("products")
-        .select("id, name, slug")
+        .select("id, name, slug, platform")
         .order("sort_order", { ascending: true });
       const productList = data ?? [];
       setProducts(productList);
@@ -233,7 +234,25 @@ function PostForm() {
           <select value={productId} onChange={(e) => setProductId(e.target.value)}
             className="w-full border border-[#ddd] px-3 py-2.5 text-[14px] outline-none focus:border-[#111] transition-colors bg-white">
             <option value="">None</option>
-            {products.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+            {(["sketchup", "autocad"] as const).map((plat) => {
+              const items = products.filter((p) => p.platform === plat);
+              if (items.length === 0) return null;
+              const label = plat === "sketchup" ? "SketchUp" : "AutoCAD";
+              return (
+                <optgroup key={plat} label={label}>
+                  {items.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+                </optgroup>
+              );
+            })}
+            {(() => {
+              const others = products.filter((p) => p.platform !== "sketchup" && p.platform !== "autocad");
+              if (others.length === 0) return null;
+              return (
+                <optgroup label="Other">
+                  {others.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+                </optgroup>
+              );
+            })()}
           </select>
         </div>
 
