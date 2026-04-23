@@ -185,7 +185,7 @@ export default function MyPage() {
 
     if (!skipConfirm) {
       const ok = confirm(
-        ".rbz 파일을 다운로드하면 이 주문의 환불이 더 이상 불가합니다.\n\n" +
+        "설치파일을 다운로드하면 이 주문의 환불이 더 이상 불가합니다.\n\n" +
           "다운로드를 진행하시겠습니까?"
       );
       if (!ok) return;

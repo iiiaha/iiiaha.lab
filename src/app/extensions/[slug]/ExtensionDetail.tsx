@@ -246,7 +246,7 @@ export default function ExtensionDetail({ product }: { product: Product }) {
                 href={`/api/download/${product.slug}`}
                 className="text-[12px] text-[#111] border border-[#111] px-4 py-1.5 rounded no-underline hover:bg-[#111] hover:text-white transition-colors"
               >
-                Download .rbz
+                설치파일 다운받기
               </a>
             </div>
           </div>

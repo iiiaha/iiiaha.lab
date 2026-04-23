@@ -83,9 +83,9 @@ export default function TermsPage() {
           </p>
           <ul className="list-disc pl-5 flex flex-col gap-1 mt-2">
             <li>
-              <strong>익스텐션</strong>: .rbz 설치 파일을 <strong>다운로드하기 전</strong>이고
+              <strong>익스텐션</strong>: 설치파일을 <strong>다운로드하기 전</strong>이고
               구매 후 7일 이내인 경우 마이페이지에서 직접 환불 요청이 가능합니다.
-              .rbz 파일을 다운로드한 경우(= 디지털 콘텐츠의 제공이 개시된 경우)에는
+              설치파일을 다운로드한 경우(= 디지털 콘텐츠의 제공이 개시된 경우)에는
               관련 법령에 따라 청약철회가 제한됩니다.
             </li>
             <li>
