@@ -55,10 +55,22 @@ a, button, [role="button"], input[type="submit"], select {
 
 /* Subscription CTA — Aurora */
 .sub-cta {
-  transition: filter 0.2s ease;
+  position: relative;
 }
-.sub-cta:hover {
-  filter: brightness(1.4);
+.sub-cta::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0);
+  transition: background 0.2s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+.sub-cta:hover::after {
+  background: rgba(255, 255, 255, 0.12);
+}
+.sub-cta > .relative {
+  z-index: 2;
 }
 
 .sub-cta-bg {
