@@ -91,37 +91,18 @@ export default function SubscribeContent({
 
       {/* Hero */}
       <div className="text-center py-10 mb-6">
-        {/* Slogan */}
         <h2 className="text-[23px] font-bold tracking-[-0.01em] text-[#111] leading-[1.45] mb-1">
           똑똑하게 일하고,<br />
           당신의 시간을 되찾으세요.
         </h2>
-        <p className="text-[11px] text-[#bbb] italic tracking-[0.03em] mb-12">
+        <p className="text-[11px] text-[#bbb] italic tracking-[0.03em] mb-10">
           Work Smart. Save Your Youth.
         </p>
 
-        {/* Origin — 실무자가 만든 크레덴셜 */}
-        <p className="text-[14px] text-[#666] leading-[1.85] mb-10">
-          이아하랩은 실무에서 반복되던 비효율을<br />
-          직접 해결하며 시작되었습니다.
-        </p>
-
-        {/* Concrete benefit */}
-        <p className="text-[19px] font-bold text-[#111] leading-[1.55] mb-12">
-          수십 번씩 반복되던 작업을<br />
-          한 번으로 줄입니다.
-        </p>
-
-        {/* Imperatives — 유저 행동 */}
-        <p className="text-[15px] text-[#333] leading-[1.85] mb-10">
-          더 이상 야근하지 마세요.<br />
-          더 중요한 일에 집중하세요.
-        </p>
-
-        {/* Closing call */}
-        <p className="text-[16px] font-bold text-[#111] leading-[1.55]">
-          이제는 이 업계의 비효율에<br />
-          끌려다니지 마세요.
+        <p className="text-[15px] text-[#333] leading-[1.9]">
+          수십 번씩 반복되던 작업을 한 번으로 줄입니다.<br />
+          더 이상 야근하지 말고, 더 중요한 일에 집중하세요.<br />
+          이 업계의 비효율에 끌려다니지 마세요.
         </p>
       </div>
 
