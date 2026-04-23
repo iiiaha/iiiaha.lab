@@ -28,6 +28,7 @@ export default function CartPage() {
   const [checkoutError, setCheckoutError] = useState("");
   const [processing, setProcessing] = useState(false);
   const [agreed, setAgreed] = useState(false);
+  const [shakeAgreement, setShakeAgreement] = useState(false);
 
   const applyCoupon = async () => {
     if (!couponCode.trim()) return;
@@ -73,6 +74,11 @@ export default function CartPage() {
     if (items.length === 0) return;
     if (finalTotal <= 0) {
       setCheckoutError("결제 금액이 올바르지 않습니다.");
+      return;
+    }
+    if (!agreed) {
+      setShakeAgreement(true);
+      setTimeout(() => setShakeAgreement(false), 500);
       return;
     }
 
@@ -242,24 +248,26 @@ export default function CartPage() {
           <span>{formatPrice(finalTotal)}</span>
         </div>
 
-        <label className="flex items-start gap-2 mb-4 cursor-pointer select-none">
+        <label
+          className={`flex items-start gap-2 mb-4 cursor-pointer select-none ${shakeAgreement ? "animate-shake" : ""}`}
+        >
           <input
             type="checkbox"
             checked={agreed}
             onChange={(e) => setAgreed(e.target.checked)}
             className="mt-0.5 cursor-pointer"
           />
-          <span className="text-[11px] text-[#666] leading-relaxed">
+          <span className={`text-[11px] leading-relaxed transition-colors ${shakeAgreement ? "text-red-500" : "text-[#666]"}`}>
             익스텐션은 <b>SketchUp</b> 또는 <b>AutoCAD</b>의 특정 버전에서만 동작합니다. 상품 상세의 호환 버전을 확인하셨습니까?
           </span>
         </label>
 
         <button
           onClick={handleCheckout}
-          disabled={processing || !agreed}
-          className="w-full bg-[#111] text-white text-[14px] font-bold tracking-[0.05em] py-3 border-0 cursor-pointer hover:bg-[#333] transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={processing}
+          className="w-full bg-[#111] text-white text-[14px] font-bold tracking-[0.05em] py-3 rounded border-0 cursor-pointer hover:bg-[#333] transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {processing ? "결제창을 여는 중..." : `Checkout — ${formatPrice(finalTotal)}`}
+          {processing ? "결제창을 여는 중..." : `결제하기 — ${formatPrice(finalTotal)}`}
         </button>
         {checkoutError && (
           <p className="text-[11px] text-red-600 text-center mt-2">{checkoutError}</p>
@@ -271,13 +279,13 @@ export default function CartPage() {
         {/* Subscription CTA */}
         <Link
           href="/subscribe"
-          className="sub-cta group block no-underline mt-4 overflow-hidden relative"
+          className="sub-cta group block no-underline mt-4 rounded overflow-hidden relative"
         >
           <div className="sub-cta-bg absolute inset-0" />
           <div className="sub-cta-aurora absolute inset-0" />
           <div className="text-center px-5 py-4 relative">
-            <p className="text-[11px] font-bold tracking-[0.1em] uppercase text-white mb-1">
-              iiiahalab membership
+            <p className="text-[13px] font-bold tracking-[0.03em] text-white mb-1">
+              이아하랩 멤버십 가입하기
             </p>
             <div className="text-[11px] font-normal text-[rgba(255,255,255,0.65)] mb-1">
               모든 익스텐션을 자유롭게 사용
