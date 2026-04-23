@@ -202,7 +202,7 @@ export default function ExtensionDetail({ product }: { product: Product }) {
                   Description
                 </span>
               </div>
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-2">
                 {body.split("\n").map((line, i) => {
                   const match = line.match(/^[•]\s*(.+?)\s*[—]\s*(.+)$/);
                   if (match) {
@@ -219,10 +219,13 @@ export default function ExtensionDetail({ product }: { product: Product }) {
                     );
                   }
                   return line.trim() ? (
-                    <p key={i} className="text-[13px] text-[#666]">
+                    <p key={i} className="text-[13px] text-[#666] leading-[1.7]">
                       {renderInline(line)}
                     </p>
-                  ) : null;
+                  ) : (
+                    /* 빈 줄 → 문단 구분용 스페이서 */
+                    <div key={i} className="h-2" />
+                  );
                 })}
               </div>
             </div>
