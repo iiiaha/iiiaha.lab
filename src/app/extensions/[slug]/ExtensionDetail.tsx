@@ -345,7 +345,7 @@ export default function ExtensionDetail({ product }: { product: Product }) {
 
             {/* 멤버십 */}
             <div className="flex-1 flex flex-col gap-2">
-              <span className="text-[11px] text-[#999]">iiiahalab membership 가입하기</span>
+              <span className="text-[11px] text-[#999]">이아하랩 멤버십 가입하기</span>
               <Link
                 href="/subscribe"
                 className="sub-cta flex-1 flex flex-col items-center justify-center no-underline overflow-hidden relative py-3 rounded"
