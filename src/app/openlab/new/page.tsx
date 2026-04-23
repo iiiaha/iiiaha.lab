@@ -199,10 +199,10 @@ function PostForm() {
         Open Lab
       </Link>
 
-      <h1 className="text-[16px] font-bold tracking-[0.03em] mb-6">
-        {isEdit ? "글 편집" : "글 쓰기"}
+      <h1 className="text-[16px] font-bold tracking-[0.03em] mb-[10px]">
+        {isEdit ? "Edit Post" : "New Post"}
       </h1>
-      <div className="border-t border-[#111] mb-8" />
+      <div className="border-b border-[#111] mb-8 sticky-divider" />
 
       {error && <p className="text-[13px] text-red-600 mb-4">{error}</p>}
 
