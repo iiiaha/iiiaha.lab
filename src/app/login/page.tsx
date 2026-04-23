@@ -34,7 +34,7 @@ function LoginInner() {
   return (
     <div className="max-w-[360px] mx-auto pt-20">
       <h1 className="text-[16px] font-bold tracking-[0.03em] mb-8">
-        로그인
+        Login
       </h1>
       <div className="border-t border-[#111] mb-8" />
       {error && <p className="text-[13px] text-red-600 mb-4">{error}</p>}
