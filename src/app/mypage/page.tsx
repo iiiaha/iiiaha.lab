@@ -421,7 +421,7 @@ export default function MyPage() {
                         <span className="text-[11px] text-[#999] w-[60px]">유효기간</span>
                         {order.subscription_id && subscription ? (
                           <span className="text-[12px] text-[#666]">
-                            <span className="font-bold text-white bg-[#00c9a7] px-1.5 py-0.5">
+                            <span className="font-bold text-[#008a75] bg-[#00c9a7]/15 px-1.5 py-0.5">
                               멤버십 이용 중
                             </span>{" "}
                             {new Date(subscription.expires_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })} 까지
