@@ -99,6 +99,11 @@ export default function SubscribeContent({
           Work Smart. Save Your Youth.
         </p>
 
+        <p className="text-[15px] text-[#333] leading-[1.9] mb-6">
+          이아하랩은 실무경험을 바탕으로 디자이너를 위한 플러그인을 개발합니다.<br />
+          그 어디서도 경험해보지 못한 이아하랩만의 깊은 인사이트를 느껴보세요.<br />
+          여러분의 생산성에 날개를 달아드리겠습니다.
+        </p>
         <p className="text-[15px] text-[#333] leading-[1.9]">
           무의미한 반복 노동은 이제 이아하랩이 맡겠습니다.<br />
           더 이상 야근하지 말고, 더 중요한 일에 집중하세요.<br />
