@@ -91,7 +91,7 @@ public/                 정적 자산 (cursor, profile, thumbnails)
 - 새 회색 hex를 도입하지 않는다. `globals.css`의 토큰을 쓴다.
 - `LICENSE_HMAC_SECRET` fallback 문자열에 의존하지 않는다.
 - Toss 승인 전에 order/license를 만들지 않는다.
-- 환불 후 라이선스를 `revoked`로 바꾸는 것을 잊지 않는다.
+- 환불 후 라이선스 row를 **삭제**하는 것을 잊지 않는다 (revoke 아님 — docs/payment-rules.md §7.7 참조).
 - 800px 컨테이너 폭을 깨지 않는다.
 - 둥근 모서리(rounded-lg/xl)와 box-shadow를 추가하지 않는다 (Subscription CTA 예외).
 - `node_modules/next/dist/docs/`를 읽지 않고 Next.js API를 추측하지 않는다.

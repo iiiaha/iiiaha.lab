@@ -16,6 +16,22 @@
 
 ---
 
+## 1.1 Toss 계약·환경변수 분리
+
+iiiaha.lab은 토스페이먼츠에 **단건결제 + 정기결제 두 계약**을 가지고 있어서 키가 분리 발급된다. env도 분리해서 관리.
+
+| Env | 용도 | 쓰는 곳 |
+|---|---|---|
+| `TOSS_SECRET_KEY` | 단건결제 시크릿 | `/api/payment/confirm`, `/api/orders/refund`, `/api/admin/orders/refund` |
+| `NEXT_PUBLIC_TOSS_CLIENT_KEY` | 단건결제 클라이언트 | `/cart` |
+| `TOSS_BILLING_SECRET_KEY` | 정기결제 시크릿 | `/api/billing/confirm`, `/api/billing/cron` |
+| `NEXT_PUBLIC_TOSS_BILLING_CLIENT_KEY` | 정기결제 클라이언트 | `/subscribe` |
+| `TOSS_WEBHOOK_SECRET` | 웹훅 URL path secret | `/api/webhooks/toss/[secret]` |
+
+**심사는 2단계**: 토스 자체 심사 → 카드사 심사. 카드사는 9곳이 각각 독립 심사. 카드사 심사 완료 전엔 직결제 거절되지만 **간편결제(카카오페이·토스페이·페이코 등)는 카드사 심사와 무관하게 작동** (간편결제사 자체 매입망 사용).
+
+---
+
 ## 2. 결제 흐름 (단건 구매)
 
 진실의 출처: `src/app/api/payment/confirm/route.ts`
@@ -141,20 +157,39 @@
 
 ---
 
-## 6. 구독 (Subscription)
+## 6. 멤버십 (iiiahalab membership)
 
-진실의 출처: `src/app/api/subscribe/activate/route.ts`, `/subscribe` 페이지
+진실의 출처: `src/app/api/billing/confirm/route.ts`, `src/app/api/billing/cron/route.ts`, `src/app/api/subscribe/cancel/route.ts`, `src/app/api/membership/get/route.ts`, `/subscribe` 페이지
 
-- **가격: ₩39,000 / month** (cart CTA에 하드코딩됨 — 변경 시 cart 코드와 DB 둘 다 갱신)
-- **혜택**: 활성화 시점에 `products` 중 `type=extension AND is_active=true`인 **모든 익스텐션**에 대해 주문 + 라이선스가 자동 생성됨 (강의는 포함 안 됨)
-- **idempotent**: 이미 같은 `subscription_id`로 만들어진 주문이 있으면 스킵. 재호출해도 중복 라이선스 안 생김.
-- 무료 발급 주문의 표식: `orders.amount = 0`, `orders.payment_key = "subscription:{id}"`, `orders.subscription_id = {id}`
-- 새 익스텐션이 출시되면 활성 구독자에게 자동 배포되는가? — `/api/subscribe/activate`를 다시 호출하면 새 항목만 추가됨. 자동 트리거는 없으므로 **신규 익스텐션 출시 시 운영자가 활성 구독에 대해 재실행하는 절차 필요**. → TBD: 출시 시 자동 fan-out 잡 검토.
+### 6.1 가격·플랜
+- **월간**: ₩29,000 (디버깅 기간 중 ₩24,900 할인 적용)
+- **연간**: ₩300,000
+- 가격은 `src/app/subscribe/SubscribeContent.tsx`에 상수로 고정. 변경 시 코드·DB(필요 시)·약관 동시 갱신.
 
-**TBD (정책 결정 필요)**
-- 결제 게이트웨이: 구독 결제(반복 결제)는 어떻게 처리하는가? 현재 코드에는 Toss 정기결제 연동이 없음. 첫 가입만 처리하고 갱신 흐름은 미구현으로 보임.
-- 구독 해지 흐름: `/api/subscribe/cancel` 같은 엔드포인트가 없음. 해지 시 발급된 라이선스를 어떻게 처리할지 (즉시 revoke vs 기간 만료까지 유지)?
-- 강의는 구독 대상이 아님 — 의도된 정책인지 확인.
+### 6.2 가입 흐름 — 빌링키 발급
+유저가 `/subscribe`에서 "멤버십 가입하기" 클릭 → `payment.requestBillingAuth()` (카드 전용 모달, 간편결제 없음 — 정상) → 성공 시 `/billing/success`로 리다이렉트 → `/api/billing/confirm`에서 authKey → billingKey 교환 + 최초 과금 + subscription row insert.
+
+### 6.3 정기 갱신 — cron
+Vercel Cron (`vercel.json`의 `/api/billing/cron`)이 매일 실행 → `expires_at <= now()` 활성 구독에 대해 `POST /v1/billing/{billingKey}` 호출 → 성공 시 기간 연장, 실패 시 `past_due`. `CRON_SECRET`으로 인증.
+
+### 6.4 멤버십 스코프
+활성 멤버십 유저가 상세 페이지에서 "이 익스텐션 내려받기"를 누르면 `/api/membership/get` 호출 → 해당 product에 대해 무료 order + license 생성 (`order.amount=0`, `order.payment_key="membership:{subscription_id}"`, `order.subscription_id={id}`).
+- **스코프**: 플랫폼 무관 전체 extension 대상 (SketchUp + AutoCAD). `type !== "extension"` 필터만 있고 platform 필터는 없음.
+- 강의(`type=course`)는 멤버십 미포함.
+
+### 6.5 해지
+- `/api/subscribe/cancel`: `cancel_at_period_end = true`로 설정. 기간 종료까지는 계속 사용 가능.
+- 기간 종료(`billing/cron`에서 감지) → `status = 'expired'` + 연결된 라이선스 `status = 'revoked'` (멤버십 get으로 발급된 것들).
+
+### 6.6 재가입 복구 (revival)
+해지 후 재가입 시 `/api/membership/get`에서 기존 revoked 라이선스를 찾아 `status = 'active'` + 새 `subscription_id`로 업데이트. 즉 **이전에 받은 라이선스 키가 그대로 살아남음** — 사용자는 다시 활성화할 필요 없음.
+
+### 6.7 신규 익스텐션 출시 시
+`/api/membership/get`은 유저가 명시적으로 "내려받기" 눌러야 발급되는 pull 모델. 자동 fan-out 없음. 신규 익스텐션이 출시되면 활성 구독자가 상세 페이지에 방문했을 때만 발급됨 — 의도된 동작.
+
+### 6.8 TBD
+- `past_due` 상태의 자동 재시도 정책(현재 cron에서 바로 expired로 전환).
+- 강의 멤버십 포함 여부 — 현재 미포함. 향후 정책 변경 시 `/api/membership/get`의 type 필터 수정.
 
 ---
 
@@ -172,12 +207,12 @@
 ### 7.2 자가 환불 (`/api/orders/refund`)
 
 사용자가 마이페이지에서 직접 환불 요청. 서버가 위 모든 조건을 다시 검증한 뒤 토스 `POST /v1/payments/{paymentKey}/cancel`을 `cancelAmount=order.amount`로 호출 (다중 아이템 주문 부분 환불). 성공 시:
-1. `orders.status = 'refunded'`
-2. `licenses` 중 해당 `order_id`의 모든 행 `status = 'revoked'`
+1. `orders.status = 'refunded'` (감사용으로 유지)
+2. 해당 `order_id`의 `licenses` row **삭제** (revoke가 아니라 DELETE)
 
 ### 7.3 관리자 환불 (`/api/admin/orders/refund`)
 
-`/admin/users` 행 펼침 영역의 개별 라이선스 행에서 사용. 자가 환불과 거의 동일하지만 **다운로드 여부·기간 제약 없음**. 운영자가 케이스 바이 케이스로 처리할 때 사용. 구독으로 발급된 행은 여기서도 거부됨 (구독 해지 플로우로).
+`/admin/users` 행 펼침 영역의 개별 라이선스 행에서 사용. 자가 환불과 거의 동일하지만 **다운로드 여부·기간 제약 없음**. 운영자가 케이스 바이 케이스로 처리할 때 사용. 구독으로 발급된 행은 여기서도 거부됨 (구독 해지 플로우로). 라이선스는 자가 환불과 마찬가지로 **삭제**.
 
 ### 7.4 다운로드 acknowledge 흐름
 
@@ -191,16 +226,22 @@
 
 (현재 미구현) 강의는 본 문서 작성 시점에 자가 환불 UI 없음. 환불 정책 명시(§7.1)는 익스텐션에 한정. 강의 환불은 일단 contact@iiiahalab.com 수동 처리.
 
-### 7.7 불변 규칙
+### 7.7 환불 vs 수동 revoke 구분
 
-- 환불 처리 시 **반드시 `licenses.status = 'revoked'`** 까지 같이 한다. orders 상태만 바꾸면 사용자가 계속 라이선스를 쓸 수 있게 된다.
+- **환불**: 종결 이벤트 → `licenses` row **DELETE**. 되돌릴 일 없음. /mypage는 `status=paid` 필터라 환불 주문 자동 숨김.
+- **관리자 수동 revoke** (`/admin/users`의 라이선스 해지 버튼): `licenses.status='revoked'`로 유지. "재활성" 버튼으로 복구 가능. 환불과 무관한 별개 시나리오 (예: 악용 감지, 계정 정리 등).
+- **멤버십 만료에 따른 revoke** (billing cron): `licenses.status='revoked'` 유지. 재가입 시 `/api/membership/get`이 복구.
+
+### 7.8 불변 규칙
+
+- 환불 처리 시 토스 cancel API 성공 확인 후 **반드시 `licenses` row를 삭제**한다. orders 상태만 바꾸면 다운로드/검증이 계속 통과되는 버그 발생.
 - 토스 cancel API 응답이 200이 아니면 DB에 어떤 변경도 하지 않는다 (실패 시 사용자에게 에러 메시지만 반환).
 - 자가 환불 엔드포인트는 클라이언트 조건 검사를 신뢰하지 말고 **서버에서 모든 조건을 다시 검증**한다.
+- OOB 환불(토스 상점관리에서 직접 취소)은 **웹훅을 통해 자동 동기화** — §10 참조.
 
-### 7.8 TBD
+### 7.9 TBD
 
 - 다중 아이템 한 결제 안에서 부분 환불을 반복 호출할 때 토스 잔액 추적이 정확한지 모니터링 필요 (이론상 cancelAmount 합이 결제액을 넘으면 토스가 거부함).
-- Webhook으로 토스 환불 결과를 비동기로 받는 흐름은 미구현 — 동기 호출 결과만 신뢰.
 
 ---
 
@@ -213,7 +254,8 @@
 - [ ] 결제 금액은 서버 측에서 재계산해 검증하는가? (현재 미구현 — 추가 시 이 항목 갱신)
 - [ ] 라이선스/결제 관련 라우트에 rate limiting이 걸려 있는가? (현재 없음)
 - [ ] 새 결제 흐름을 만들 때 토스 승인 → DB 쓰기 순서를 지켰는가?
-- [ ] 환불 후 라이선스를 `revoked`로 표시했는가?
+- [ ] 환불 후 라이선스 row를 **삭제**했는가? (revoke가 아니라 DELETE)
+- [ ] 새 단건/정기 결제 기능은 올바른 Toss 키 쌍(`TOSS_SECRET_KEY` vs `TOSS_BILLING_SECRET_KEY`)을 쓰고 있는가?
 
 ---
 
@@ -226,3 +268,40 @@
 4. (가능하면) Supabase에서 한 건 테스트 결제·활성화·해제 사이클 실행
 
 이 문서의 **TBD** 항목은 미해결 정책 결정. 시간 날 때마다 하나씩 결정해 줄여 나간다.
+
+---
+
+## 10. Toss 웹훅 (OOB 동기화)
+
+진실의 출처: `src/app/api/webhooks/toss/[secret]/route.ts`
+
+### 10.1 목적
+토스 상점관리에서 **앱 밖에서 취소·빌링키 폐기**(OOB = out-of-band)된 경우 우리 DB를 자동 동기화. 웹훅 없으면 /mypage·/admin/orders가 실제 돈 흐름과 어긋나는 버그 발생.
+
+### 10.2 엔드포인트·인증
+- URL: `https://iiiahalab.com/api/webhooks/toss/{TOSS_WEBHOOK_SECRET}` (path 자체가 공유 비밀)
+- 토스의 결제/빌링 이벤트엔 **서명 헤더가 없다** → 서명 검증 대신 다음 두 가지를 병행:
+  1. URL path secret 비교 (timing-safe)
+  2. **Toss API 재조회**로 페이로드 신뢰도 확정 (body 맹신 금지)
+
+### 10.3 구독 이벤트
+단건·정기 MID 각각의 개발자센터에서 **동일 URL로 등록**. 핸들러는 두 MID 모두 받음.
+- `PAYMENT_STATUS_CHANGED` — 결제/취소 상태 변경. `data.status ∈ {CANCELED, PARTIAL_CANCELED}`만 처리.
+- `BILLING_DELETED` — 빌링키가 외부에서 폐기된 경우. 해당 subscription 만료 처리.
+
+### 10.4 처리 로직 (취소)
+1. URL secret 검증 실패 → 404
+2. `GET /v1/payments/{paymentKey}`로 재조회. 단건 시크릿 → 실패 시 빌링 시크릿 순차 시도.
+3. `paymentKey`로 `orders` 조회.
+4. `cancels[]` 순회: 금액이 일치하는 `paid` 주문을 `refunded`로 전환, 해당 `licenses` row **삭제**.
+5. 전액 취소(`CANCELED`)면 금액 매칭 실패한 잔여 `paid` 주문도 모두 `refunded` 처리 (할인 분배로 어긋난 케이스 대비).
+
+### 10.5 Idempotency & 응답
+- 10초 내 **200 응답 필수**. 그 외엔 토스가 최대 7회 재시도 (1 / 4 / 16 / 64 / 256 / 1024 / 4096 분 간격).
+- 처리 실패해도 200으로 ACK (재시도 루프보단 내부 로그로 대응).
+- 같은 이벤트 중복 수신 가능 → `licenses`는 이미 삭제된 행 대상이면 no-op. `orders`도 이미 `refunded`면 변화 없음.
+
+### 10.6 불변 규칙
+- body만 보고 DB를 바꾸지 않는다. 반드시 Toss API 재조회로 확정.
+- 서명이 없으므로 **URL path secret은 공개하지 말 것**. git 커밋·슬랙·이메일 금지.
+- 등록 시 단건 MID에만 등록하면 빌링 이벤트 누락. **양 MID 모두에 등록**.
