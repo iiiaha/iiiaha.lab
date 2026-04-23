@@ -95,17 +95,13 @@ export default function SubscribeContent({
         </p>
 
         {/* Day rate anchor */}
-        <p className="text-[14px] text-[#666] leading-[1.7] mb-2">
+        <p className="text-[14px] text-[#666] leading-[1.7] mb-7">
           타일 하루 <strong className="text-[#111]">38만</strong> · 목수 하루 <strong className="text-[#111]">39만</strong> · 도배 하루 <strong className="text-[#111]">31만</strong>
-        </p>
-        <p className="text-[17px] font-bold text-[#111] leading-[1.5] mb-7">
-          여러분의 하루 가치는 얼마인가요?
         </p>
 
         {/* CTA hook */}
         <p className="text-[21px] font-bold text-[#111] leading-[1.45] mb-3">
-          1년 30만 원에 이아하랩을 고용해주세요.<br />
-          그 몇 배의 가치를 돌려드리겠습니다.
+          1년 30만 원에 이아하랩을 고용하세요.
         </p>
         <p className="text-[14px] text-[#666] leading-[1.8]">
           당신의 든든한 생산성 조력자가 되어드릴게요.<br />

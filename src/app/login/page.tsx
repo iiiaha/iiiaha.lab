@@ -51,7 +51,7 @@ function LoginInner() {
           </label>
           <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className="w-full border border-[#ddd] px-3 py-2.5 text-[14px] outline-none focus:border-[#111] transition-colors" />
         </div>
-        <button type="submit" disabled={loading} className="mt-3 bg-[#111] text-white text-[13px] font-bold tracking-[0.05em] py-3 border-0 cursor-pointer hover:bg-[#333] transition-colors duration-200 disabled:opacity-40">
+        <button type="submit" disabled={loading} className="mt-5 bg-[#111] text-white text-[13px] font-bold tracking-[0.05em] py-3 border-0 cursor-pointer hover:bg-[#333] transition-colors duration-200 disabled:opacity-40">
           {loading ? "..." : "로그인"}
         </button>
       </form>
