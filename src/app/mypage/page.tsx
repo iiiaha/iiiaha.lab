@@ -388,10 +388,7 @@ export default function MyPage() {
                         <span className="text-[11px] text-[#999] w-[60px]">유효기간</span>
                         {order.subscription_id && subscription ? (
                           <span className="text-[12px] text-[#666]">
-                            <span
-                              className="font-bold text-[#00c9a7]"
-                              style={{ background: "linear-gradient(transparent 55%, rgba(0, 201, 167, 0.25) 55%)" }}
-                            >
+                            <span className="font-bold text-white bg-[#00c9a7] px-1.5 py-0.5">
                               멤버십 이용 중
                             </span>{" "}
                             {new Date(subscription.expires_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })} 까지
@@ -423,7 +420,7 @@ export default function MyPage() {
                             {ver && (
                               ver.hasUpdate ? (
                                 <span className="text-[12px] text-[#111] font-bold">
-                                  v{ver.current} → v{ver.latest} available
+                                  v{ver.current} → v{ver.latest} 업데이트 가능
                                 </span>
                               ) : ver.notDownloaded && ver.latest ? (
                                 <span className="text-[12px] text-[#999]">
@@ -431,7 +428,7 @@ export default function MyPage() {
                                 </span>
                               ) : ver.current ? (
                                 <span className="text-[12px] text-[#999]">
-                                  v{ver.current} — Latest
+                                  v{ver.current} — 최신 버전입니다.
                                 </span>
                               ) : null
                             )}
@@ -453,7 +450,7 @@ export default function MyPage() {
                       <>
                         <button
                           onClick={() => handleDownload(order)}
-                          className="w-full text-[12px] text-[#111] border border-[#111] bg-white px-4 py-1.5 cursor-pointer hover:bg-[#111] hover:text-white transition-colors text-center"
+                          className="w-full text-[12px] text-white bg-[#111] border border-[#111] px-4 py-1.5 cursor-pointer hover:bg-[#333] transition-colors text-center"
                         >
                           설치파일 다운받기
                         </button>
@@ -462,11 +459,11 @@ export default function MyPage() {
                             onClick={() => handleDownload(order)}
                             className="w-full text-[12px] text-white bg-[#111] border border-[#111] px-4 py-1.5 cursor-pointer hover:bg-[#333] transition-colors text-center"
                           >
-                            Update to v{ver.latest}
+                            v{ver.latest} 업데이트
                           </button>
                         )}
                         <Link href={`/openlab/new?product=${slug}`}
-                          className="w-full text-[12px] text-[#111] border border-[#111] px-4 py-1.5 no-underline hover:bg-[#111] hover:text-white transition-colors text-center">
+                          className="w-full text-[12px] text-white bg-[#111] border border-[#111] px-4 py-1.5 no-underline hover:bg-[#333] transition-colors text-center">
                           버그 신고 & 제안
                         </Link>
                         {(() => {
