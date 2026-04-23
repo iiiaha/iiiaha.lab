@@ -299,8 +299,7 @@ export default function ExtensionDetail({ product }: { product: Product }) {
         ) : (
           <div className="flex gap-3">
             {/* 개별 구매 */}
-            <div className="flex-1 flex flex-col gap-2">
-              <span className="text-[12px] text-[#666]">이 익스텐션 개별 구매하기</span>
+            <div className="flex-1 flex flex-col">
               {items.some((i) => i.id === product.id) || added ? (
                 <Link
                   href="/cart"
@@ -325,7 +324,7 @@ export default function ExtensionDetail({ product }: { product: Product }) {
                   }}
                   className="flex-1 flex flex-col items-center justify-center bg-[#111] text-white border-0 cursor-pointer py-3 rounded hover:bg-[#333] active:bg-[#000] transition-colors duration-150"
                 >
-                  <span className="text-[13px] font-bold tracking-[0.03em]">Add to Cart</span>
+                  <span className="text-[13px] font-bold tracking-[0.03em]">이 익스텐션 개별 구매하기</span>
                   <span className="text-[10px] text-[rgba(255,255,255,0.5)] mt-0.5">이 익스텐션에 대한 영구 라이선스 획득</span>
                   {(product.discount_percent ?? 0) > 0 && product.original_price ? (
                     <div className="flex items-baseline gap-1 mt-1">
@@ -343,15 +342,14 @@ export default function ExtensionDetail({ product }: { product: Product }) {
             </div>
 
             {/* 멤버십 */}
-            <div className="flex-1 flex flex-col gap-2">
-              <span className="text-[12px] text-[#666]">이아하랩 멤버십 가입하기</span>
+            <div className="flex-1 flex flex-col">
               <Link
                 href="/subscribe"
                 className="sub-cta flex-1 flex flex-col items-center justify-center no-underline overflow-hidden relative py-3 rounded"
               >
                 <div className="sub-cta-bg absolute inset-0" />
                 <div className="sub-cta-aurora absolute inset-0" />
-                <span className="relative text-[13px] font-bold text-white tracking-[0.03em]">iiiahalab membership</span>
+                <span className="relative text-[13px] font-bold text-white tracking-[0.03em]">이아하랩 멤버십 가입하기</span>
                 <span className="relative text-[10px] text-[rgba(255,255,255,0.5)] mt-0.5">모든 익스텐션 자유롭게 이용</span>
                 <div className="relative flex items-baseline gap-1 mt-1">
                   <span className="text-[10px] text-[rgba(255,255,255,0.35)] line-through">₩29,000</span>
