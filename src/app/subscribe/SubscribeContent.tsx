@@ -96,23 +96,25 @@ export default function SubscribeContent({
           똑똑하게 일하고,<br />
           젊음을 더 가치 있는 곳에 쓰세요.
         </h2>
-        <p className="text-[11px] text-[#bbb] italic tracking-[0.03em] mb-7">
+        <p className="text-[11px] text-[#bbb] italic tracking-[0.03em] mb-10">
           Work Smart. Save Your Youth.
         </p>
 
-        {/* Day rate anchor */}
-        <p className="text-[14px] text-[#666] leading-[1.7] mb-7">
-          타일 하루 <strong className="text-[#111]">38만</strong> · 목수 하루 <strong className="text-[#111]">39만</strong> · 도배 하루 <strong className="text-[#111]">31만</strong>
+        {/* Industry diagnosis */}
+        <p className="text-[14px] text-[#666] leading-[1.8] mb-10">
+          낮은 연봉, 높은 업무 강도, 반복되는 야근.<br />
+          건축·인테리어·가구 업계의 고질적 병입니다.
         </p>
 
-        {/* CTA hook */}
-        <p className="text-[21px] font-bold text-[#111] leading-[1.45] mb-3">
-          1년 30만 원에 이아하랩을 고용하세요.
+        {/* Call — 실무자 인사이트 기반의 해방 */}
+        <p className="text-[21px] font-bold text-[#111] leading-[1.5] mb-4">
+          이아하랩과 함께하세요.
         </p>
-        <p className="text-[14px] text-[#666] leading-[1.8]">
-          당신의 든든한 생산성 조력자가 되어드릴게요.<br />
-          의미 없는 반복 작업은 이제 이아하랩에 맡기세요.<br />
-          이아하랩과 함께 상위 1%의 생산성 도구를 경험하세요.
+        <p className="text-[14px] text-[#444] leading-[1.85]">
+          의미 없는 반복 작업은 이아하랩에 맡기세요.<br />
+          더 창의적인 일을 하세요.<br />
+          더 가치 있는 일을 하세요.<br />
+          당신의 가치를 높이세요.
         </p>
       </div>
 
