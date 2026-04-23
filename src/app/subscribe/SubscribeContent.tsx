@@ -91,40 +91,37 @@ export default function SubscribeContent({
 
       {/* Hero */}
       <div className="text-center py-10 mb-6">
-        {/* Brand statement */}
+        {/* Slogan */}
         <h2 className="text-[23px] font-bold tracking-[-0.01em] text-[#111] leading-[1.45] mb-1">
           똑똑하게 일하고,<br />
-          젊음을 더 가치 있는 곳에 쓰세요.
+          당신의 시간을 되찾으세요.
         </h2>
         <p className="text-[11px] text-[#bbb] italic tracking-[0.03em] mb-12">
           Work Smart. Save Your Youth.
         </p>
 
-        {/* Industry indictment */}
-        <p className="text-[14px] text-[#666] leading-[1.85] mb-12">
-          건축·인테리어·가구 업계는 오랫동안<br />
-          기술 혁신 대신 값싼 노동력을 갈아 넣어 굴러왔습니다.<br />
-          낮은 연봉, 반복되는 야근, 끝없는 무의미 노동 —<br />
-          이 업계의 고질적인 병입니다.
+        {/* Origin — 실무자가 만든 크레덴셜 */}
+        <p className="text-[14px] text-[#666] leading-[1.85] mb-10">
+          이아하랩은 실무에서 반복되던 비효율을<br />
+          직접 해결하며 시작되었습니다.
         </p>
 
-        {/* Time cost — personal stake */}
-        <p className="text-[17px] font-bold text-[#111] leading-[1.55] mb-2">
-          오늘의 2초가 쌓여 두 달이 됩니다.
-        </p>
-        <p className="text-[13px] text-[#666] leading-[1.8] mb-12">
-          2D·3D 속에서 속절없이 갈려 나가는 당신의 젊음.
+        {/* Concrete benefit */}
+        <p className="text-[19px] font-bold text-[#111] leading-[1.55] mb-12">
+          수십 번씩 반복되던 작업을<br />
+          한 번으로 줄입니다.
         </p>
 
-        {/* CTA — credibility + action + outcome */}
-        <p className="text-[21px] font-bold text-[#111] leading-[1.5] mb-3">
-          이아하랩과 함께하세요.
+        {/* Imperatives — 유저 행동 */}
+        <p className="text-[15px] text-[#333] leading-[1.85] mb-10">
+          더 이상 야근하지 마세요.<br />
+          더 중요한 일에 집중하세요.
         </p>
-        <p className="text-[14px] text-[#444] leading-[1.85]">
-          같은 현장에서 고민하던 실무자가 직접 만든 도구입니다.<br />
-          의미 없는 반복은 이아하랩에 맡기시고,<br />
-          당신은 더 창의적이고 가치 있는 일을 하세요.<br />
-          <span className="font-bold text-[#111]">당신의 가치는 거기서 만들어집니다.</span>
+
+        {/* Closing call */}
+        <p className="text-[16px] font-bold text-[#111] leading-[1.55]">
+          이제는 이 업계의 비효율에<br />
+          끌려다니지 마세요.
         </p>
       </div>
 
