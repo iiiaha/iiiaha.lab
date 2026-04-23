@@ -150,11 +150,11 @@ async function markOrderRefunded(orderId: string) {
     .update({ status: "refunded" })
     .eq("id", orderId);
 
+  // 환불은 종결 상태라 라이선스 row 삭제. 감사는 orders.status='refunded'로 남음.
   await serviceSupabase
     .from("licenses")
-    .update({ status: "revoked" })
-    .eq("order_id", orderId)
-    .eq("status", "active");
+    .delete()
+    .eq("order_id", orderId);
 }
 
 async function handleBillingDeleted(billingKey: string) {

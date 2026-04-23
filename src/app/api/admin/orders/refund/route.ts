@@ -108,16 +108,16 @@ export async function POST(req: NextRequest) {
     .update({ status: "refunded" })
     .eq("id", order.id);
 
-  // 해당 주문으로 발급된 라이선스 revoke
-  const { data: revokedLicenses } = await serviceSupabase
+  // 환불은 종결 상태라 라이선스 row 삭제. 감사는 orders.status='refunded'로 남음.
+  const { data: deletedLicenses } = await serviceSupabase
     .from("licenses")
-    .update({ status: "revoked" })
+    .delete()
     .eq("order_id", order.id)
     .select("id");
 
   return NextResponse.json({
     status: "refunded",
     refunded_amount: isTossPayment ? order.amount : 0,
-    revoked_licenses: revokedLicenses?.length ?? 0,
+    deleted_licenses: deletedLicenses?.length ?? 0,
   });
 }
