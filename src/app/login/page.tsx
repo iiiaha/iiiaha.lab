@@ -36,7 +36,7 @@ function LoginInner() {
       <h1 className="text-[16px] font-bold tracking-[0.03em] mb-[10px]">
         Login
       </h1>
-      <div className="border-b border-[#111] mb-4" />
+      <div className="border-b border-[#111] mb-8" />
       {error && <p className="text-[13px] text-red-600 mb-4">{error}</p>}
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div>
