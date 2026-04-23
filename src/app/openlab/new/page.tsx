@@ -11,6 +11,9 @@ interface ProductOption {
   name: string;
 }
 
+const SKETCHUP_VERSIONS = ["2026", "2025", "2024", "2023", "2022", "2021", "2020", "2019", "2018", "2017"];
+const AUTOCAD_YEARS = ["2026", "2025", "2024", "2023", "2022", "2021", "2020", "2019", "2018"];
+
 export default function NewPostPage() {
   return (
     <Suspense fallback={<div className="pt-20 text-center text-[14px] text-[#999]">Loading...</div>}>
@@ -32,6 +35,8 @@ function PostForm() {
   const [category, setCategory] = useState<"idea" | "bug" | "notice">("bug");
   const [isAdmin, setIsAdmin] = useState(false);
   const [productId, setProductId] = useState("");
+  const [sketchupVersion, setSketchupVersion] = useState("");
+  const [autocadVersion, setAutocadVersion] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -67,6 +72,8 @@ function PostForm() {
         if (post) {
           setCategory(post.category);
           setProductId(post.product_id || "");
+          setSketchupVersion(post.sketchup_version || "");
+          setAutocadVersion(post.autocad_version || "");
           setTitle(post.title);
           setDescription(post.description);
           if (post.image_url) {
@@ -140,6 +147,8 @@ function PostForm() {
         .update({
           category,
           product_id: productId || null,
+          sketchup_version: sketchupVersion || null,
+          autocad_version: autocadVersion || null,
           title: title.trim(),
           description: description.trim(),
           image_url: imageUrl,
@@ -159,6 +168,8 @@ function PostForm() {
         .insert({
           user_id: userId,
           product_id: productId || null,
+          sketchup_version: sketchupVersion || null,
+          autocad_version: autocadVersion || null,
           category,
           title: title.trim(),
           description: description.trim(),
@@ -224,6 +235,31 @@ function PostForm() {
             <option value="">None</option>
             {products.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
+        </div>
+
+        {/* Program Versions */}
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="block text-[12px] text-[#666] font-bold mb-1 tracking-[0.05em] uppercase">SketchUp Version</label>
+            <select value={sketchupVersion} onChange={(e) => setSketchupVersion(e.target.value)}
+              className="w-full border border-[#ddd] px-3 py-2.5 text-[14px] outline-none focus:border-[#111] transition-colors bg-white">
+              <option value="">Not used</option>
+              {SKETCHUP_VERSIONS.map((v) => <option key={v} value={v}>SketchUp {v}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="block text-[12px] text-[#666] font-bold mb-1 tracking-[0.05em] uppercase">AutoCAD Version</label>
+            <select value={autocadVersion} onChange={(e) => setAutocadVersion(e.target.value)}
+              className="w-full border border-[#ddd] px-3 py-2.5 text-[14px] outline-none focus:border-[#111] transition-colors bg-white">
+              <option value="">Not used</option>
+              <optgroup label="AutoCAD">
+                {AUTOCAD_YEARS.map((v) => <option key={v} value={v}>AutoCAD {v}</option>)}
+              </optgroup>
+              <optgroup label="AutoCAD LT">
+                {AUTOCAD_YEARS.map((v) => <option key={`lt-${v}`} value={`LT ${v}`}>AutoCAD LT {v}</option>)}
+              </optgroup>
+            </select>
+          </div>
         </div>
 
         {/* Title */}
