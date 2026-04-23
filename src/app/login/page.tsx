@@ -25,7 +25,7 @@ function LoginInner() {
       await signIn(email, password);
       router.push("/mypage");
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Login failed");
+      setError(err instanceof Error ? err.message : "로그인에 실패했습니다.");
     } finally {
       setLoading(false);
     }
@@ -34,25 +34,25 @@ function LoginInner() {
   return (
     <div className="max-w-[360px] mx-auto pt-20">
       <h1 className="text-[16px] font-bold tracking-[0.03em] mb-8">
-        Login
+        로그인
       </h1>
       <div className="border-t border-[#111] mb-8" />
       {error && <p className="text-[13px] text-red-600 mb-4">{error}</p>}
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div>
           <label className="block text-[12px] text-[#666] font-bold mb-1 tracking-[0.05em] uppercase">
-            Email
+            이메일
           </label>
           <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required className="w-full border border-[#ddd] px-3 py-2.5 text-[14px] outline-none focus:border-[#111] transition-colors" />
         </div>
         <div>
           <label className="block text-[12px] text-[#666] font-bold mb-1 tracking-[0.05em] uppercase">
-            Password
+            비밀번호
           </label>
           <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className="w-full border border-[#ddd] px-3 py-2.5 text-[14px] outline-none focus:border-[#111] transition-colors" />
         </div>
         <button type="submit" disabled={loading} className="mt-2 bg-[#111] text-white text-[13px] font-bold tracking-[0.05em] py-3 border-0 cursor-pointer hover:bg-[#333] transition-colors duration-200 disabled:opacity-40">
-          {loading ? "..." : "Login"}
+          {loading ? "..." : "로그인"}
         </button>
       </form>
       <p className="text-[13px] text-[#999] mt-4">
@@ -61,9 +61,9 @@ function LoginInner() {
         </a>
       </p>
       <p className="text-[13px] text-[#999] mt-2">
-        {"Don't have an account? "}
+        아직 계정이 없으신가요?{" "}
         <a href="/signup" className="text-[#111] underline">
-          Sign up
+          회원가입
         </a>
       </p>
     </div>
