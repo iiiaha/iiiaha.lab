@@ -253,8 +253,8 @@ export default function ExtensionDetail({ product }: { product: Product }) {
         ) : ownership === "membership_owned" ? (
           <div className="border border-[#ddd] rounded p-5">
             <div className="flex items-center justify-between">
-              <span className="text-[14px] font-bold">Added to Membership</span>
-              <span className="text-[12px] text-[#999]">Available in My Page</span>
+              <span className="text-[14px] font-bold">이미 다운로드한 익스텐션입니다.</span>
+              <span className="text-[12px] text-[#999]">마이페이지에서 확인하세요.</span>
             </div>
           </div>
         ) : ownership === "membership_available" ? (
