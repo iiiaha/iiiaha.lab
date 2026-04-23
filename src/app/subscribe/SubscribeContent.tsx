@@ -81,17 +81,30 @@ export default function SubscribeContent({
       <div className="border-b border-[#111] mb-8 sticky-divider" />
 
       {/* Hero */}
-      <div className="text-center py-10 mb-8">
-        <p className="text-[13px] text-[#999] tracking-[0.1em] uppercase mb-4">
+      <div className="text-center py-12 mb-10">
+        <p className="text-[13px] text-[#999] tracking-[0.1em] uppercase mb-5">
           iiiahalab membership
         </p>
-        <h2 className="text-[22px] font-bold tracking-[-0.01em] mb-3">
-          All Extensions. One Plan.
+        <h2 className="text-[26px] font-bold tracking-[-0.01em] mb-2 leading-[1.3]">
+          Work Smart. Save Your Youth.
         </h2>
-        <p className="text-[14px] text-[#666] max-w-[400px] mx-auto">
-          개별 구매 시 총 {formatPrice(totalPrice)}인 모든 익스텐션을<br />
-          멤버십으로 자유롭게 이용하세요.
+        <p className="text-[15px] text-[#333] mb-10">
+          똑똑하게 일하고, 젊음을 더 가치 있는 곳에.
         </p>
+
+        <div className="max-w-[460px] mx-auto text-[13px] text-[#666] leading-[1.9]">
+          <p className="mb-5">
+            타일 <strong className="text-[#111]">38만</strong> · 목수 <strong className="text-[#111]">39만</strong> · 도배 <strong className="text-[#111]">31만</strong>.<br />
+            각 분야 기공의 1품 일당입니다.
+          </p>
+          <p className="text-[17px] font-bold text-[#111] mb-5">
+            당신의 하루는 얼마입니까?
+          </p>
+          <p>
+            반복 작업은 도구에 맡기고,<br />
+            당신의 시간을 더 값지게 쓰세요.
+          </p>
+        </div>
       </div>
 
       {/* Plan Toggle */}
@@ -225,6 +238,21 @@ export default function SubscribeContent({
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Positioning */}
+      <div className="border-y border-[#111] py-10 mb-10 text-center">
+        <p className="text-[13px] text-[#999] tracking-[0.1em] uppercase mb-4">
+          Why Membership
+        </p>
+        <p className="text-[17px] font-bold text-[#111] leading-[1.55] mb-3">
+          몇 배 빠르게 일하고,<br />
+          남는 시간은 당신의 몫.
+        </p>
+        <p className="text-[13px] text-[#666] leading-[1.8] max-w-[420px] mx-auto">
+          상위 1%의 도구로 무장하세요.<br />
+          생산성의 끝을 보여드립니다.
+        </p>
       </div>
 
       {/* Extension Grid */}
