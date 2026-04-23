@@ -170,71 +170,43 @@ export default function ExtensionDetail({ product }: { product: Product }) {
             )}
           </div>
         </div>
-        {/* Description */}
-        {product.description && (
-          <div className="pt-1.5 pb-4">
-            <div className="flex mb-10">
-              <span className="w-[140px] shrink-0 text-[13px] text-[#666]">
-                Description
-              </span>
-            </div>
-            <div className="flex flex-col gap-1">
-              {product.description.split("\n").map((line, i) => {
-                const match = line.match(/^[•]\s*(.+?)\s*[—]\s*(.+)$/);
-                if (match) {
-                  return (
-                    <div key={i} className="flex gap-2">
-                      <span className="text-[13px] text-[#ccc] mt-px">•</span>
-                      <div>
-                        <p className="text-[13px] font-bold text-[#666] mb-0.5">
-                          {renderInline(match[1])}
-                        </p>
-                        <p className="text-[12px] text-[#999]">{renderInline(match[2])}</p>
-                      </div>
-                    </div>
-                  );
-                }
-                return line.trim() ? (
-                  <p key={i} className="text-[13px] text-[#666]">
-                    {renderInline(line)}
-                  </p>
-                ) : null;
-              })}
-            </div>
-            {product.description_ko && (
-              <>
-                <div className="border-t border-[#eee] my-1.5" />
-                <div className="flex flex-col gap-1">
-                  {product.description_ko.split("\n").map((line, i) => {
-                    const match = line.match(/^[•]\s*(.+?)\s*[—]\s*(.+)$/);
-                    if (match) {
-                      return (
-                        <div key={i} className="flex gap-2">
-                          <span className="text-[13px] text-[#ccc] mt-px">
-                            •
-                          </span>
-                          <div>
-                            <p className="text-[13px] font-bold text-[#666] mb-0.5">
-                              {renderInline(match[1])}
-                            </p>
-                            <p className="text-[12px] text-[#999]">
-                              {renderInline(match[2])}
-                            </p>
-                          </div>
+        {/* Description — 한국어 우선, 없으면 기존 영문 폴백 */}
+        {(() => {
+          const body = product.description_ko ?? product.description;
+          if (!body) return null;
+          return (
+            <div className="pt-1.5 pb-4">
+              <div className="flex mb-10">
+                <span className="w-[140px] shrink-0 text-[13px] text-[#666]">
+                  Description
+                </span>
+              </div>
+              <div className="flex flex-col gap-1">
+                {body.split("\n").map((line, i) => {
+                  const match = line.match(/^[•]\s*(.+?)\s*[—]\s*(.+)$/);
+                  if (match) {
+                    return (
+                      <div key={i} className="flex gap-2">
+                        <span className="text-[13px] text-[#ccc] mt-px">•</span>
+                        <div>
+                          <p className="text-[13px] font-bold text-[#666] mb-0.5">
+                            {renderInline(match[1])}
+                          </p>
+                          <p className="text-[12px] text-[#999]">{renderInline(match[2])}</p>
                         </div>
-                      );
-                    }
-                    return line.trim() ? (
-                      <p key={i} className="text-[13px] text-[#666]">
-                        {renderInline(line)}
-                      </p>
-                    ) : null;
-                  })}
-                </div>
-              </>
-            )}
-          </div>
-        )}
+                      </div>
+                    );
+                  }
+                  return line.trim() ? (
+                    <p key={i} className="text-[13px] text-[#666]">
+                      {renderInline(line)}
+                    </p>
+                  ) : null;
+                })}
+              </div>
+            </div>
+          );
+        })()}
       </div>
 
       {/* Purchase Info — 박스로 묶기 */}

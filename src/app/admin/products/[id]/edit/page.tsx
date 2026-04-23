@@ -266,16 +266,9 @@ export default function ProductEditPage() {
         </div>
       </section>
 
-      {/* Description (EN) */}
-      <section className="mb-8">
-        <SectionLabel>Description (EN)</SectionLabel>
-        <RichTextarea value={data.description ?? ""} onChange={(v) => update({ description: v })} rows={10} />
-        <FormatHint />
-      </section>
-
       {/* Description (KR) */}
       <section className="mb-8">
-        <SectionLabel>Description (KR)</SectionLabel>
+        <SectionLabel>Description</SectionLabel>
         <RichTextarea value={data.description_ko ?? ""} onChange={(v) => update({ description_ko: v })} rows={10} />
         <FormatHint />
       </section>
