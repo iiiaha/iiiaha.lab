@@ -388,7 +388,12 @@ export default function MyPage() {
                         <span className="text-[11px] text-[#999] w-[60px]">유효기간</span>
                         {order.subscription_id && subscription ? (
                           <span className="text-[12px] text-[#666]">
-                            <span className="text-[#00c9a7] font-bold">[멤버십 이용 중]</span>{" "}
+                            <span
+                              className="font-bold text-[#00c9a7]"
+                              style={{ background: "linear-gradient(transparent 55%, rgba(0, 201, 167, 0.25) 55%)" }}
+                            >
+                              멤버십 이용 중
+                            </span>{" "}
                             {new Date(subscription.expires_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })} 까지
                           </span>
                         ) : (
@@ -462,7 +467,7 @@ export default function MyPage() {
                         )}
                         <Link href={`/openlab/new?product=${slug}`}
                           className="w-full text-[12px] text-[#111] border border-[#111] px-4 py-1.5 no-underline hover:bg-[#111] hover:text-white transition-colors text-center">
-                          버그 신고 & 기능 제안
+                          버그 신고 & 제안
                         </Link>
                         {(() => {
                           const disabledReason = refundDisabledReason(order);
