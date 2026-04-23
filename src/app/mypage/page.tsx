@@ -276,82 +276,60 @@ export default function MyPage() {
           Logout
         </button>
       </div>
-      <div className="border-b border-[#111] mb-4 sticky-divider" />
-      <div className="flex items-center min-h-[32px] mb-6">
-        <p className="text-[13px] text-[#666]">{email}</p>
-      </div>
+      <div className="border-b border-[#111] mb-5 sticky-divider" />
 
-      {/* Subscription */}
-      {subscription && (
-        <div className="mb-10">
-          <h2 className="text-[12px] font-bold text-[#999] tracking-[0.05em] uppercase mb-4">
-            Membership
-          </h2>
-          {subscription.status === "expired" || subscription.status === "past_due" ? (
-            /* 만료/결제실패 → 재구독 배너 */
+      {/* Account info — 이메일 + 멤버십 상태 통합 */}
+      <div className="mb-10 flex flex-col gap-2">
+        <p className="text-[13px] text-[#333]">{email}</p>
+
+        {subscription && subscription.status === "active" && !subscription.cancel_at_period_end && (
+          <>
+            <div className="flex items-start justify-between gap-3">
+              <p className="text-[12px] text-[#444]">
+                iiiahalab 멤버십 · {subscription.plan === "annual" ? "연간" : "월간"} ·{" "}
+                {new Date(subscription.expires_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })} 까지 이용
+              </p>
+              <button
+                onClick={handleCancelSubscription}
+                className="text-[11px] text-[#999] bg-transparent border-0 cursor-pointer hover:text-red-600 shrink-0"
+              >
+                멤버십 해지
+              </button>
+            </div>
+            <p className="text-[11px] text-[#999]">
+              멤버십 기간 동안 모든 익스텐션을 자유롭게 이용하실 수 있습니다.
+            </p>
+          </>
+        )}
+
+        {subscription && subscription.status === "active" && subscription.cancel_at_period_end && (
+          <>
+            <p className="text-[12px] text-[#444]">
+              iiiahalab 멤버십 · {subscription.plan === "annual" ? "연간" : "월간"} ·{" "}
+              {new Date(subscription.expires_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })} 까지 (해지 예정)
+            </p>
+            <p className="text-[11px] text-[#999]">
+              멤버십이 해지되었습니다. 기간 종료 후 자동으로 만료됩니다.
+            </p>
+          </>
+        )}
+
+        {subscription && (subscription.status === "expired" || subscription.status === "past_due") && (
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-[12px] text-[#999]">
+              iiiahalab 멤버십 만료 ·{" "}
+              {new Date(subscription.expires_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })}
+              {subscription.status === "past_due" && " (결제 실패)"}
+            </p>
             <Link
               href="/subscribe"
-              className="sub-cta group block no-underline overflow-hidden relative rounded-sm mb-2"
+              className="text-[11px] text-[#111] border border-[#111] px-3 py-1 no-underline hover:bg-[#111] hover:text-white transition-colors shrink-0"
             >
-              <div className="sub-cta-bg absolute inset-0 opacity-40" />
-              <div className="relative p-5">
-                <p className="text-[14px] font-bold text-white mb-1">
-                  iiiahalab membership — Expired
-                </p>
-                <p className="text-[12px] text-[rgba(255,255,255,0.6)] mb-3">
-                  Your membership expired on {new Date(subscription.expires_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })}.
-                  {subscription.status === "past_due" && " (Payment failed)"}
-                </p>
-                <span className="text-[12px] font-bold text-white border border-white px-4 py-1.5 hover:bg-white hover:text-[#111] transition-colors">
-                  Renew Membership
-                </span>
-              </div>
+              재구독
             </Link>
-          ) : (
-            /* 활성 멤버십 */
-            <>
-              <div
-                className="sub-cta relative overflow-hidden rounded-sm p-5 mb-2"
-              >
-                <div className="sub-cta-bg absolute inset-0" />
-                <div className="sub-cta-aurora absolute inset-0" />
-                <div className="relative flex items-center justify-between">
-                  <div>
-                    <p className="text-[14px] font-bold text-white mb-1">
-                      iiiahalab membership — {subscription.plan === "annual" ? "Annual" : "Monthly"}
-                    </p>
-                    <p className="text-[12px] text-[rgba(255,255,255,0.6)]">
-                      {new Date(subscription.started_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })}
-                      {" — "}
-                      {new Date(subscription.expires_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })}
-                    </p>
-                  </div>
-                  <span className="text-[11px] font-bold tracking-[0.05em] text-white border border-[rgba(255,255,255,0.3)] px-3 py-1">
-                    {subscription.cancel_at_period_end ? "Canceling" : "Active"}
-                  </span>
-                </div>
-              </div>
-              {subscription.cancel_at_period_end ? (
-                <p className="text-[11px] text-[#999]">
-                  멤버십이 해지되었습니다. {new Date(subscription.expires_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })}까지 계속 이용하실 수 있으며, 이후 자동으로 만료됩니다.
-                </p>
-              ) : (
-                <div className="flex items-center justify-between">
-                  <p className="text-[11px] text-[#999]">
-                    멤버십 기간 동안 모든 익스텐션을 이용하실 수 있습니다.
-                  </p>
-                  <button
-                    onClick={handleCancelSubscription}
-                    className="text-[11px] text-[#999] bg-transparent border-0 cursor-pointer hover:text-red-600"
-                  >
-                    멤버십 해지
-                  </button>
-                </div>
-              )}
-            </>
-          )}
-        </div>
-      )}
+          </div>
+        )}
+      </div>
 
       <h2 className="text-[12px] font-bold text-[#999] tracking-[0.05em] uppercase mb-4">
         구매내역
@@ -450,7 +428,7 @@ export default function MyPage() {
                       <>
                         <button
                           onClick={() => handleDownload(order)}
-                          className="w-full text-[12px] text-white bg-[#111] border border-[#111] px-4 py-1.5 cursor-pointer hover:bg-[#333] transition-colors text-center"
+                          className="w-full text-[12px] text-[#111] border border-[#111] bg-white px-4 py-1.5 cursor-pointer hover:bg-[#111] hover:text-white transition-colors text-center"
                         >
                           설치파일 다운받기
                         </button>
@@ -463,7 +441,7 @@ export default function MyPage() {
                           </button>
                         )}
                         <Link href={`/openlab/new?product=${slug}`}
-                          className="w-full text-[12px] text-white bg-[#111] border border-[#111] px-4 py-1.5 no-underline hover:bg-[#333] transition-colors text-center">
+                          className="w-full text-[12px] text-[#111] border border-[#111] px-4 py-1.5 no-underline hover:bg-[#111] hover:text-white transition-colors text-center">
                           버그 신고 & 제안
                         </Link>
                         {(() => {
