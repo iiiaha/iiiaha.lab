@@ -58,7 +58,7 @@ a, button, [role="button"], input[type="submit"], select {
   transition: filter 0.2s ease;
 }
 .sub-cta:hover {
-  filter: brightness(1.2);
+  filter: brightness(1.4);
 }
 
 .sub-cta-bg {
