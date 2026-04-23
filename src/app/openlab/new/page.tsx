@@ -213,16 +213,16 @@ function PostForm() {
           <div className="flex gap-2">
             <button type="button" onClick={() => setCategory("idea")}
               className={`text-[13px] px-4 py-2 border cursor-pointer transition-colors ${category === "idea" ? "bg-[#111] text-white border-[#111]" : "bg-white text-[#666] border-[#ddd] hover:border-[#111]"}`}>
-              아이디어
+              Idea
             </button>
             <button type="button" onClick={() => setCategory("bug")}
               className={`text-[13px] px-4 py-2 border cursor-pointer transition-colors ${category === "bug" ? "bg-[#111] text-white border-[#111]" : "bg-white text-[#666] border-[#ddd] hover:border-[#111]"}`}>
-              질문 · 버그
+              Question / Bug
             </button>
             {isAdmin && (
               <button type="button" onClick={() => setCategory("notice")}
                 className={`text-[13px] px-4 py-2 border cursor-pointer transition-colors ${category === "notice" ? "bg-[#00c9a7] text-white border-[#00c9a7]" : "bg-white text-[#666] border-[#ddd] hover:border-[#00c9a7]"}`}>
-                공지
+                Notice
               </button>
             )}
           </div>
