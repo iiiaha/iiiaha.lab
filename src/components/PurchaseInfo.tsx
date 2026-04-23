@@ -29,23 +29,23 @@ export default function PurchaseInfo({ variant }: { variant: Variant }) {
   const rows = ROWS[variant];
 
   return (
-    <div className="mt-6 border-y border-[#ddd] py-4">
-      <p className="text-[11px] text-[#999] tracking-[0.1em] uppercase mb-3">
+    <div className="border border-[#ddd] rounded mt-8 p-5">
+      <h2 className="text-[13px] font-bold tracking-[0.03em] mb-4">
         구매 정보
-      </p>
-      <div className="flex flex-col gap-1.5 mb-3">
+      </h2>
+      <div className="flex flex-col gap-0">
         {rows.map(([label, value]) => (
-          <div key={label} className="flex text-[12px] leading-[1.6]">
-            <span className="w-[80px] shrink-0 text-[#666]">{label}</span>
-            <span className="text-[#111]">{value}</span>
+          <div key={label} className="flex py-1.5 border-b border-[#eee] last:border-0">
+            <span className="w-[100px] shrink-0 text-[12px] text-[#999]">{label}</span>
+            <span className="text-[12px] text-[#444]">{value}</span>
           </div>
         ))}
       </div>
-      <p className="text-[11px] text-[#999] leading-[1.7]">
+      <p className="text-[10px] text-[#bbb] leading-[1.6] mt-3">
         디지털 콘텐츠 특성상 활성화·시청 이후에는 「전자상거래 등에서의
         소비자보호에 관한 법률」 제17조 제2항 제5호에 따라 청약철회가 제한될
         수 있습니다. 자세한 내용은{" "}
-        <Link href="/terms" className="text-[#111] underline">
+        <Link href="/terms" className="text-[#666] underline">
           이용약관
         </Link>
         을 확인해 주세요.
