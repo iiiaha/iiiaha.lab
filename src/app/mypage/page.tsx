@@ -294,7 +294,7 @@ export default function MyPage() {
           </Link>
         </div>
 
-        <div className="flex items-baseline py-2">
+        <div className="flex items-baseline py-2 gap-3">
           <span className="w-[70px] shrink-0 text-[12px] text-[#999]">멤버십</span>
           <div className="flex-1">
             {!subscription ? (
