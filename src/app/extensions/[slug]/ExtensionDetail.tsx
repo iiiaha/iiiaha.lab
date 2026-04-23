@@ -260,22 +260,31 @@ export default function ExtensionDetail({ product }: { product: Product }) {
             </div>
           </div>
         ) : ownership === "membership_available" ? (
-          <button
-            onClick={handleGet}
-            disabled={getting}
-            className="sub-cta w-full border-0 cursor-pointer py-4 rounded overflow-hidden relative disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <div className="sub-cta-bg absolute inset-0" />
-            <div className="sub-cta-aurora absolute inset-0" />
-            <div className="relative flex flex-col items-center">
-              <span className="text-[14px] font-bold text-white tracking-[0.03em]">
-                {getting ? "Adding..." : "iiiahalab membership — Get"}
-              </span>
-              <span className="text-[10px] text-[rgba(255,255,255,0.5)] mt-0.5">
-                멤버십으로 이 익스텐션 내려받기
-              </span>
+          getting ? (
+            /* 처리 중 — 성공 상태 블록을 반투명으로 미리 보여주어 완료 시 자연스럽게 전환 */
+            <div className="bg-[#f5f5f5] border border-[#ddd] rounded p-5 opacity-60 transition-opacity">
+              <div className="flex items-center justify-between">
+                <span className="text-[14px] font-bold text-[#666]">내려받는 중...</span>
+                <span className="text-[12px] text-[#999]">잠시만 기다려 주세요</span>
+              </div>
             </div>
-          </button>
+          ) : (
+            <button
+              onClick={handleGet}
+              className="sub-cta w-full border-0 cursor-pointer py-4 rounded overflow-hidden relative"
+            >
+              <div className="sub-cta-bg absolute inset-0" />
+              <div className="sub-cta-aurora absolute inset-0" />
+              <div className="relative flex flex-col items-center">
+                <span className="text-[14px] font-bold text-white tracking-[0.03em]">
+                  이 익스텐션 내려받기
+                </span>
+                <span className="text-[10px] text-[rgba(255,255,255,0.5)] mt-0.5">
+                  iiiahalab membership
+                </span>
+              </div>
+            </button>
+          )
         ) : (
           <div className="flex gap-3">
             {/* 개별 구매 */}
