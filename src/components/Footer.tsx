@@ -20,16 +20,15 @@ export default function Footer() {
               <span className="text-[#ddd]">|</span>
               <span>대표 <span className="text-[#666]">이상훈</span></span>
               <span className="text-[#ddd]">|</span>
-              <span>사업자등록번호 <span className="text-[#666]">367-02-03753</span></span>
+              <span>문의 <span className="text-[#666]">010-4005-7606</span></span>
             </div>
-            <div>
-              통신판매업신고번호 <span className="text-[#666]">2026-서울강남-02400</span>
+            <div className="flex flex-wrap items-center gap-x-2">
+              <span>사업자등록번호 <span className="text-[#666]">367-02-03753</span></span>
+              <span className="text-[#ddd]">|</span>
+              <span>통신판매업신고번호 <span className="text-[#666]">2026-서울강남-02400</span></span>
             </div>
             <div>
               주소 <span className="text-[#666]">서울특별시 강남구 언주로135길 32-8, 103호</span>
-            </div>
-            <div>
-              문의 <span className="text-[#666]">010-4005-7606</span>
             </div>
           </div>
           <div className="flex flex-col gap-0.5 shrink-0 text-right max-sm:text-left">

@@ -279,56 +279,81 @@ export default function MyPage() {
       <div className="border-b border-[#111] mb-5 sticky-divider" />
 
       {/* Account info — 이메일 + 멤버십 상태 통합 */}
-      <div className="mb-10 flex flex-col gap-2">
-        <p className="text-[13px] text-[#333]">{email}</p>
+      <div className="border border-[#ddd] p-5 mb-10">
+        <div className="flex items-start py-1.5 border-b border-[#eee]">
+          <span className="w-[70px] shrink-0 text-[12px] text-[#999]">이메일</span>
+          <span className="flex-1 text-[13px] text-[#333]">{email}</span>
+        </div>
 
-        {subscription && subscription.status === "active" && !subscription.cancel_at_period_end && (
-          <>
-            <div className="flex items-start justify-between gap-3">
-              <p className="text-[12px] text-[#444]">
-                iiiahalab 멤버십 · {subscription.plan === "annual" ? "연간" : "월간"} ·{" "}
-                {new Date(subscription.expires_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })} 까지 이용
-              </p>
-              <button
-                onClick={handleCancelSubscription}
-                className="text-[11px] text-[#999] bg-transparent border-0 cursor-pointer hover:text-red-600 shrink-0"
-              >
-                멤버십 해지
-              </button>
-            </div>
-            <p className="text-[11px] text-[#999]">
-              멤버십 기간 동안 모든 익스텐션을 자유롭게 이용하실 수 있습니다.
-            </p>
-          </>
-        )}
-
-        {subscription && subscription.status === "active" && subscription.cancel_at_period_end && (
-          <>
-            <p className="text-[12px] text-[#444]">
-              iiiahalab 멤버십 · {subscription.plan === "annual" ? "연간" : "월간"} ·{" "}
-              {new Date(subscription.expires_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })} 까지 (해지 예정)
-            </p>
-            <p className="text-[11px] text-[#999]">
-              멤버십이 해지되었습니다. 기간 종료 후 자동으로 만료됩니다.
-            </p>
-          </>
-        )}
-
-        {subscription && (subscription.status === "expired" || subscription.status === "past_due") && (
-          <div className="flex items-center justify-between gap-3">
-            <p className="text-[12px] text-[#999]">
-              iiiahalab 멤버십 만료 ·{" "}
-              {new Date(subscription.expires_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })}
-              {subscription.status === "past_due" && " (결제 실패)"}
-            </p>
-            <Link
-              href="/subscribe"
-              className="text-[11px] text-[#111] border border-[#111] px-3 py-1 no-underline hover:bg-[#111] hover:text-white transition-colors shrink-0"
-            >
-              재구독
-            </Link>
+        <div className="flex items-start py-1.5">
+          <span className="w-[70px] shrink-0 text-[12px] text-[#999] pt-0.5">멤버십</span>
+          <div className="flex-1">
+            {!subscription ? (
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-[13px] text-[#999]">가입 전</span>
+                <Link
+                  href="/subscribe"
+                  className="text-[11px] text-[#111] border border-[#111] px-3 py-1 no-underline hover:bg-[#111] hover:text-white transition-colors shrink-0"
+                >
+                  가입하기
+                </Link>
+              </div>
+            ) : subscription.status === "active" && !subscription.cancel_at_period_end ? (
+              <>
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-[13px] text-[#333]">
+                      iiiahalab 멤버십 · {subscription.plan === "annual" ? "연간" : "월간"}
+                    </p>
+                    <p className="text-[12px] text-[#666] mt-0.5">
+                      {new Date(subscription.expires_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })} 까지 이용
+                    </p>
+                  </div>
+                  <button
+                    onClick={handleCancelSubscription}
+                    className="text-[11px] text-[#999] bg-transparent border-0 cursor-pointer hover:text-red-600 shrink-0"
+                  >
+                    멤버십 해지
+                  </button>
+                </div>
+                <p className="text-[11px] text-[#999] mt-2">
+                  멤버십 기간 동안 모든 익스텐션을 자유롭게 이용하실 수 있습니다.
+                </p>
+              </>
+            ) : subscription.status === "active" && subscription.cancel_at_period_end ? (
+              <>
+                <p className="text-[13px] text-[#333]">
+                  iiiahalab 멤버십 · {subscription.plan === "annual" ? "연간" : "월간"}{" "}
+                  <span className="text-[11px] text-[#999]">(해지 예정)</span>
+                </p>
+                <p className="text-[12px] text-[#666] mt-0.5">
+                  {new Date(subscription.expires_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })} 까지 이용
+                </p>
+                <p className="text-[11px] text-[#999] mt-2">
+                  멤버십이 해지되었습니다. 기간 종료 후 자동으로 만료됩니다.
+                </p>
+              </>
+            ) : (
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-[13px] text-[#999]">
+                    iiiahalab 멤버십 · 만료
+                    {subscription.status === "past_due" && " (결제 실패)"}
+                  </p>
+                  <p className="text-[12px] text-[#999] mt-0.5">
+                    {new Date(subscription.expires_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })}
+                  </p>
+                </div>
+                <Link
+                  href="/subscribe"
+                  className="text-[11px] text-[#111] border border-[#111] px-3 py-1 no-underline hover:bg-[#111] hover:text-white transition-colors shrink-0"
+                >
+                  재구독
+                </Link>
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
 
       <h2 className="text-[12px] font-bold text-[#999] tracking-[0.05em] uppercase mb-4">
