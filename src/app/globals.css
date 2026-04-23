@@ -54,6 +54,13 @@ a, button, [role="button"], input[type="submit"], select {
 ::-webkit-scrollbar-thumb:hover { background: #aaa; }
 
 /* Subscription CTA — Aurora */
+.sub-cta {
+  transition: filter 0.2s ease;
+}
+.sub-cta:hover {
+  filter: brightness(1.2);
+}
+
 .sub-cta-bg {
   background: #080810;
 }
