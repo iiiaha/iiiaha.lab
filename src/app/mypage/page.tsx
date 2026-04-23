@@ -409,7 +409,7 @@ export default function MyPage() {
                         {order.products?.name}
                       </Link>
                       {isRevoked && (
-                        <span className="text-[10px] text-red-600 font-bold border border-red-200 px-1.5 py-0.5">Revoked</span>
+                        <span className="text-[10px] text-red-600 font-bold border border-red-200 px-1.5 py-0.5">취소됨</span>
                       )}
                     </div>
 
@@ -430,9 +430,9 @@ export default function MyPage() {
 
                       {isRevoked ? (
                         <div className="flex items-center gap-2">
-                          <span className="text-[11px] text-[#999] w-[60px]">Status</span>
+                          <span className="text-[11px] text-[#999] w-[60px]">상태</span>
                           <span className="text-[12px] text-red-600">
-                            License revoked. Please contact support.
+                            라이선스가 취소되었습니다. contact@iiiahalab.com으로 문의 주세요.
                           </span>
                         </div>
                       ) : (
@@ -474,7 +474,7 @@ export default function MyPage() {
                     )}
                     {isRevoked ? (
                       <span className="w-full text-[12px] text-red-600 border border-red-200 px-4 py-1.5 text-center">
-                        Revoked
+                        취소됨
                       </span>
                     ) : (
                       <>
