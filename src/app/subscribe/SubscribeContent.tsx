@@ -73,6 +73,9 @@ export default function SubscribeContent({
     ? totalPrice - MONTHLY_PRICE
     : totalPrice - ANNUAL_PRICE;
 
+  const sketchupCount = extensions.filter((e) => e.platform === "sketchup").length;
+  const autocadCount = extensions.filter((e) => e.platform === "autocad").length;
+
   return (
     <div>
       <div className="flex items-baseline justify-between mb-[10px]">
@@ -81,30 +84,30 @@ export default function SubscribeContent({
       <div className="border-b border-[#111] mb-8 sticky-divider" />
 
       {/* Hero */}
-      <div className="text-center py-12 mb-10">
-        <p className="text-[13px] text-[#999] tracking-[0.1em] uppercase mb-5">
-          iiiahalab membership
-        </p>
-        <h2 className="text-[26px] font-bold tracking-[-0.01em] mb-2 leading-[1.3]">
-          Work Smart. Save Your Youth.
+      <div className="text-center py-8 mb-6">
+        {/* Brand statement */}
+        <h2 className="text-[23px] font-bold tracking-[-0.01em] text-[#111] leading-[1.45] mb-1">
+          똑똑하게 일하고,<br />
+          젊음을 더 가치 있는 곳에 쓰세요.
         </h2>
-        <p className="text-[15px] text-[#333] mb-10">
-          똑똑하게 일하고, 젊음을 더 가치 있는 곳에.
+        <p className="text-[11px] text-[#bbb] italic tracking-[0.03em] mb-7">
+          Work Smart. Save Your Youth.
         </p>
 
-        <div className="max-w-[460px] mx-auto text-[13px] text-[#666] leading-[1.9]">
-          <p className="mb-5">
-            타일 <strong className="text-[#111]">38만</strong> · 목수 <strong className="text-[#111]">39만</strong> · 도배 <strong className="text-[#111]">31만</strong>.<br />
-            각 분야 기공의 1품 일당입니다.
-          </p>
-          <p className="text-[17px] font-bold text-[#111] mb-5">
-            당신의 하루는 얼마입니까?
-          </p>
-          <p>
-            반복 작업은 도구에 맡기고,<br />
-            당신의 시간을 더 값지게 쓰세요.
-          </p>
-        </div>
+        {/* Day rate anchor */}
+        <p className="text-[14px] text-[#666] leading-[1.7] mb-7">
+          타일 하루 <strong className="text-[#111]">38만</strong> · 목수 하루 <strong className="text-[#111]">39만</strong> · 도배 하루 <strong className="text-[#111]">31만</strong>
+        </p>
+
+        {/* CTA hook */}
+        <p className="text-[21px] font-bold text-[#111] leading-[1.45] mb-3">
+          1년 30만 원에 이아하랩을 고용하세요.
+        </p>
+        <p className="text-[14px] text-[#666] leading-[1.8]">
+          당신의 든든한 생산성 조력자가 되어드릴게요.<br />
+          의미 없는 반복 작업은 이제 이아하랩에 맡기세요.<br />
+          이아하랩과 함께 상위 1%의 생산성 도구를 경험하세요.
+        </p>
       </div>
 
       {/* Plan Toggle */}
@@ -240,21 +243,6 @@ export default function SubscribeContent({
         </div>
       </div>
 
-      {/* Positioning */}
-      <div className="border-y border-[#111] py-10 mb-10 text-center">
-        <p className="text-[13px] text-[#999] tracking-[0.1em] uppercase mb-4">
-          Why Membership
-        </p>
-        <p className="text-[17px] font-bold text-[#111] leading-[1.55] mb-3">
-          몇 배 빠르게 일하고,<br />
-          남는 시간은 당신의 몫.
-        </p>
-        <p className="text-[13px] text-[#666] leading-[1.8] max-w-[420px] mx-auto">
-          상위 1%의 도구로 무장하세요.<br />
-          생산성의 끝을 보여드립니다.
-        </p>
-      </div>
-
       {/* Extension Grid */}
       <div className="mb-10">
         <p className="text-[11px] text-[#999] tracking-[0.1em] uppercase mb-4">
@@ -301,24 +289,28 @@ export default function SubscribeContent({
         </p>
         <div className="border-t border-[#ddd]">
           <FaqItem
-            q="디버깅 기간이 끝나면 멤버십 가격도 오르나요?"
-            a="아니요. 가입 시점의 가격이 해지 전까지 그대로 유지됩니다. 8월 1일 이후 신규 가입자에게만 정상가가 적용됩니다."
+            q="앞으로도 새로운 익스텐션이 계속 추가되나요?"
+            a="네, 계속해서 추가될 예정입니다. 아이디어가 있으시면 언제든 Open Lab에 남겨주세요. 좋은 아이디어가 있다면 직접 개발해보겠습니다."
+          />
+          <FaqItem
+            q="새로운 익스텐션이 추가되면 멤버십 비용이 오르나요?"
+            a="그럴 확률이 높습니다. 다만, 가격이 오르더라도 신규 가입자에 한해 적용되며, 기존 사용자는 가입 시점의 멤버십 가격이 해지 전까지 그대로 유지됩니다."
+          />
+          <FaqItem
+            q="새로운 익스텐션이 추가되면 기존 멤버십 사용자들도 사용할 수 있나요?"
+            a="네, 멤버십 기간 중 새로 출시되는 익스텐션도 추가 비용 없이 바로 사용할 수 있습니다."
+          />
+          <FaqItem
+            q="이미 몇 가지 익스텐션을 개별 구매했는데, 멤버십에 가입해도 되나요?"
+            a="네, 언제든 멤버십을 시작할 수 있습니다. 이미 구매한 익스텐션은 멤버십 여부와 관계없이 영구적으로 사용 가능합니다. 다만, 구매한 익스텐션이 있다고 해서 멤버십 가격이 변동되지는 않습니다."
           />
           <FaqItem
             q="멤버십을 해지하면 어떻게 되나요?"
-            a="멤버십 기간이 끝나면 익스텐션 사용이 중지됩니다. 이미 작업한 파일에는 영향이 없습니다."
+            a="해지하셔도 멤버십 기간이 끝날 때까지는 라이선스가 유지되어 익스텐션을 계속 사용할 수 있습니다. 기간이 끝나는 시점에 모든 익스텐션 접근이 차단됩니다."
           />
           <FaqItem
-            q="기기를 변경하고 싶으면 어떻게 하나요?"
-            a="contact@iiiahalab.com으로 문의해 주시면 이전 기기 바인딩을 해제해 드립니다."
-          />
-          <FaqItem
-            q="새로운 익스텐션이 추가되면요?"
-            a="멤버십 기간 중 새로 출시되는 익스텐션도 추가 비용 없이 바로 사용할 수 있습니다."
-          />
-          <FaqItem
-            q="개별 구매에서 멤버십으로 전환할 수 있나요?"
-            a="네, 언제든 멤버십을 시작할 수 있습니다. 이미 구매한 익스텐션은 멤버십 여부와 관계없이 영구적으로 사용 가능합니다."
+            q="이미 라이선스 키를 등록했는데, 다른 컴퓨터에서도 익스텐션을 사용하고 싶어요."
+            a="익스텐션은 기기당 1대에만 라이선스를 등록할 수 있습니다. 기기를 바꾸고 싶으시면 contact@iiiahalab.com으로 연락 주세요. 이전 기기의 바인딩을 해제해 드리며, 그 후 새 기기에 라이선스 키를 다시 등록하시면 됩니다."
           />
         </div>
       </div>
