@@ -79,7 +79,7 @@ export default function SubscribeContent({
   return (
     <div>
       <div className="flex items-baseline justify-between mb-[10px]">
-        <h1 className="text-[16px] font-bold tracking-[0.03em]">멤버십</h1>
+        <h1 className="text-[16px] font-bold tracking-[0.03em]">Membership</h1>
       </div>
       <div className="border-b border-[#111] mb-8 sticky-divider" />
 
@@ -233,7 +233,7 @@ export default function SubscribeContent({
               >
                 {processing
                   ? "결제창을 여는 중..."
-                  : `멤버십 가입하기 — ${plan === "annual" ? formatPrice(ANNUAL_PRICE) : `${formatPrice(MONTHLY_PRICE)}/mo`}`}
+                  : `멤버십 가입하기 — ${plan === "annual" ? `${formatPrice(ANNUAL_PRICE)}/yr` : `${formatPrice(MONTHLY_PRICE)}/mo`}`}
               </button>
               {error && (
                 <p className="text-[11px] text-red-300 text-center mt-2">{error}</p>
