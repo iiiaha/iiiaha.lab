@@ -23,6 +23,9 @@ export default function Footer() {
               <span>사업자등록번호 <span className="text-[#666]">367-02-03753</span></span>
             </div>
             <div>
+              통신판매업신고번호 <span className="text-[#666]">2026-서울강남-02400</span>
+            </div>
+            <div>
               주소 <span className="text-[#666]">서울특별시 강남구 언주로135길 32-8, 103호</span>
             </div>
             <div>
