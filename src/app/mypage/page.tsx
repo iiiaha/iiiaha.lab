@@ -290,13 +290,15 @@ export default function MyPage() {
 
       {/* Account info — 이메일 + 멤버십 상태 통합 */}
       <div className="border border-[#ddd] p-5 mb-10">
-        <div className="flex items-start py-1.5 border-b border-[#eee]">
+        <h2 className="text-[13px] font-bold tracking-[0.03em] mb-4">계정 정보</h2>
+
+        <div className="flex items-baseline py-2 border-b border-[#eee]">
           <span className="w-[70px] shrink-0 text-[12px] text-[#999]">이메일</span>
           <span className="flex-1 text-[13px] text-[#333]">{email}</span>
         </div>
 
-        <div className="flex items-start py-1.5">
-          <span className="w-[70px] shrink-0 text-[12px] text-[#999] pt-0.5">멤버십</span>
+        <div className="flex items-baseline py-2">
+          <span className="w-[70px] shrink-0 text-[12px] text-[#999]">멤버십</span>
           <div className="flex-1">
             {!subscription ? (
               <div className="flex items-center justify-between gap-3">
@@ -310,7 +312,7 @@ export default function MyPage() {
               </div>
             ) : subscription.status === "active" && !subscription.cancel_at_period_end ? (
               <>
-                <div className="flex items-start justify-between gap-3 mb-3">
+                <div className="flex items-baseline justify-between gap-3 mb-3">
                   <p className="text-[13px] text-[#333]">
                     iiiahalab 멤버십 · {subscription.plan === "annual" ? "연간" : "월간"}
                   </p>
@@ -318,7 +320,7 @@ export default function MyPage() {
                     onClick={handleCancelSubscription}
                     className="text-[11px] text-[#999] bg-transparent border-0 cursor-pointer hover:text-red-600 shrink-0"
                   >
-                    멤버십 해지
+                    멤버십 해지하기
                   </button>
                 </div>
                 <SubMetaRow label="이용 기간">
