@@ -68,6 +68,7 @@ export default function ProductEditPage() {
       description: data.description ?? "",
       description_ko: data.description_ko ?? null,
       thumbnail_url: data.thumbnail_url ?? null,
+      youtube_url: data.youtube_url ?? null,
       file_key: data.file_key ?? null,
       sort_order: data.sort_order ?? 0,
     };
@@ -194,6 +195,21 @@ export default function ProductEditPage() {
           onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadThumbnail(f); }}
           className="text-[12px] disabled:opacity-50"
         />
+      </section>
+
+      {/* YouTube */}
+      <section className="mb-8">
+        <SectionLabel>YouTube Video (optional)</SectionLabel>
+        <input
+          type="url"
+          value={data.youtube_url ?? ""}
+          onChange={(e) => update({ youtube_url: e.target.value })}
+          placeholder="https://www.youtube.com/watch?v=... 또는 https://youtu.be/..."
+          className="w-full border border-[#ddd] px-3 py-2 text-[13px] outline-none focus:border-[#111]"
+        />
+        <p className="text-[10px] text-[#bbb] mt-1.5">
+          입력하면 상세 페이지 상단에 썸네일 대신 이 영상이 16:9 임베드로 표시됨. 비우면 썸네일이 표시됨.
+        </p>
       </section>
 
       {/* Identity */}

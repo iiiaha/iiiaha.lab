@@ -7,6 +7,7 @@ import { getUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase";
 import { useCart } from "@/lib/cart";
 import { renderInline } from "@/lib/markdown";
+import { getYoutubeEmbedUrl } from "@/lib/youtube";
 
 type OwnershipState =
   | "loading"
@@ -127,17 +128,36 @@ export default function ExtensionDetail({ product }: { product: Product }) {
       </div>
       <div className="border-b border-[#111] mb-[72px] sticky-divider" />
 
-      <div className="aspect-video bg-[#f5f5f5] border border-[#ddd] mb-5 flex items-center justify-center text-[#999]">
-        {product.thumbnail_url ? (
-          <img
-            src={product.thumbnail_url}
-            alt={product.name}
-            className="max-h-full max-w-full object-contain"
-          />
-        ) : (
-          product.name
-        )}
-      </div>
+      {(() => {
+        const embed = getYoutubeEmbedUrl(product.youtube_url);
+        if (embed) {
+          return (
+            <div className="aspect-video border border-[#ddd] mb-5 overflow-hidden bg-black">
+              <iframe
+                src={embed}
+                title={`${product.name} — 작동 영상`}
+                className="w-full h-full"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+                loading="lazy"
+              />
+            </div>
+          );
+        }
+        return (
+          <div className="aspect-video bg-[#f5f5f5] border border-[#ddd] mb-5 flex items-center justify-center text-[#999]">
+            {product.thumbnail_url ? (
+              <img
+                src={product.thumbnail_url}
+                alt={product.name}
+                className="max-h-full max-w-full object-contain"
+              />
+            ) : (
+              product.name
+            )}
+          </div>
+        );
+      })()}
 
       <h1 className="text-[15px] font-bold tracking-[0.03em] mb-3">
         {product.name}

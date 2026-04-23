@@ -12,6 +12,7 @@ export interface Product {
   version?: string;
   compatibility?: string;
   thumbnail_url?: string;
+  youtube_url?: string;
   file_key?: string;
   description_ko?: string;
   sort_order?: number;
