@@ -301,7 +301,7 @@ export default function MyPage() {
               <div className="sub-cta-bg absolute inset-0 opacity-40" />
               <div className="relative p-5">
                 <p className="text-[14px] font-bold text-white mb-1">
-                  SketchUp Membership — Expired
+                  iiiahalab membership — Expired
                 </p>
                 <p className="text-[12px] text-[rgba(255,255,255,0.6)] mb-3">
                   Your membership expired on {new Date(subscription.expires_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })}.
@@ -323,7 +323,7 @@ export default function MyPage() {
                 <div className="relative flex items-center justify-between">
                   <div>
                     <p className="text-[14px] font-bold text-white mb-1">
-                      SketchUp Membership — {subscription.plan === "annual" ? "Annual" : "Monthly"}
+                      iiiahalab membership — {subscription.plan === "annual" ? "Annual" : "Monthly"}
                     </p>
                     <p className="text-[12px] text-[rgba(255,255,255,0.6)]">
                       {new Date(subscription.started_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })}
@@ -343,7 +343,7 @@ export default function MyPage() {
               ) : (
                 <div className="flex items-center justify-between">
                   <p className="text-[11px] text-[#999]">
-                    멤버십 기간 동안 모든 스케치업 익스텐션을 이용하실 수 있습니다.
+                    멤버십 기간 동안 모든 익스텐션을 이용하실 수 있습니다.
                   </p>
                   <button
                     onClick={handleCancelSubscription}

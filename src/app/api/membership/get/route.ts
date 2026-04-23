@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // 3. 상품 확인 (스케치업 익스텐션만)
+  // 3. 상품 확인 (익스텐션 타입만)
   const { data: product } = await serviceSupabase
     .from("products")
     .select("id, type, is_active")

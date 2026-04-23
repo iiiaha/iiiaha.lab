@@ -110,7 +110,7 @@ function BillingSuccessInner() {
           <div className="text-center py-16 mb-6">
             <p className="text-[22px] font-bold mb-3">멤버십이 시작되었습니다</p>
             <p className="text-[12px] text-[#999] mt-6 leading-[1.8]">
-              모든 스케치업 익스텐션 라이선스가 발급되었습니다.
+              모든 익스텐션 라이선스가 발급되었습니다.
               <br />
               <strong className="text-[#111]">마이페이지</strong>에서 확인하실 수
               있습니다.

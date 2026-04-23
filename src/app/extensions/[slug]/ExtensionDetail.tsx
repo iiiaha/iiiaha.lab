@@ -297,7 +297,7 @@ export default function ExtensionDetail({ product }: { product: Product }) {
             <div className="sub-cta-aurora absolute inset-0" />
             <div className="relative flex flex-col items-center">
               <span className="text-[14px] font-bold text-white tracking-[0.03em]">
-                {getting ? "Adding..." : "SketchUp Membership — Get"}
+                {getting ? "Adding..." : "iiiahalab membership — Get"}
               </span>
               <span className="text-[10px] text-[rgba(255,255,255,0.5)] mt-0.5">
                 멤버십으로 이 익스텐션 내려받기
@@ -308,7 +308,7 @@ export default function ExtensionDetail({ product }: { product: Product }) {
           <div className="flex gap-3">
             {/* 개별 구매 */}
             <div className="flex-1 flex flex-col gap-2">
-              <span className="text-[11px] text-[#999]">이 익스텐션 영구 소장하기</span>
+              <span className="text-[11px] text-[#999]">이 익스텐션 개별 구매하기</span>
               {items.some((i) => i.id === product.id) || added ? (
                 <Link
                   href="/cart"
@@ -352,14 +352,14 @@ export default function ExtensionDetail({ product }: { product: Product }) {
 
             {/* 멤버십 */}
             <div className="flex-1 flex flex-col gap-2">
-              <span className="text-[11px] text-[#999]">스케치업 멤버십 가입하기</span>
+              <span className="text-[11px] text-[#999]">iiiahalab membership 가입하기</span>
               <Link
                 href="/subscribe"
                 className="sub-cta flex-1 flex flex-col items-center justify-center no-underline overflow-hidden relative py-3 rounded"
               >
                 <div className="sub-cta-bg absolute inset-0" />
                 <div className="sub-cta-aurora absolute inset-0" />
-                <span className="relative text-[13px] font-bold text-white tracking-[0.03em]">SketchUp Membership</span>
+                <span className="relative text-[13px] font-bold text-white tracking-[0.03em]">iiiahalab membership</span>
                 <span className="relative text-[10px] text-[rgba(255,255,255,0.5)] mt-0.5">모든 익스텐션 자유롭게 이용</span>
                 <div className="relative flex items-baseline gap-1 mt-1">
                   <span className="text-[10px] text-[rgba(255,255,255,0.35)] line-through">₩29,000</span>

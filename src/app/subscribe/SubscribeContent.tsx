@@ -83,13 +83,13 @@ export default function SubscribeContent({
       {/* Hero */}
       <div className="text-center py-10 mb-8">
         <p className="text-[13px] text-[#999] tracking-[0.1em] uppercase mb-4">
-          SketchUp Membership
+          iiiahalab membership
         </p>
         <h2 className="text-[22px] font-bold tracking-[-0.01em] mb-3">
-          All SketchUp Extensions. One Plan.
+          All Extensions. One Plan.
         </h2>
         <p className="text-[14px] text-[#666] max-w-[400px] mx-auto">
-          개별 구매 시 총 {formatPrice(totalPrice)}인 모든 스케치업 익스텐션을<br />
+          개별 구매 시 총 {formatPrice(totalPrice)}인 모든 익스텐션을<br />
           멤버십으로 자유롭게 이용하세요.
         </p>
       </div>
@@ -193,7 +193,7 @@ export default function SubscribeContent({
               )}
             </div>
             <div className="border-t border-[rgba(255,255,255,0.18)] pt-4 mt-4 flex flex-col gap-2.5 flex-1">
-              <Row label="모든 스케치업 익스텐션 이용" bold dark />
+              <Row label="모든 익스텐션 이용" bold dark />
               <Row label="신규 익스텐션 자동 포함" bold dark />
               <Row label="기기 1대" dark />
               <Row label="멤버십 기간 중 업데이트 포함" dark />
@@ -230,7 +230,7 @@ export default function SubscribeContent({
       {/* Extension Grid */}
       <div className="mb-10">
         <p className="text-[11px] text-[#999] tracking-[0.1em] uppercase mb-4">
-          Included SketchUp Extensions
+          Included Extensions
           <span className="ml-2 text-[#ccc] font-normal normal-case tracking-normal">
             {extensions.length}개
           </span>
@@ -286,7 +286,7 @@ export default function SubscribeContent({
           />
           <FaqItem
             q="새로운 익스텐션이 추가되면요?"
-            a="멤버십 기간 중 새로 출시되는 스케치업 익스텐션도 추가 비용 없이 바로 사용할 수 있습니다."
+            a="멤버십 기간 중 새로 출시되는 익스텐션도 추가 비용 없이 바로 사용할 수 있습니다."
           />
           <FaqItem
             q="개별 구매에서 멤버십으로 전환할 수 있나요?"

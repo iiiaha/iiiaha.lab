@@ -277,10 +277,10 @@ export default function CartPage() {
           <div className="sub-cta-aurora absolute inset-0" />
           <div className="text-center px-5 py-4 relative">
             <p className="text-[11px] font-bold tracking-[0.1em] uppercase text-white mb-1">
-              SketchUp Membership
+              iiiahalab membership
             </p>
             <div className="text-[11px] font-normal text-[rgba(255,255,255,0.65)] mb-1">
-              모든 스케치업 익스텐션을 자유롭게 사용
+              모든 익스텐션을 자유롭게 사용
             </div>
             <div className="flex items-baseline justify-center gap-2">
               <span className="text-[12px] text-[rgba(255,255,255,0.4)] line-through">
