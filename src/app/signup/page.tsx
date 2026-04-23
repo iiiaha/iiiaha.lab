@@ -3,10 +3,10 @@
 export default function SignUpPage() {
   return (
     <div className="max-w-[360px] mx-auto pt-20 text-center">
-      <h1 className="text-[16px] font-bold tracking-[0.03em] mb-6">
+      <h1 className="text-[16px] font-bold tracking-[0.03em] mb-[10px]">
         Sign up
       </h1>
-      <div className="border-t border-[#111] mb-8" />
+      <div className="border-b border-[#111] mb-8" />
       <p className="text-[14px] text-[#111] mb-3">
         현재 신규 가입을 받지 않고 있습니다.
       </p>
