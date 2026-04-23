@@ -90,31 +90,41 @@ export default function SubscribeContent({
       <div className="border-b border-[#111] mb-8 sticky-divider" />
 
       {/* Hero */}
-      <div className="text-center py-8 mb-6">
+      <div className="text-center py-10 mb-6">
         {/* Brand statement */}
         <h2 className="text-[23px] font-bold tracking-[-0.01em] text-[#111] leading-[1.45] mb-1">
           똑똑하게 일하고,<br />
           젊음을 더 가치 있는 곳에 쓰세요.
         </h2>
-        <p className="text-[11px] text-[#bbb] italic tracking-[0.03em] mb-10">
+        <p className="text-[11px] text-[#bbb] italic tracking-[0.03em] mb-12">
           Work Smart. Save Your Youth.
         </p>
 
-        {/* Industry diagnosis */}
-        <p className="text-[14px] text-[#666] leading-[1.8] mb-10">
-          낮은 연봉, 높은 업무 강도, 반복되는 야근.<br />
-          건축·인테리어·가구 업계의 고질적 병입니다.
+        {/* Industry indictment */}
+        <p className="text-[14px] text-[#666] leading-[1.85] mb-12">
+          건축·인테리어·가구 업계는 오랫동안<br />
+          기술 혁신 대신 값싼 노동력을 갈아 넣어 굴러왔습니다.<br />
+          낮은 연봉, 반복되는 야근, 끝없는 무의미 노동 —<br />
+          이 업계의 고질적인 병입니다.
         </p>
 
-        {/* Call — 실무자 인사이트 기반의 해방 */}
-        <p className="text-[21px] font-bold text-[#111] leading-[1.5] mb-4">
+        {/* Time cost — personal stake */}
+        <p className="text-[17px] font-bold text-[#111] leading-[1.55] mb-2">
+          오늘의 2초가 쌓여 두 달이 됩니다.
+        </p>
+        <p className="text-[13px] text-[#666] leading-[1.8] mb-12">
+          2D·3D 속에서 속절없이 갈려 나가는 당신의 젊음.
+        </p>
+
+        {/* CTA — credibility + action + outcome */}
+        <p className="text-[21px] font-bold text-[#111] leading-[1.5] mb-3">
           이아하랩과 함께하세요.
         </p>
         <p className="text-[14px] text-[#444] leading-[1.85]">
-          의미 없는 반복 작업은 이아하랩에 맡기세요.<br />
-          더 창의적인 일을 하세요.<br />
-          더 가치 있는 일을 하세요.<br />
-          당신의 가치를 높이세요.
+          같은 현장에서 고민하던 실무자가 직접 만든 도구입니다.<br />
+          의미 없는 반복은 이아하랩에 맡기시고,<br />
+          당신은 더 창의적이고 가치 있는 일을 하세요.<br />
+          <span className="font-bold text-[#111]">당신의 가치는 거기서 만들어집니다.</span>
         </p>
       </div>
 
