@@ -229,10 +229,10 @@ export default function ExtensionDetail({ product }: { product: Product }) {
         })()}
       </div>
 
-      {/* Purchase Info — 박스로 묶기 */}
+      {/* 구매 정보 — 박스로 묶기 */}
       <div className="border border-[#ddd] rounded mt-8 p-5">
         <h2 className="text-[13px] font-bold tracking-[0.03em] mb-4">
-          Purchase Info
+          구매 정보
         </h2>
         <div className="flex flex-col gap-0">
           {[
