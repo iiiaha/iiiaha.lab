@@ -408,9 +408,6 @@ export default function MyPage() {
                       <Link href={`/extensions/${slug}`} className="text-[14px] font-bold hover:underline">
                         {order.products?.name}
                       </Link>
-                      {isRevoked && (
-                        <span className="text-[10px] text-red-600 font-bold border border-red-200 px-1.5 py-0.5">취소됨</span>
-                      )}
                     </div>
 
                     <div className="flex flex-col gap-1 ml-11">
