@@ -251,21 +251,32 @@ export default function ExtensionDetail({ product }: { product: Product }) {
             </div>
           </div>
         ) : ownership === "membership_owned" ? (
-          <div className="bg-[#f5f5f5] border border-[#ddd] rounded p-5">
-            <div className="flex items-center justify-between">
-              <span className="text-[14px] font-bold text-[#666]">이미 다운로드한 익스텐션입니다.</span>
-              <span className="text-[12px] text-[#999]">
-                <Link href="/mypage" className="underline hover:text-[#111]">마이페이지</Link>에서 확인하세요.
+          /* 소유 중 — 같은 gradient 블록을 dim 처리 */
+          <div className="sub-cta w-full py-4 rounded overflow-hidden relative opacity-60 transition-opacity">
+            <div className="sub-cta-bg absolute inset-0" />
+            <div className="sub-cta-aurora absolute inset-0" />
+            <div className="relative flex flex-col items-center">
+              <span className="text-[14px] font-bold text-white tracking-[0.03em]">
+                이미 다운로드한 익스텐션입니다
+              </span>
+              <span className="text-[10px] text-[rgba(255,255,255,0.6)] mt-0.5">
+                <Link href="/mypage" className="underline hover:text-white">마이페이지</Link>에서 확인하세요
               </span>
             </div>
           </div>
         ) : ownership === "membership_available" ? (
           getting ? (
-            /* 처리 중 — 성공 상태 블록을 반투명으로 미리 보여주어 완료 시 자연스럽게 전환 */
-            <div className="bg-[#f5f5f5] border border-[#ddd] rounded p-5 opacity-60 transition-opacity">
-              <div className="flex items-center justify-between">
-                <span className="text-[14px] font-bold text-[#666]">내려받는 중...</span>
-                <span className="text-[12px] text-[#999]">잠시만 기다려 주세요</span>
+            /* 처리 중 — gradient 블록 dim + 완료 상태로 자연스럽게 이어지는 톤 */
+            <div className="sub-cta w-full py-4 rounded overflow-hidden relative opacity-60 transition-opacity">
+              <div className="sub-cta-bg absolute inset-0" />
+              <div className="sub-cta-aurora absolute inset-0" />
+              <div className="relative flex flex-col items-center">
+                <span className="text-[14px] font-bold text-white tracking-[0.03em]">
+                  내려받는 중...
+                </span>
+                <span className="text-[10px] text-[rgba(255,255,255,0.6)] mt-0.5">
+                  잠시만 기다려 주세요
+                </span>
               </div>
             </div>
           ) : (
