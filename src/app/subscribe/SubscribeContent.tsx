@@ -30,9 +30,15 @@ export default function SubscribeContent({
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState("");
   const [agreed, setAgreed] = useState(false);
+  const [shakeAgreement, setShakeAgreement] = useState(false);
 
   const handleSubscribe = async () => {
     setError("");
+    if (!agreed) {
+      setShakeAgreement(true);
+      setTimeout(() => setShakeAgreement(false), 500);
+      return;
+    }
     setProcessing(true);
     try {
       const user = await getUser();
@@ -215,20 +221,22 @@ export default function SubscribeContent({
               <Row label="멤버십 기간 중 업데이트 포함" dark />
             </div>
             <div className="mt-6">
-              <label className="flex items-start gap-2 mb-3 cursor-pointer select-none">
+              <label
+                className={`flex items-start gap-2 mb-3 cursor-pointer select-none ${shakeAgreement ? "animate-shake" : ""}`}
+              >
                 <input
                   type="checkbox"
                   checked={agreed}
                   onChange={(e) => setAgreed(e.target.checked)}
                   className="mt-0.5 cursor-pointer"
                 />
-                <span className="text-[10px] text-[rgba(255,255,255,0.6)] leading-relaxed">
+                <span className={`text-[10px] leading-relaxed transition-colors ${shakeAgreement ? "text-red-300" : "text-[rgba(255,255,255,0.6)]"}`}>
                   익스텐션은 <b>SketchUp</b> 또는 <b>AutoCAD</b>의 특정 버전에서만 동작합니다. 상품 상세의 호환 버전을 확인하셨습니까?
                 </span>
               </label>
               <button
                 onClick={handleSubscribe}
-                disabled={processing || !agreed}
+                disabled={processing}
                 className="w-full bg-white text-[#111] text-[13px] font-bold tracking-[0.05em] py-3 border-0 cursor-pointer hover:bg-[rgba(255,255,255,0.85)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {processing
