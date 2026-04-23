@@ -1,25 +1,19 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase";
 import { Product } from "@/lib/types";
 
-function Field({ label, value, onChange, type = "text", options }: {
+function Field({ label, value, onChange, type = "text" }: {
   label: string; value: string | number; onChange: (v: string) => void;
-  type?: string; options?: { label: string; value: string }[];
+  type?: string;
 }) {
   return (
     <div className="flex items-center gap-2 mb-2">
       <label className="w-[100px] shrink-0 text-[11px] text-[#999] font-bold uppercase tracking-[0.05em]">{label}</label>
-      {options ? (
-        <select value={String(value)} onChange={(e) => onChange(e.target.value)}
-          className="flex-1 border border-[#ddd] px-2 py-1.5 text-[13px] outline-none focus:border-[#111]">
-          {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-        </select>
-      ) : (
-        <input type={type} value={value} onChange={(e) => onChange(e.target.value)}
-          className="flex-1 border border-[#ddd] px-2 py-1.5 text-[13px] outline-none focus:border-[#111]" />
-      )}
+      <input type={type} value={value} onChange={(e) => onChange(e.target.value)}
+        className="flex-1 border border-[#ddd] px-2 py-1.5 text-[13px] outline-none focus:border-[#111]" />
     </div>
   );
 }
@@ -38,10 +32,9 @@ const EMPTY_PRODUCT: Partial<Product> = {
 };
 
 export default function AdminProducts() {
+  const router = useRouter();
   const supabase = createClient();
   const [products, setProducts] = useState<Product[]>([]);
-  const [editing, setEditing] = useState<string | null>(null);
-  const [editData, setEditData] = useState<Partial<Product>>({});
   const [adding, setAdding] = useState(false);
   const [newProduct, setNewProduct] = useState<Partial<Product>>(EMPTY_PRODUCT);
   const [message, setMessage] = useState("");
@@ -49,9 +42,6 @@ export default function AdminProducts() {
   const [platformTab, setPlatformTab] = useState<"sketchup" | "autocad">("sketchup");
   const [dragIdx, setDragIdx] = useState<number | null>(null);
   const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
-  const [uploading, setUploading] = useState(false);
-  const [uploadingInstaller, setUploadingInstaller] = useState(false);
-  const busy = uploading || uploadingInstaller;
 
   const extensionProducts = useMemo(() => products.filter(p => p.type === "extension"), [products]);
   const filteredProducts = useMemo(
@@ -81,7 +71,6 @@ export default function AdminProducts() {
     const [moved] = reordered.splice(fromIdx, 1);
     reordered.splice(toIdx, 0, moved);
 
-    // Update sort_order for all affected items
     const updates = reordered.map((p, i) =>
       supabase.from("products").update({ sort_order: i }).eq("id", p.id)
     );
@@ -98,7 +87,6 @@ export default function AdminProducts() {
     const current = products[index];
     const target = products[targetIndex];
 
-    // swap sort_order
     const currentOrder = current.sort_order ?? index;
     const targetOrder = target.sort_order ?? targetIndex;
 
@@ -111,61 +99,25 @@ export default function AdminProducts() {
     load();
   };
 
-  // Edit
-  const startEdit = (p: Product) => {
-    setEditing(p.id);
-    setEditData({ ...p, _discountOn: (p.discount_percent ?? 0) > 0 } as Partial<Product>);
-    setAdding(false);
-  };
-
-  const saveEdit = async () => {
-    if (!editing) return;
-    const e = editData as Product & { _discountOn?: boolean };
-    const orig = e.original_price ?? e.price ?? 0;
-    const disc = e._discountOn ? (e.discount_percent ?? 0) : 0;
-    const payload = {
-      slug: e.slug,
-      name: e.name,
-      subtitle: e.subtitle ?? null,
-      badge: e.badge ?? null,
-      type: e.type,
-      platform: e.platform ?? null,
-      price: disc > 0 ? Math.round(orig * (1 - disc / 100)) : orig,
-      original_price: orig,
-      discount_percent: disc,
-      discount_start: e._discountOn ? (e.discount_start ?? null) : null,
-      discount_end: e._discountOn ? (e.discount_end ?? null) : null,
-      version: e.version ?? null,
-      compatibility: e.compatibility ?? null,
-      description: e.description ?? "",
-      description_ko: e.description_ko ?? null,
-      thumbnail_url: e.thumbnail_url ?? null,
-      file_key: e.file_key ?? null,
-      sort_order: e.sort_order ?? 0,
-    };
-    const { error } = await supabase.from("products").update(payload).eq("id", editing);
-    if (error) {
-      console.error("[admin/products] save error", error, payload);
-      showMessage(`Error: ${error.message}`);
-      return;
-    }
-    setEditing(null);
-    showMessage("Saved");
-    load();
-  };
-
   // Add
   const saveNew = async () => {
     const maxOrder = products.reduce((max, p) => Math.max(max, p.sort_order ?? 0), -1);
-    const { error } = await supabase.from("products").insert([{ ...newProduct, sort_order: maxOrder + 1, type: "extension", platform: platformTab }]);
+    const { data: inserted, error } = await supabase
+      .from("products")
+      .insert([{ ...newProduct, sort_order: maxOrder + 1, type: "extension", platform: platformTab }])
+      .select("id")
+      .single();
     if (error) { showMessage(`Error: ${error.message}`); return; }
     setAdding(false);
     setNewProduct(EMPTY_PRODUCT);
-    showMessage("Product added");
-    load();
+    if (inserted?.id) {
+      router.push(`/admin/products/${inserted.id}/edit`);
+    } else {
+      load();
+    }
   };
 
-  // 공개 URL에서 스토리지 상대 경로 추출 (uploads/... 이후)
+  // 공개 URL에서 스토리지 상대 경로 추출
   const pathFromPublicUrl = (url: string | null | undefined): string | null => {
     if (!url) return null;
     try {
@@ -190,8 +142,6 @@ export default function AdminProducts() {
       });
       if (!res.ok) {
         const j = await res.json().catch(() => ({}));
-        console.error("[admin/products] storage delete error", j);
-        // storage 실패해도 DB 행은 지울지 사용자에게 재확인
         if (!confirm(`스토리지 파일 삭제 실패 (${j.error ?? res.status}). DB 행만 삭제하고 계속할까요?`)) return;
       }
     }
@@ -201,199 +151,8 @@ export default function AdminProducts() {
     load();
   };
 
-  // 편집 중인 제품의 설치파일만 삭제 (제품 row는 유지)
-  const deleteInstaller = async () => {
-    if (!editing || !editData.file_key) return;
-    if (!confirm("설치파일을 스토리지에서 삭제합니다. 제품은 유지됩니다.")) return;
-    setUploadingInstaller(true);
-    try {
-      const res = await fetch("/api/admin/delete-file", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ paths: [editData.file_key] }),
-      });
-      if (!res.ok) {
-        const j = await res.json().catch(() => ({}));
-        showMessage(`Delete error: ${j.error ?? res.status}`);
-        return;
-      }
-      setEditData((prev) => ({ ...prev, file_key: undefined }));
-      showMessage("Installer deleted — Save 눌러야 file_key가 null로 반영됨");
-    } finally {
-      setUploadingInstaller(false);
-    }
-  };
-
-  // Thumbnail upload (admin API 경유 — RLS 우회, service role 사용)
-  const uploadThumbnail = async (file: File, slug: string, target: "edit" | "new") => {
-    if (!slug) { showMessage("Upload error: slug 없음"); return; }
-    setUploading(true);
-    try {
-      const fd = new FormData();
-      fd.append("file", file);
-      fd.append("slug", slug);
-      fd.append("folder", "thumbnails");
-      const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
-      const json = await res.json();
-      if (!res.ok) {
-        console.error("[admin/products] upload error", json);
-        showMessage(`Upload error: ${json.error ?? res.status}`);
-        return;
-      }
-      if (target === "edit") setEditData((prev) => ({ ...prev, thumbnail_url: json.url }));
-      else setNewProduct((prev) => ({ ...prev, thumbnail_url: json.url }));
-      showMessage("Uploaded — Save 눌러야 DB 반영됨");
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  // Installer upload — sketchup: rbz/{slug}.rbz, others: installers/{slug}.{ext}
-  const uploadInstaller = async (file: File, slug: string, platform: string | null | undefined) => {
-    if (!slug) { showMessage("Upload error: slug 없음"); return; }
-    const ext = (file.name.split(".").pop() || "").toLowerCase();
-    if (platform === "sketchup" && ext !== "rbz") {
-      showMessage("SketchUp 설치파일은 .rbz만 허용");
-      return;
-    }
-    setUploadingInstaller(true);
-    try {
-      const folder = platform === "sketchup" ? "rbz" : "installers";
-      const fd = new FormData();
-      fd.append("file", file);
-      fd.append("slug", slug);
-      fd.append("folder", folder);
-      const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
-      const json = await res.json();
-      if (!res.ok) {
-        console.error("[admin/products] installer upload error", json);
-        showMessage(`Upload error: ${json.error ?? res.status}`);
-        return;
-      }
-      const fileKey = `${folder}/${slug}.${ext}`;
-      setEditData((prev) => ({ ...prev, file_key: fileKey }));
-      showMessage(`Installer uploaded — Save 눌러야 DB 반영됨`);
-    } finally {
-      setUploadingInstaller(false);
-    }
-  };
-
-  // Field is defined outside the component below
-
-  const discountOn = !!(editData as Record<string, unknown>)._discountOn;
-  const origPrice = editData.original_price ?? editData.price ?? 0;
-  const discPercent = editData.discount_percent ?? 0;
-  const finalPrice = discountOn && discPercent > 0 ? Math.round(origPrice * (1 - discPercent / 100)) : origPrice;
-
-  const editPanel = editing ? (
-    <div className="fixed right-0 top-0 w-[420px] h-full bg-white border-l border-[#ddd] px-8 py-8 overflow-y-auto z-50 shadow-[-4px_0_20px_rgba(0,0,0,0.05)]">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-[14px] font-bold">상품 편집</h2>
-        <button onClick={() => setEditing(null)} className="text-[11px] text-[#999] bg-transparent border-0 cursor-pointer hover:underline">닫기</button>
-      </div>
-
-      <div className="flex flex-col gap-2 text-[12px]">
-        <div><label className="text-[10px] text-[#999] uppercase block mb-0.5">Slug</label><input value={editData.slug ?? ""} onChange={(e) => setEditData({...editData, slug: e.target.value})} className="w-full border border-[#ddd] px-2 py-1 text-[12px] outline-none focus:border-[#111]" /></div>
-        <div><label className="text-[10px] text-[#999] uppercase block mb-0.5">Name</label><input value={editData.name ?? ""} onChange={(e) => setEditData({...editData, name: e.target.value})} className="w-full border border-[#ddd] px-2 py-1 text-[12px] outline-none focus:border-[#111]" /></div>
-        <div><label className="text-[10px] text-[#999] uppercase block mb-0.5">Subtitle</label><input value={editData.subtitle ?? ""} onChange={(e) => setEditData({...editData, subtitle: e.target.value})} className="w-full border border-[#ddd] px-2 py-1 text-[12px] outline-none focus:border-[#111]" /></div>
-        <div><label className="text-[10px] text-[#999] uppercase block mb-0.5">Badge</label><input value={editData.badge ?? ""} onChange={(e) => setEditData({...editData, badge: e.target.value})} placeholder="e.g. Coming Soon, New" className="w-full border border-[#ddd] px-2 py-1 text-[12px] outline-none focus:border-[#111]" /></div>
-
-        {/* Pricing */}
-        <div className="border border-[#eee] p-2.5 mt-1">
-          <p className="text-[10px] text-[#999] font-bold uppercase mb-2">Pricing</p>
-          <div className="flex items-center gap-1.5 mb-2">
-            <span className="text-[10px] text-[#999] w-[50px] shrink-0">Price</span>
-            <span className="text-[11px] text-[#999]">₩</span>
-            <input type="text" inputMode="numeric" value={origPrice} onChange={(e) => setEditData({...editData, original_price: parseInt(e.target.value) || 0})} className="w-[70px] border border-[#ddd] px-1.5 py-0.5 text-[12px] text-right outline-none focus:border-[#111]" />
-          </div>
-          <div className="flex items-center gap-1.5 mb-2">
-            <span className="text-[10px] text-[#999] w-[50px] shrink-0">Sale</span>
-            <button type="button" onClick={() => setEditData((prev) => ({...prev, _discountOn: !discountOn} as Partial<Product>))} className={`w-7 h-4 rounded-full relative transition-colors shrink-0 ${discountOn ? "bg-[#111]" : "bg-[#ddd]"}`}><span className={`absolute top-[2px] w-3 h-3 rounded-full bg-white transition-all ${discountOn ? "left-[13px]" : "left-[2px]"}`} /></button>
-            {discountOn && (
-              <>
-                <input type="text" inputMode="numeric" value={discPercent} onChange={(e) => setEditData({...editData, discount_percent: parseInt(e.target.value) || 0})} className="w-[32px] border border-[#ddd] px-1 py-0.5 text-[12px] text-right outline-none focus:border-[#111]" />
-                <span className="text-[10px] text-[#999]">%</span>
-              </>
-            )}
-          </div>
-          {discountOn && (
-            <div className="mb-2">
-              <div className="flex items-center gap-1.5 mb-1">
-                <span className="text-[10px] text-[#999] w-[50px] shrink-0">From</span>
-                <input type="datetime-local" value={editData.discount_start ? new Date(editData.discount_start).toISOString().slice(0,16) : ""} onChange={(e) => setEditData({...editData, discount_start: e.target.value ? new Date(e.target.value).toISOString() : undefined} as Partial<Product>)} className="flex-1 border border-[#ddd] px-1 py-0.5 text-[11px] outline-none focus:border-[#111]" />
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-[10px] text-[#999] w-[50px] shrink-0">To</span>
-                <input type="datetime-local" value={editData.discount_end ? new Date(editData.discount_end).toISOString().slice(0,16) : ""} onChange={(e) => setEditData({...editData, discount_end: e.target.value ? new Date(e.target.value).toISOString() : undefined} as Partial<Product>)} className="flex-1 border border-[#ddd] px-1 py-0.5 text-[11px] outline-none focus:border-[#111]" />
-              </div>
-              <p className="text-[9px] text-[#ccc] mt-1">Leave empty = always active</p>
-            </div>
-          )}
-          <div className="border-t border-[#eee] pt-2 mt-1 flex items-center gap-1.5">
-            <span className="text-[10px] text-[#999] w-[50px] shrink-0">Final</span>
-            {discountOn && discPercent > 0 ? (
-              <><span className="text-[11px] text-[#ccc] line-through">₩{origPrice.toLocaleString()}</span><span className="text-[13px] font-bold text-red-600">₩{finalPrice.toLocaleString()}</span><span className="text-[10px] text-red-500">-{discPercent}%</span></>
-            ) : (
-              <span className="text-[13px] font-bold">₩{origPrice.toLocaleString()}</span>
-            )}
-          </div>
-        </div>
-
-        <div><label className="text-[10px] text-[#999] uppercase block mb-0.5">Version</label><input value={editData.version ?? ""} onChange={(e) => setEditData({...editData, version: e.target.value})} className="w-full border border-[#ddd] px-2 py-1 text-[12px] outline-none focus:border-[#111]" /></div>
-        <div><label className="text-[10px] text-[#999] uppercase block mb-0.5">Compatibility</label><input value={editData.compatibility ?? ""} onChange={(e) => setEditData({...editData, compatibility: e.target.value})} className="w-full border border-[#ddd] px-2 py-1 text-[12px] outline-none focus:border-[#111]" /></div>
-        <div><label className="text-[10px] text-[#999] uppercase block mb-0.5">Desc (EN)</label><textarea value={editData.description ?? ""} onChange={(e) => setEditData({...editData, description: e.target.value})} rows={4} className="w-full border border-[#ddd] px-2 py-1 text-[12px] outline-none focus:border-[#111] resize-y font-[inherit]" /></div>
-        <div><label className="text-[10px] text-[#999] uppercase block mb-0.5">Desc (KR)</label><textarea value={editData.description_ko ?? ""} onChange={(e) => setEditData({...editData, description_ko: e.target.value})} rows={4} className="w-full border border-[#ddd] px-2 py-1 text-[12px] outline-none focus:border-[#111] resize-y font-[inherit]" /></div>
-        <div><label className="text-[10px] text-[#999] uppercase block mb-0.5">Thumbnail URL</label><input value={editData.thumbnail_url ?? ""} onChange={(e) => setEditData({...editData, thumbnail_url: e.target.value})} className="w-full border border-[#ddd] px-2 py-1 text-[12px] outline-none focus:border-[#111]" /></div>
-        <div className="flex items-center gap-2">
-          <input type="file" accept="image/*" disabled={busy} onChange={(e) => { const f = e.target.files?.[0]; if (f && editing && editData.slug) uploadThumbnail(f, editData.slug, "edit"); }} className="text-[11px] disabled:opacity-50" />
-          {uploading && <span className="text-[10px] text-[#999]">업로드 중...</span>}
-          {editData.thumbnail_url && !uploading && <img src={editData.thumbnail_url} alt="" className="w-6 h-6 object-contain border border-[#ddd]" />}
-        </div>
-
-        {/* Installer upload */}
-        <div className="border border-[#eee] p-2.5 mt-2">
-          <p className="text-[10px] text-[#999] font-bold uppercase mb-1.5">설치파일</p>
-          <div className="flex items-center gap-2 mb-1">
-            <input
-              type="file"
-              accept={editData.platform === "sketchup" ? ".rbz" : ".exe,.msi,.zip"}
-              disabled={busy}
-              onChange={(e) => { const f = e.target.files?.[0]; if (f && editing && editData.slug) uploadInstaller(f, editData.slug, editData.platform); }}
-              className="text-[11px] disabled:opacity-50"
-            />
-            {uploadingInstaller && <span className="text-[10px] text-[#999]">업로드 중...</span>}
-          </div>
-          {editData.file_key ? (
-            <div className="flex items-center gap-2">
-              <p className="text-[10px] text-[#666] flex-1 truncate">현재: <code className="text-[10px]">{editData.file_key}</code></p>
-              <button
-                type="button"
-                onClick={deleteInstaller}
-                disabled={busy}
-                className="text-[10px] text-red-500 bg-transparent border border-[#ddd] px-2 py-0.5 cursor-pointer hover:bg-red-50 disabled:opacity-50"
-              >
-                설치파일 삭제
-              </button>
-            </div>
-          ) : (
-            <p className="text-[10px] text-[#ccc]">업로드된 파일 없음</p>
-          )}
-          <p className="text-[9px] text-[#ccc] mt-1">
-            {editData.platform === "sketchup" ? ".rbz만 허용. uploads/rbz/{slug}.rbz로 저장됨" : "uploads/installers/{slug}.{ext}로 저장됨 (다운로드 라우트 별도 필요)"}
-          </p>
-        </div>
-
-        <div className="flex gap-2 mt-3 justify-end">
-          <button onClick={() => setEditing(null)} className="text-[11px] text-[#111] px-3 py-1.5 border border-[#ddd] bg-white cursor-pointer hover:bg-[#f5f5f5]">Cancel</button>
-          <button onClick={saveEdit} disabled={busy} className="text-[11px] text-white bg-[#111] px-3 py-1.5 border-0 cursor-pointer hover:bg-[#333] disabled:opacity-50 disabled:cursor-not-allowed">{busy ? "업로드 중..." : "Save"}</button>
-        </div>
-      </div>
-    </div>
-  ) : null;
-
   return (
     <div>
-      <div>
       <div className="flex items-baseline justify-between mb-8">
         <div>
           <h1 className="text-[22px] font-bold tracking-[-0.01em]">제품 관리</h1>
@@ -409,7 +168,7 @@ export default function AdminProducts() {
             {viewMode === "list" ? "그리드 미리보기" : "리스트 보기"}
           </button>
           <button
-            onClick={() => { setAdding(true); setEditing(null); }}
+            onClick={() => setAdding(true)}
             className="bg-[#111] text-white text-[12px] font-bold px-4 py-2 border-0 cursor-pointer hover:bg-[#333]"
           >
             + 추가
@@ -438,6 +197,7 @@ export default function AdminProducts() {
 
       {adding && (
         <div className="border border-[#111] p-4 mb-4">
+          <p className="text-[11px] text-[#999] mb-3">기본 정보만 입력 후 추가 → 자동으로 편집 페이지로 이동합니다.</p>
           <Field label="Slug" value={newProduct.slug ?? ""} onChange={(v) => setNewProduct({ ...newProduct, slug: v })} />
           <Field label="Name" value={newProduct.name ?? ""} onChange={(v) => setNewProduct({ ...newProduct, name: v })} />
           <Field label="Price" value={newProduct.price ?? 0} type="number" onChange={(v) => setNewProduct({ ...newProduct, price: parseInt(v) || 0 })} />
@@ -456,19 +216,16 @@ export default function AdminProducts() {
           <div className="grid grid-cols-3 gap-x-10 gap-y-10">
             {filteredProducts.map((p, i) => (
               <div key={p.id} className="group relative">
-                {/* Thumbnail with reorder buttons */}
                 <div className="relative aspect-square bg-[#f5f5f5] border border-[#ddd] mb-3 overflow-hidden flex items-center justify-center p-14">
                   {p.thumbnail_url ? (
                     <img src={p.thumbnail_url} alt={p.name} className="w-full h-full object-contain" />
                   ) : (
                     <span className="text-[13px] text-[#999]">{p.name}</span>
                   )}
-                  {/* Left arrow */}
                   <button onClick={() => moveProduct(i, "up")} disabled={i === 0}
                     className="absolute left-2 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center bg-white border border-[#ddd] cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity disabled:hidden hover:border-[#111]">
                     <svg width="6" height="10" viewBox="0 0 6 10" fill="none"><path d="M5 1L1 5L5 9" stroke="#111" strokeWidth="1.2"/></svg>
                   </button>
-                  {/* Right arrow */}
                   <button onClick={() => moveProduct(i, "down")} disabled={i === filteredProducts.length - 1}
                     className="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center bg-white border border-[#ddd] cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity disabled:hidden hover:border-[#111]">
                     <svg width="6" height="10" viewBox="0 0 6 10" fill="none"><path d="M1 1L5 5L1 9" stroke="#111" strokeWidth="1.2"/></svg>
@@ -486,47 +243,47 @@ export default function AdminProducts() {
       <div className="border-t border-[#ddd]">
         {filteredProducts.map((p, i) => (
           <div key={p.id}>
-              <div
-                draggable
-                onDragStart={() => setDragIdx(i)}
-                onDragOver={(e) => { e.preventDefault(); setDragOverIdx(i); }}
-                onDragLeave={() => setDragOverIdx(null)}
-                onDrop={() => { if (dragIdx !== null) handleDrop(dragIdx, i); setDragIdx(null); setDragOverIdx(null); }}
-                onDragEnd={() => { setDragIdx(null); setDragOverIdx(null); }}
-                className={`flex items-center border-b border-[#ddd] py-2 gap-2 transition-colors ${
-                  editing === p.id ? "bg-[#f8f8f8]" : ""
-                } ${dragOverIdx === i ? "border-t-2 border-t-[#111]" : ""} ${dragIdx === i ? "opacity-40" : ""}`}
-              >
-                {/* Drag handle */}
-                <span className="shrink-0 cursor-grab active:cursor-grabbing text-[#ccc] hover:text-[#999]">
-                  <svg width="10" height="14" viewBox="0 0 10 14" fill="currentColor">
-                    <circle cx="3" cy="2" r="1.2"/><circle cx="7" cy="2" r="1.2"/>
-                    <circle cx="3" cy="7" r="1.2"/><circle cx="7" cy="7" r="1.2"/>
-                    <circle cx="3" cy="12" r="1.2"/><circle cx="7" cy="12" r="1.2"/>
-                  </svg>
-                </span>
-                <span className="text-[10px] text-[#ccc] w-4 text-center shrink-0">{i + 1}</span>
-                {p.thumbnail_url ? (<img src={p.thumbnail_url} alt="" className="w-5 h-5 object-contain shrink-0" />) : (<div className="w-5 h-5 bg-[#f5f5f5] border border-[#ddd] shrink-0" />)}
-                <span className="text-[12px] font-bold truncate min-w-0 flex-1">{p.name}{p.version && <span className="ml-2 text-[10px] font-normal text-[#999]">v{p.version}</span>}</span>
-                <div className="flex items-center gap-1 shrink-0 text-[11px]">
-                  {(p.discount_percent ?? 0) > 0 ? (
-                    <>
-                      <span className="text-[#ccc] line-through">₩{(p.original_price ?? p.price).toLocaleString()}</span>
-                      <span className="font-bold text-red-600">₩{p.price.toLocaleString()}</span>
-                      <span className="text-red-500 text-[10px]">-{p.discount_percent}%</span>
-                    </>
-                  ) : (
-                    <span className="text-[#666]">₩{p.price.toLocaleString()}</span>
-                  )}
-                </div>
-                <button onClick={() => startEdit(p)} className={`text-[10px] bg-transparent border px-2 py-0.5 cursor-pointer shrink-0 ${editing === p.id ? "text-[#111] border-[#111] font-bold" : "text-[#999] border-[#ddd] hover:bg-[#f5f5f5]"}`}>편집</button>
-                <button onClick={() => deleteProduct(p)} className="text-[10px] text-red-500 bg-transparent border border-[#ddd] px-2 py-0.5 cursor-pointer hover:bg-red-50 shrink-0">삭제</button>
+            <div
+              draggable
+              onDragStart={() => setDragIdx(i)}
+              onDragOver={(e) => { e.preventDefault(); setDragOverIdx(i); }}
+              onDragLeave={() => setDragOverIdx(null)}
+              onDrop={() => { if (dragIdx !== null) handleDrop(dragIdx, i); setDragIdx(null); setDragOverIdx(null); }}
+              onDragEnd={() => { setDragIdx(null); setDragOverIdx(null); }}
+              className={`flex items-center border-b border-[#ddd] py-2 gap-2 transition-colors ${
+                dragOverIdx === i ? "border-t-2 border-t-[#111]" : ""
+              } ${dragIdx === i ? "opacity-40" : ""}`}
+            >
+              <span className="shrink-0 cursor-grab active:cursor-grabbing text-[#ccc] hover:text-[#999]">
+                <svg width="10" height="14" viewBox="0 0 10 14" fill="currentColor">
+                  <circle cx="3" cy="2" r="1.2"/><circle cx="7" cy="2" r="1.2"/>
+                  <circle cx="3" cy="7" r="1.2"/><circle cx="7" cy="7" r="1.2"/>
+                  <circle cx="3" cy="12" r="1.2"/><circle cx="7" cy="12" r="1.2"/>
+                </svg>
+              </span>
+              <span className="text-[10px] text-[#ccc] w-4 text-center shrink-0">{i + 1}</span>
+              {p.thumbnail_url ? (<img src={p.thumbnail_url} alt="" className="w-5 h-5 object-contain shrink-0" />) : (<div className="w-5 h-5 bg-[#f5f5f5] border border-[#ddd] shrink-0" />)}
+              <span className="text-[12px] font-bold truncate min-w-0 flex-1">{p.name}{p.version && <span className="ml-2 text-[10px] font-normal text-[#999]">v{p.version}</span>}</span>
+              <div className="flex items-center gap-1 shrink-0 text-[11px]">
+                {(p.discount_percent ?? 0) > 0 ? (
+                  <>
+                    <span className="text-[#ccc] line-through">₩{(p.original_price ?? p.price).toLocaleString()}</span>
+                    <span className="font-bold text-red-600">₩{p.price.toLocaleString()}</span>
+                    <span className="text-red-500 text-[10px]">-{p.discount_percent}%</span>
+                  </>
+                ) : (
+                  <span className="text-[#666]">₩{p.price.toLocaleString()}</span>
+                )}
               </div>
+              <button onClick={() => router.push(`/admin/products/${p.id}/edit`)}
+                className="text-[10px] text-[#999] bg-transparent border border-[#ddd] px-2 py-0.5 cursor-pointer shrink-0 hover:bg-[#f5f5f5]">
+                편집
+              </button>
+              <button onClick={() => deleteProduct(p)} className="text-[10px] text-red-500 bg-transparent border border-[#ddd] px-2 py-0.5 cursor-pointer hover:bg-red-50 shrink-0">삭제</button>
+            </div>
           </div>
         ))}
       </div>
-      </div>
-      {editPanel}
     </div>
   );
 }

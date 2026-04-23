@@ -6,6 +6,7 @@ import { Product, formatPrice } from "@/lib/types";
 import { getUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase";
 import { useCart } from "@/lib/cart";
+import { renderInline } from "@/lib/markdown";
 
 type OwnershipState =
   | "loading"
@@ -186,16 +187,16 @@ export default function ExtensionDetail({ product }: { product: Product }) {
                       <span className="text-[13px] text-[#ccc] mt-px">•</span>
                       <div>
                         <p className="text-[13px] font-bold text-[#666] mb-0.5">
-                          {match[1]}
+                          {renderInline(match[1])}
                         </p>
-                        <p className="text-[12px] text-[#999]">{match[2]}</p>
+                        <p className="text-[12px] text-[#999]">{renderInline(match[2])}</p>
                       </div>
                     </div>
                   );
                 }
                 return line.trim() ? (
                   <p key={i} className="text-[13px] text-[#666]">
-                    {line}
+                    {renderInline(line)}
                   </p>
                 ) : null;
               })}
@@ -214,10 +215,10 @@ export default function ExtensionDetail({ product }: { product: Product }) {
                           </span>
                           <div>
                             <p className="text-[13px] font-bold text-[#666] mb-0.5">
-                              {match[1]}
+                              {renderInline(match[1])}
                             </p>
                             <p className="text-[12px] text-[#999]">
-                              {match[2]}
+                              {renderInline(match[2])}
                             </p>
                           </div>
                         </div>
@@ -225,7 +226,7 @@ export default function ExtensionDetail({ product }: { product: Product }) {
                     }
                     return line.trim() ? (
                       <p key={i} className="text-[13px] text-[#666]">
-                        {line}
+                        {renderInline(line)}
                       </p>
                     ) : null;
                   })}
