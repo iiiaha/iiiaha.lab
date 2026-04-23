@@ -14,6 +14,7 @@ interface Subscription {
   started_at: string;
   expires_at: string;
   cancel_at_period_end: boolean;
+  last_charged_at: string | null;
 }
 
 interface OrderWithProduct {
@@ -269,12 +270,21 @@ export default function MyPage() {
     <div>
       <div className="flex items-baseline justify-between mb-[10px]">
         <h1 className="text-[16px] font-bold tracking-[0.03em]">My Page</h1>
-        <button
-          onClick={handleSignOut}
-          className="text-[12px] text-[#999] bg-transparent border-0 cursor-pointer hover:underline"
-        >
-          Logout
-        </button>
+        <div className="flex items-center gap-3 text-[12px]">
+          <Link
+            href="/mypage/delete"
+            className="text-[#999] no-underline hover:text-red-600"
+          >
+            회원 탈퇴
+          </Link>
+          <span className="text-[#ddd]">|</span>
+          <button
+            onClick={handleSignOut}
+            className="text-[#999] bg-transparent border-0 cursor-pointer hover:underline"
+          >
+            로그아웃
+          </button>
+        </div>
       </div>
       <div className="border-b border-[#111] mb-5 sticky-divider" />
 
@@ -300,15 +310,10 @@ export default function MyPage() {
               </div>
             ) : subscription.status === "active" && !subscription.cancel_at_period_end ? (
               <>
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-[13px] text-[#333]">
-                      iiiahalab 멤버십 · {subscription.plan === "annual" ? "연간" : "월간"}
-                    </p>
-                    <p className="text-[12px] text-[#666] mt-0.5">
-                      {new Date(subscription.expires_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })} 까지 이용
-                    </p>
-                  </div>
+                <div className="flex items-start justify-between gap-3 mb-3">
+                  <p className="text-[13px] text-[#333]">
+                    iiiahalab 멤버십 · {subscription.plan === "annual" ? "연간" : "월간"}
+                  </p>
                   <button
                     onClick={handleCancelSubscription}
                     className="text-[11px] text-[#999] bg-transparent border-0 cursor-pointer hover:text-red-600 shrink-0"
@@ -316,20 +321,43 @@ export default function MyPage() {
                     멤버십 해지
                   </button>
                 </div>
-                <p className="text-[11px] text-[#999] mt-2">
+                <SubMetaRow label="이용 기간">
+                  {new Date(subscription.started_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })}
+                  {" — "}
+                  {new Date(subscription.expires_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })} 까지
+                </SubMetaRow>
+                {subscription.last_charged_at && (
+                  <SubMetaRow label="마지막 결제">
+                    {new Date(subscription.last_charged_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })}
+                  </SubMetaRow>
+                )}
+                <SubMetaRow label="다음 결제 예상">
+                  {new Date(subscription.expires_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })}
+                </SubMetaRow>
+                <p className="text-[11px] text-[#999] mt-3">
                   멤버십 기간 동안 모든 익스텐션을 자유롭게 이용하실 수 있습니다.
                 </p>
               </>
             ) : subscription.status === "active" && subscription.cancel_at_period_end ? (
               <>
-                <p className="text-[13px] text-[#333]">
+                <p className="text-[13px] text-[#333] mb-3">
                   iiiahalab 멤버십 · {subscription.plan === "annual" ? "연간" : "월간"}{" "}
                   <span className="text-[11px] text-[#999]">(해지 예정)</span>
                 </p>
-                <p className="text-[12px] text-[#666] mt-0.5">
-                  {new Date(subscription.expires_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })} 까지 이용
-                </p>
-                <p className="text-[11px] text-[#999] mt-2">
+                <SubMetaRow label="이용 기간">
+                  {new Date(subscription.started_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })}
+                  {" — "}
+                  {new Date(subscription.expires_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })} 까지
+                </SubMetaRow>
+                {subscription.last_charged_at && (
+                  <SubMetaRow label="마지막 결제">
+                    {new Date(subscription.last_charged_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })}
+                  </SubMetaRow>
+                )}
+                <SubMetaRow label="다음 결제 예상">
+                  <span className="text-[#999]">없음 (해지 예정)</span>
+                </SubMetaRow>
+                <p className="text-[11px] text-[#999] mt-3">
                   멤버십이 해지되었습니다. 기간 종료 후 자동으로 만료됩니다.
                 </p>
               </>
@@ -492,15 +520,15 @@ export default function MyPage() {
         )}
       </div>
 
-      {/* Delete account */}
-      <div className="mt-16 pt-8 border-t border-[#ddd]">
-        <Link
-          href="/mypage/delete"
-          className="text-[12px] text-[#999] hover:text-red-600"
-        >
-          회원 탈퇴
-        </Link>
-      </div>
+    </div>
+  );
+}
+
+function SubMetaRow({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="flex text-[12px] leading-[1.7]">
+      <span className="w-[100px] shrink-0 text-[#999]">{label}</span>
+      <span className="text-[#666]">{children}</span>
     </div>
   );
 }
