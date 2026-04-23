@@ -354,11 +354,11 @@ export default function MyPage() {
       )}
 
       <h2 className="text-[12px] font-bold text-[#999] tracking-[0.05em] uppercase mb-4">
-        Purchased
+        구매내역
       </h2>
       <div className="border-t border-[#ddd]">
         {orders.length === 0 ? (
-          <p className="text-[14px] text-[#999] py-4">No purchases yet.</p>
+          <p className="text-[14px] text-[#999] py-4">구매내역이 없습니다.</p>
         ) : (
           orders.map((order) => {
             const slug = order.products?.slug;
@@ -367,13 +367,13 @@ export default function MyPage() {
             const isRevoked = order.licenses?.some((l) => l.status === "revoked");
 
             return (
-              <div key={order.id} className={`border-b border-[#ddd] py-5 ${isRevoked ? "opacity-60" : ""}`}>
-                <div className="flex justify-between gap-6">
+              <div key={order.id} className={`border-b border-[#ddd] py-3 ${isRevoked ? "opacity-60" : ""}`}>
+                <div className="flex justify-between gap-4">
                   <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-4">
+                    <div className="flex items-center gap-3 mb-2">
                       {order.products?.thumbnail_url && (
                         <img src={order.products.thumbnail_url} alt=""
-                          className="w-9 h-9 object-contain bg-[#f5f5f5] border border-[#ddd] p-0.5" />
+                          className="w-8 h-8 object-contain bg-[#f5f5f5] border border-[#ddd] p-0.5" />
                       )}
                       <Link href={`/extensions/${slug}`} className="text-[14px] font-bold hover:underline">
                         {order.products?.name}
@@ -383,11 +383,12 @@ export default function MyPage() {
                       )}
                     </div>
 
-                    <div className="flex flex-col gap-2 ml-12">
+                    <div className="flex flex-col gap-1 ml-11">
                       <div className="flex items-center gap-2">
                         <span className="text-[11px] text-[#999] w-[60px]">유효기간</span>
                         {order.subscription_id && subscription ? (
                           <span className="text-[12px] text-[#666]">
+                            <span className="text-[#00c9a7] font-bold">[멤버십 이용 중]</span>{" "}
                             {new Date(subscription.expires_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })} 까지
                           </span>
                         ) : (
@@ -435,12 +436,8 @@ export default function MyPage() {
                     </div>
                   </div>
 
-                  <div className="flex flex-col items-end gap-2 shrink-0 w-[130px]">
-                    {order.subscription_id ? (
-                      <span className="text-[11px] font-bold tracking-[0.05em] text-[#00c9a7] border border-[#00c9a7] px-2.5 py-0.5">
-                        Subscribed
-                      </span>
-                    ) : (
+                  <div className="flex flex-col items-end gap-1.5 shrink-0 w-[130px]">
+                    {!order.subscription_id && (
                       <span className="text-[13px] text-[#666]">{formatPrice(order.amount)}</span>
                     )}
                     {isRevoked ? (
