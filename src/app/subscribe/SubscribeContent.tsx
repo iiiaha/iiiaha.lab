@@ -105,7 +105,6 @@ export default function SubscribeContent({
           여러분의 생산성에 날개를 달아드리겠습니다.
         </p>
         <p className="text-[15px] text-[#333] leading-[1.9]">
-          더 이상 야근하지 말고, 더 중요한 일에 집중하세요.<br />
           상위 1% 생산성 도구와 함께 당신의 가치를 올리세요.
         </p>
       </div>
