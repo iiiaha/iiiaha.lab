@@ -385,13 +385,13 @@ export default function MyPage() {
 
                     <div className="flex flex-col gap-2 ml-12">
                       <div className="flex items-center gap-2">
-                        <span className="text-[11px] text-[#999] w-[60px]">Expires</span>
+                        <span className="text-[11px] text-[#999] w-[60px]">유효기간</span>
                         {order.subscription_id && subscription ? (
                           <span className="text-[12px] text-[#666]">
-                            {new Date(subscription.expires_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })}
+                            {new Date(subscription.expires_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })} 까지
                           </span>
                         ) : (
-                          <span className="text-[12px] text-[#666]">Permanent</span>
+                          <span className="text-[12px] text-[#666]">영구 구매</span>
                         )}
                       </div>
 
@@ -407,13 +407,13 @@ export default function MyPage() {
                           {order.licenses?.map((lic) => (
                             <div key={lic.license_key}>
                               <div className="flex items-center gap-2">
-                                <span className="text-[11px] text-[#999] w-[60px]">License</span>
+                                <span className="text-[11px] text-[#999] w-[60px]">라이선스</span>
                                 <LicenseKeyDisplay licenseKey={lic.license_key} />
                               </div>
                             </div>
                           ))}
                           <div className="flex items-center gap-2">
-                            <span className="text-[11px] text-[#999] w-[60px]">Version</span>
+                            <span className="text-[11px] text-[#999] w-[60px]">버전</span>
                             {ver && (
                               ver.hasUpdate ? (
                                 <span className="text-[12px] text-[#111] font-bold">
@@ -453,7 +453,7 @@ export default function MyPage() {
                           onClick={() => handleDownload(order)}
                           className="w-full text-[12px] text-[#111] border border-[#111] bg-white px-4 py-1.5 cursor-pointer hover:bg-[#111] hover:text-white transition-colors text-center"
                         >
-                          Download .rbz
+                          설치파일 다운받기
                         </button>
                         {ver?.hasUpdate && (
                           <button
@@ -465,7 +465,7 @@ export default function MyPage() {
                         )}
                         <Link href={`/openlab/new?product=${slug}`}
                           className="w-full text-[12px] text-[#111] border border-[#111] px-4 py-1.5 no-underline hover:bg-[#111] hover:text-white transition-colors text-center">
-                          Questions & Bugs
+                          버그 신고 & 기능 제안
                         </Link>
                         {(() => {
                           const disabledReason = refundDisabledReason(order);
@@ -476,7 +476,7 @@ export default function MyPage() {
                               title={disabledReason ?? "환불 요청"}
                               className="w-full text-[12px] text-[#111] border border-[#111] bg-white px-4 py-1.5 cursor-pointer hover:bg-[#111] hover:text-white transition-colors text-center disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-[#111]"
                             >
-                              Refund
+                              환불하기
                             </button>
                           );
                         })()}
@@ -496,7 +496,7 @@ export default function MyPage() {
           href="/mypage/delete"
           className="text-[12px] text-[#999] hover:text-red-600"
         >
-          Delete account
+          회원 탈퇴
         </Link>
       </div>
     </div>
