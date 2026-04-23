@@ -272,8 +272,8 @@ export default function CartPage() {
         {checkoutError && (
           <p className="text-[11px] text-red-600 text-center mt-2">{checkoutError}</p>
         )}
-        <p className="text-[11px] text-[#999] text-center mt-2">
-          결제는 토스페이먼츠를 통해 안전하게 처리됩니다.
+        <p className="text-[11px] text-[#999] text-center mt-3">
+          또는
         </p>
 
         {/* Subscription CTA */}
