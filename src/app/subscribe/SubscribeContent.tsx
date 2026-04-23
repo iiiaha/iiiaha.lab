@@ -100,9 +100,9 @@ export default function SubscribeContent({
         </p>
 
         <p className="text-[15px] text-[#333] leading-[1.9]">
-          수십 번씩 반복되던 작업을 한 번으로 줄입니다.<br />
+          무의미한 반복 노동은 이제 이아하랩이 맡겠습니다.<br />
           더 이상 야근하지 말고, 더 중요한 일에 집중하세요.<br />
-          이 업계의 비효율에 끌려다니지 마세요.
+          상위 1% 생산성 도구와 함께 당신의 가치를 올리세요.
         </p>
       </div>
 
