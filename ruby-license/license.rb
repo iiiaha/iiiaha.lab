@@ -3,6 +3,7 @@ require 'uri'
 require 'json'
 require 'digest'
 require 'fileutils'
+require 'time'
 
 module Iiiaha
   module License
@@ -140,8 +141,10 @@ module Iiiaha
     end
 
     # ─── 업데이트 체크 ───
+    # SketchUp Ruby에서 Thread.new 내부의 UI.start_timer는 메인 스레드로 복귀하지 않아 팝업이 뜨지 않음.
+    # 대신 UI.start_timer로 3초 지연 실행 — 스타트업 UI가 뜬 뒤 메인 스레드에서 실행됨.
     def self.check_update(product_slug, local_version)
-      Thread.new do
+      UI.start_timer(3, false) do
         begin
           uri = URI("#{VERSION_URL}?slug=#{product_slug}")
           http = Net::HTTP.new(uri.host, uri.port)
@@ -150,31 +153,28 @@ module Iiiaha
           http.read_timeout = 5
 
           res = http.request(Net::HTTP::Get.new(uri))
-          return unless res.code.to_i == 200
+          next unless res.code.to_i == 200
 
           data = JSON.parse(res.body)
           remote_version = data["version"]
-          display_name = data["display_name"] || product_slug
+          display_name = data["name"] || product_slug
 
-          return unless remote_version
-          return if remote_version == local_version
+          next unless remote_version
+          next if remote_version == local_version
 
           # 버전 비교 (semantic versioning)
           local_parts = local_version.split('.').map(&:to_i)
           remote_parts = remote_version.split('.').map(&:to_i)
-          return unless (remote_parts <=> local_parts) > 0
+          next unless (remote_parts <=> local_parts) > 0
 
-          # 메인 스레드에서 알림 표시
-          UI.start_timer(0, false) do
-            result = UI.messagebox(
-              "#{display_name} v#{remote_version} is available.\n" \
-              "You are using v#{local_version}.\n\n" \
-              "Visit iiiaha.lab to download the update?",
-              MB_YESNO
-            )
-            if result == IDYES
-              UI.openURL("#{SITE_URL}/extensions/#{product_slug}")
-            end
+          result = UI.messagebox(
+            "#{display_name} v#{remote_version} is available.\n" \
+            "You are using v#{local_version}.\n\n" \
+            "Visit iiiaha.lab to download the update?",
+            MB_YESNO
+          )
+          if result == IDYES
+            UI.openURL("#{SITE_URL}/extensions/#{product_slug}")
           end
         rescue
           # 업데이트 체크 실패는 무시

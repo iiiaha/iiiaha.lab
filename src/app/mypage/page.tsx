@@ -31,7 +31,7 @@ interface OrderWithProduct {
     version: string | null;
     thumbnail_url: string | null;
   };
-  licenses: { license_key: string; hwid: string | null; status: string }[];
+  licenses: { license_key: string; hwid: string | null; status: string; last_downloaded_version: string | null }[];
 }
 
 const REFUND_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
@@ -52,6 +52,7 @@ interface VersionInfo {
   latest: string | null;
   current: string | null;
   hasUpdate: boolean;
+  notDownloaded: boolean;
 }
 
 function EyeIcon({ open }: { open: boolean }) {
@@ -122,7 +123,7 @@ export default function MyPage() {
       const { data } = await supabase
         .from("orders")
         .select(
-          "id, amount, status, created_at, product_id, subscription_id, payment_key, download_acknowledged_at, products(slug, name, version, thumbnail_url), licenses(license_key, hwid, status)"
+          "id, amount, status, created_at, product_id, subscription_id, payment_key, download_acknowledged_at, products(slug, name, version, thumbnail_url), licenses(license_key, hwid, status, last_downloaded_version)"
         )
         .eq("user_id", user.id)
         .eq("status", "paid")
@@ -146,25 +147,19 @@ export default function MyPage() {
       const orderList = Array.from(seen.values());
       setOrders(orderList);
 
+      // 버전 비교: "유저가 마지막으로 다운로드한 버전(licenses.last_downloaded_version)" ↔ "제품 현재 버전(products.version)"
       const versionMap: Record<string, VersionInfo> = {};
       for (const order of orderList) {
         const slug = order.products?.slug;
-        if (!slug || versionMap[slug]) continue;
-        try {
-          const res = await fetch(`/api/version?slug=${slug}`);
-          if (res.ok) {
-            const d = await res.json();
-            const latest = d.version;
-            const current = order.products?.version;
-            versionMap[slug] = {
-              latest,
-              current,
-              hasUpdate: latest && current ? latest !== current : false,
-            };
-          }
-        } catch {
-          // ignore
-        }
+        if (!slug) continue;
+        const latest = order.products?.version ?? null;
+        const current = order.licenses?.[0]?.last_downloaded_version ?? null;
+        versionMap[order.id] = {
+          latest,
+          current,
+          hasUpdate: !!(latest && current && latest !== current),
+          notDownloaded: !current,
+        };
       }
       setVersions(versionMap);
       setLoading(false);
@@ -367,7 +362,7 @@ export default function MyPage() {
         ) : (
           orders.map((order) => {
             const slug = order.products?.slug;
-            const ver = slug ? versions[slug] : null;
+            const ver = versions[order.id] ?? null;
 
             const isRevoked = order.licenses?.some((l) => l.status === "revoked");
 
@@ -424,11 +419,15 @@ export default function MyPage() {
                                 <span className="text-[12px] text-[#111] font-bold">
                                   v{ver.current} → v{ver.latest} available
                                 </span>
-                              ) : (
+                              ) : ver.notDownloaded && ver.latest ? (
+                                <span className="text-[12px] text-[#999]">
+                                  v{ver.latest} — 설치 전
+                                </span>
+                              ) : ver.current ? (
                                 <span className="text-[12px] text-[#999]">
                                   v{ver.current} — Latest
                                 </span>
-                              )
+                              ) : null
                             )}
                           </div>
                         </>
