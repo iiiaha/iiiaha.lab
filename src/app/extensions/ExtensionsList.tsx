@@ -7,7 +7,6 @@ import ProductCard from "@/components/ProductCard";
 const FILTERS: { key: string; label: string; value: Platform }[] = [
   { key: "sketchup", label: "SketchUp", value: "sketchup" },
   { key: "autocad", label: "AutoCAD", value: "autocad" },
-  { key: "windows", label: "Windows", value: "windows" },
 ];
 
 export default function ExtensionsList({

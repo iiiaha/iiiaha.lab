@@ -250,7 +250,7 @@ export default function CartPage() {
             className="mt-0.5 cursor-pointer"
           />
           <span className="text-[11px] text-[#666] leading-relaxed">
-            본 익스텐션은 <b>SketchUp 2021 이상</b>에서만 동작합니다. 사용 중인 스케치업 버전을 확인하셨습니까?
+            익스텐션은 <b>SketchUp</b> 또는 <b>AutoCAD</b>의 특정 버전에서만 동작합니다. 상품 상세의 호환 버전을 확인하셨습니까?
           </span>
         </label>
 

@@ -46,7 +46,7 @@ export default function AdminProducts() {
   const [newProduct, setNewProduct] = useState<Partial<Product>>(EMPTY_PRODUCT);
   const [message, setMessage] = useState("");
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
-  const [platformTab, setPlatformTab] = useState<"sketchup" | "autocad" | "windows">("sketchup");
+  const [platformTab, setPlatformTab] = useState<"sketchup" | "autocad">("sketchup");
   const [dragIdx, setDragIdx] = useState<number | null>(null);
   const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -422,7 +422,6 @@ export default function AdminProducts() {
         {([
           { key: "sketchup", label: "SketchUp" },
           { key: "autocad", label: "AutoCAD" },
-          { key: "windows", label: "Windows" },
         ] as const).map(({ key, label }) => (
           <button
             key={key}

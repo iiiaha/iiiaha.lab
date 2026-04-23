@@ -1,5 +1,5 @@
 export type ProductType = "extension" | "course";
-export type Platform = "sketchup" | "autocad" | "windows";
+export type Platform = "sketchup" | "autocad";
 
 export interface Product {
   id: string;

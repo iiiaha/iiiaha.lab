@@ -9,7 +9,7 @@ export default function TermsPage() {
           <p>
             본 약관은 이아하랩(이하 &quot;회사&quot;라 함)이 운영하는 iiiaha.lab
             (iiiahalab.com, 이하 &quot;사이트&quot;)에서 제공하는 디지털
-            콘텐츠(SketchUp·AutoCAD·Windows용 익스텐션 및 온라인 강의)
+            콘텐츠(SketchUp·AutoCAD용 익스텐션 및 온라인 강의)
             판매 서비스(이하 &quot;서비스&quot;)의 이용조건 및 절차, 회사와 이용자의
             권리·의무 및 책임사항을 규정함을 목적으로 합니다.
           </p>
