@@ -25,6 +25,11 @@ export default function PrivacyPage() {
           <p className="mt-2">
             수집 방법: 웹사이트 회원가입, 서비스 이용, 결제 과정에서 자동 수집
           </p>
+          <p className="mt-2">
+            회사는 만 14세 미만 아동의 회원가입을 허용하지 않습니다. 가입 과정에서
+            만 14세 미만으로 확인된 경우 가입을 제한하며, 가입 후 만 14세 미만으로
+            확인되는 경우 즉시 회원자격을 정지하고 관련 정보를 파기합니다.
+          </p>
         </section>
 
         <section>
@@ -68,6 +73,15 @@ export default function PrivacyPage() {
             <li>Cloudflare, Inc. — 영상 콘텐츠 스트리밍</li>
             <li>㈜토스페이먼츠 — 전자결제 처리</li>
             <li>Google LLC — Google 계정 로그인 연동</li>
+            <li>Resend, Inc. — 회원·서비스 알림 이메일 발송</li>
+          </ul>
+          <p className="mt-3 font-bold">개인정보의 국외 이전</p>
+          <ul className="list-disc pl-5 flex flex-col gap-1 mt-2">
+            <li>이전 받는 자: 위 위탁업체들 (소재 국가: 미국)</li>
+            <li>이전 항목: 회원 정보(이메일·이름), 주문·결제 정보, 라이선스 정보, 접속 기록</li>
+            <li>이전 일시 및 방법: 회원가입·구매·서비스 이용 시점에 인터넷 회선을 통한 암호화 전송, 위탁업체의 미국 소재 데이터센터에 저장</li>
+            <li>이전 받는 자의 보호조치: 각 업체는 GDPR / SOC 2 / ISO 27001 등 국제 보안 표준을 준수합니다.</li>
+            <li>이전 거부 권리: 이용자는 개인정보 국외 이전을 거부할 수 있으나, 이 경우 본 서비스 이용이 제한될 수 있습니다.</li>
           </ul>
         </section>
 
