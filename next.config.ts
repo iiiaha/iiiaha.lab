@@ -7,7 +7,7 @@ const cspDirectives = [
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
   "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.tosspayments.com",
-  "frame-src https://*.tosspayments.com https://*.cloudflarestream.com",
+  "frame-src https://*.tosspayments.com https://*.cloudflarestream.com https://www.youtube.com https://www.youtube-nocookie.com",
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",
