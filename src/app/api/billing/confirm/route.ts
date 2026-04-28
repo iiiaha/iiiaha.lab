@@ -175,8 +175,9 @@ export async function POST(req: NextRequest) {
     .single();
 
   if (subErr || !subscription) {
+    console.error("[billing/confirm] subscription insert failed", subErr);
     return NextResponse.json(
-      { error: "구독 저장에 실패했습니다", detail: subErr?.message },
+      { error: "구독 저장에 실패했습니다" },
       { status: 500 }
     );
   }

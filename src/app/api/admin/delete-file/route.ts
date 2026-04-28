@@ -34,6 +34,9 @@ export async function POST(req: NextRequest) {
   }
 
   const { error, data } = await serviceSupabase.storage.from("uploads").remove(paths);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) {
+    console.error("[admin/delete-file] remove failed", error);
+    return NextResponse.json({ error: "Failed to delete file" }, { status: 500 });
+  }
   return NextResponse.json({ deleted: data?.map((d) => d.name) ?? [] });
 }

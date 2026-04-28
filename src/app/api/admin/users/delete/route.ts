@@ -62,7 +62,11 @@ export async function POST(req: NextRequest) {
   // auth.users에서 제거 (이게 마지막)
   const { error } = await serviceSupabase.auth.admin.deleteUser(user_id);
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("[admin/users/delete] deleteUser failed", error);
+    return NextResponse.json(
+      { error: "Failed to delete user" },
+      { status: 500 }
+    );
   }
 
   return NextResponse.json({ status: "deleted", user_id });

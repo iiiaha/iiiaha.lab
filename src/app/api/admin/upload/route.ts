@@ -121,7 +121,8 @@ export async function POST(req: NextRequest) {
     });
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("[admin/upload] storage upload failed", error);
+    return NextResponse.json({ error: "Upload failed" }, { status: 500 });
   }
 
   const { data: { publicUrl } } = serviceSupabase.storage

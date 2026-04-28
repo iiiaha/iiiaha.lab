@@ -114,7 +114,8 @@ export async function POST(req: NextRequest) {
       .eq("id", existing.id);
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      console.error("[progress] update failed", error);
+      return NextResponse.json({ error: "Internal error" }, { status: 500 });
     }
   } else {
     // 새 기록
@@ -126,7 +127,8 @@ export async function POST(req: NextRequest) {
     });
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      console.error("[progress] insert failed", error);
+      return NextResponse.json({ error: "Internal error" }, { status: 500 });
     }
   }
 

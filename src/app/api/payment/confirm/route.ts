@@ -209,8 +209,9 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (orderErr || !order) {
+      console.error("[payment/confirm] order insert failed", orderErr);
       return NextResponse.json(
-        { error: "Failed to create order", detail: orderErr?.message },
+        { error: "Failed to create order" },
         { status: 500 }
       );
     }
@@ -226,8 +227,9 @@ export async function POST(req: NextRequest) {
     });
 
     if (licErr) {
+      console.error("[payment/confirm] license insert failed", licErr);
       return NextResponse.json(
-        { error: "Failed to create license", detail: licErr.message },
+        { error: "Failed to create license" },
         { status: 500 }
       );
     }

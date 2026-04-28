@@ -35,7 +35,8 @@ export async function GET() {
   } = await serviceSupabase.auth.admin.listUsers({ perPage: 1000 });
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("[admin/users] listUsers failed", error);
+    return NextResponse.json({ error: "Internal error" }, { status: 500 });
   }
 
   const simplified = users.map((u) => ({

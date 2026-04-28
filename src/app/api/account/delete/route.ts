@@ -48,7 +48,11 @@ export async function POST() {
   const { error } = await serviceSupabase.auth.admin.deleteUser(user.id);
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("[account/delete] deleteUser failed", error);
+    return NextResponse.json(
+      { error: "Failed to delete account" },
+      { status: 500 }
+    );
   }
 
   return NextResponse.json({ status: "deleted" });
