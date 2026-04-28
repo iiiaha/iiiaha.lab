@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import crypto from "crypto";
+import { limiters, getClientId, rateLimit } from "@/lib/ratelimit";
 
 const serviceSupabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -55,6 +56,10 @@ export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ secret: string }> }
 ) {
+  // secret 검증 전 rate limit. 잘못된 secret 추측 시도 자체를 throttle.
+  const limited = await rateLimit(limiters.webhook, getClientId(req));
+  if (limited) return limited;
+
   const { secret } = await params;
   const expected = process.env.TOSS_WEBHOOK_SECRET;
   if (!expected || !safeEqual(secret, expected)) {

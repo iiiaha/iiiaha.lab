@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { createServerSupabase } from "@/lib/supabase-server";
+import { limiters, getClientId, rateLimit } from "@/lib/ratelimit";
 
 const serviceSupabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -22,6 +23,9 @@ export async function GET(req: NextRequest) {
   if (!caller) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const limited = await rateLimit(limiters.userEmail, getClientId(req, caller.id));
+  if (limited) return limited;
 
   // full=true는 admin이거나 본인 자신일 때만 허용
   if (full && caller.id !== userId) {

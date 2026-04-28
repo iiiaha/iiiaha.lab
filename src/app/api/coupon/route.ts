@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { createServerSupabase } from "@/lib/supabase-server";
+import { limiters, getClientId, rateLimit } from "@/lib/ratelimit";
 
 const serviceSupabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -23,6 +24,9 @@ export async function POST(req: NextRequest) {
   if (!user) {
     return NextResponse.json({ error: "Please log in first" }, { status: 401 });
   }
+
+  const limited = await rateLimit(limiters.coupon, getClientId(req, user.id));
+  if (limited) return limited;
 
   const { data: coupon } = await serviceSupabase
     .from("coupons")

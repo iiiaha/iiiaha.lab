@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { createServerSupabase } from "@/lib/supabase-server";
 import { generateLicenseKey } from "@/lib/license-utils";
+import { limiters, getClientId, rateLimit } from "@/lib/ratelimit";
 
 const serviceSupabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -32,6 +33,9 @@ export async function POST(req: NextRequest) {
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const limited = await rateLimit(limiters.paymentConfirm, getClientId(req, user.id));
+  if (limited) return limited;
 
   // 2. 동일 paymentKey로 이미 처리된 주문이 있으면 그대로 반환 (idempotent)
   const { data: existingOrders } = await serviceSupabase

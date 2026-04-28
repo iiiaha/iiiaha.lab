@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { createServerSupabase } from "@/lib/supabase-server";
+import { limiters, getClientId, rateLimit } from "@/lib/ratelimit";
 
 const serviceSupabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -57,6 +58,9 @@ export async function POST(req: NextRequest) {
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const limited = await rateLimit(limiters.billingConfirm, getClientId(req, user.id));
+  if (limited) return limited;
 
   // customerKey는 user.id와 일치해야 함 (변조 방지)
   if (customerKey !== user.id) {

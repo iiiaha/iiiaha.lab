@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { signLicenseData } from "@/lib/license-utils";
+import { limiters, getClientId, rateLimit } from "@/lib/ratelimit";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -8,6 +9,9 @@ const supabase = createClient(
 );
 
 export async function POST(req: NextRequest) {
+  const limited = await rateLimit(limiters.licenseVerify, getClientId(req));
+  if (limited) return limited;
+
   const { license_key, product_slug, hwid } = await req.json();
 
   if (!license_key || !product_slug || !hwid) {
