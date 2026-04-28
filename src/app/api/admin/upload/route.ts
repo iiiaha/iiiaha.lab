@@ -19,6 +19,67 @@ async function checkAdmin() {
   return data ? user : null;
 }
 
+// 파일의 실제 바이트 시그니처로 MIME 타입 판정.
+// 화이트리스트에 없는 타입(예: PE 헤더 4D 5A)은 null 반환 → 거부.
+async function detectMimeByMagic(file: File): Promise<string | null> {
+  const buf = Buffer.from(await file.slice(0, 16).arrayBuffer());
+
+  // PNG: 89 50 4E 47 0D 0A 1A 0A
+  if (
+    buf[0] === 0x89 &&
+    buf[1] === 0x50 &&
+    buf[2] === 0x4e &&
+    buf[3] === 0x47
+  ) {
+    return "image/png";
+  }
+  // JPEG: FF D8 FF
+  if (buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff) {
+    return "image/jpeg";
+  }
+  // GIF87a / GIF89a: 47 49 46 38
+  if (
+    buf[0] === 0x47 &&
+    buf[1] === 0x49 &&
+    buf[2] === 0x46 &&
+    buf[3] === 0x38
+  ) {
+    return "image/gif";
+  }
+  // WebP: RIFF (52 49 46 46) ... WEBP (57 45 42 50)
+  if (
+    buf[0] === 0x52 &&
+    buf[1] === 0x49 &&
+    buf[2] === 0x46 &&
+    buf[3] === 0x46 &&
+    buf[8] === 0x57 &&
+    buf[9] === 0x45 &&
+    buf[10] === 0x42 &&
+    buf[11] === 0x50
+  ) {
+    return "image/webp";
+  }
+  // ZIP/RBZ: PK\x03\x04 (50 4B 03 04) 또는 PK\x05\x06 (빈 zip)
+  if (
+    buf[0] === 0x50 &&
+    buf[1] === 0x4b &&
+    (buf[2] === 0x03 || buf[2] === 0x05) &&
+    (buf[3] === 0x04 || buf[3] === 0x06)
+  ) {
+    return "application/zip";
+  }
+
+  return null;
+}
+
+const EXT_BY_MIME: Record<string, string> = {
+  "image/png": "png",
+  "image/jpeg": "jpg",
+  "image/gif": "gif",
+  "image/webp": "webp",
+  "application/zip": "rbz",
+};
+
 export async function POST(req: NextRequest) {
   const admin = await checkAdmin();
   if (!admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
@@ -38,12 +99,26 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "invalid folder" }, { status: 400 });
   }
 
-  const ext = (file.name.split(".").pop() || "png").toLowerCase();
+  // Magic byte 검증. 브라우저가 알려준 file.type / file.name은 신뢰하지 않음.
+  const detectedMime = await detectMimeByMagic(file);
+  if (!detectedMime) {
+    return NextResponse.json(
+      { error: "Unsupported file type (magic byte check failed)" },
+      { status: 400 }
+    );
+  }
+
+  // 확장자도 magic byte 결과 기준으로 결정 (사용자 파일명 신뢰 안 함).
+  const ext = EXT_BY_MIME[detectedMime];
   const path = `${folder}/${slug}.${ext}`;
 
   const { error } = await serviceSupabase.storage
     .from("uploads")
-    .upload(path, file, { upsert: true, cacheControl: "3600", contentType: file.type });
+    .upload(path, file, {
+      upsert: true,
+      cacheControl: "3600",
+      contentType: detectedMime,
+    });
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
