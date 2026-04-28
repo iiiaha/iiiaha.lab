@@ -87,14 +87,17 @@ export default function PostDetailPage() {
   const addComment = async () => {
     if (!newComment.trim() || !userId) return;
     setCommenting(true);
-    await supabase.from("comments").insert({
-      post_id: postId,
-      user_id: userId,
-      content: newComment.trim(),
-      is_admin: admin,
+    const res = await fetch("/api/comments", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ post_id: postId, content: newComment.trim() }),
     });
-    setNewComment("");
     setCommenting(false);
+    if (!res.ok) {
+      alert("댓글 작성에 실패했습니다.");
+      return;
+    }
+    setNewComment("");
     load();
   };
 
