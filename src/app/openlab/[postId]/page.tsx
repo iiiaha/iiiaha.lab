@@ -72,7 +72,6 @@ export default function PostDetailPage() {
     setLoading(false);
   };
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     const init = async () => {
       const user = await getUser();

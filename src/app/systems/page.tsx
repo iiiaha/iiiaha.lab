@@ -45,7 +45,6 @@ export default function SystemsPage() {
     setItems(data ?? []);
   };
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     const init = async () => {
       await load();

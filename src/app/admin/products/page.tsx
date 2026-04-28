@@ -57,7 +57,6 @@ export default function AdminProducts() {
     setProducts(data ?? []);
   };
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { load(); }, []);
 
   const showMessage = (msg: string) => {

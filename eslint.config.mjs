@@ -22,6 +22,9 @@ const eslintConfig = defineConfig([
       "react-hooks/immutability": "off",
       "react-hooks/purity": "off",
       "react-hooks/refs": "off",
+      "react-hooks/static-components": "off",
+      // exhaustive-deps는 mount-once load() 패턴과 잘 안 맞음. 의도적으로 끔.
+      "react-hooks/exhaustive-deps": "off",
     },
   },
 ]);

@@ -40,7 +40,6 @@ export default function AdminBugs() {
     setReports((data as unknown as BugReport[]) ?? []);
   };
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { load(); }, []);
 
   const showMessage = (msg: string) => {

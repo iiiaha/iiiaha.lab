@@ -35,7 +35,6 @@ export default function OpenLabPage() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     const load = async () => {
       const user = await getUser();

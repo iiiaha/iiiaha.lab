@@ -41,7 +41,6 @@ export default function AdminCoupons() {
     setLoading(false);
   };
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { load(); }, []);
 
   const showMsg = (msg: string) => {
