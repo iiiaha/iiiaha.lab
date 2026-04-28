@@ -266,6 +266,27 @@ export default function MyPage() {
     }
   };
 
+  const handleResumeSubscription = async () => {
+    if (!subscription) return;
+    if (
+      !confirm(
+        "멤버십 해지를 취소하시겠습니까? 다음 결제일에 자동결제가 다시 진행됩니다."
+      )
+    )
+      return;
+    try {
+      const res = await fetch("/api/subscribe/resume", { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.error || "해지 취소에 실패했습니다.");
+        return;
+      }
+      setSubscription({ ...subscription, cancel_at_period_end: false });
+    } catch {
+      alert("네트워크 오류가 발생했습니다.");
+    }
+  };
+
   const handleUpdatePaymentMethod = async () => {
     try {
       const user = await getUser();
@@ -431,10 +452,18 @@ export default function MyPage() {
               })()
             ) : subscription.status === "active" && subscription.cancel_at_period_end ? (
               <>
-                <p className="text-[13px] text-[#333] mb-3">
-                  iiiahalab 멤버십 · {subscription.plan === "annual" ? "연간" : "월간"}{" "}
-                  <span className="text-[11px] text-[#999]">(해지 예정)</span>
-                </p>
+                <div className="flex items-baseline justify-between gap-3 mb-3">
+                  <p className="text-[13px] text-[#333]">
+                    iiiahalab 멤버십 · {subscription.plan === "annual" ? "연간" : "월간"}{" "}
+                    <span className="text-[11px] text-[#999]">(해지 예정)</span>
+                  </p>
+                  <button
+                    onClick={handleResumeSubscription}
+                    className="text-[11px] text-[#111] bg-transparent border-0 cursor-pointer hover:underline shrink-0"
+                  >
+                    해지 취소
+                  </button>
+                </div>
                 <SubMetaRow label="이용 기간">
                   {new Date(subscription.started_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })}
                   {" — "}
@@ -449,7 +478,7 @@ export default function MyPage() {
                   <span className="text-[#999]">없음 (해지 예정)</span>
                 </SubMetaRow>
                 <p className="text-[11px] text-[#999] mt-3">
-                  멤버십이 해지되었습니다. 기간 종료 후 자동으로 만료됩니다.
+                  멤버십이 해지되었습니다. 기간 종료 후 자동으로 만료됩니다. 마음이 바뀌셨다면 만료 전까지 <b>해지 취소</b>로 자동결제를 재개하실 수 있습니다.
                 </p>
               </>
             ) : (
