@@ -33,7 +33,7 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: false,
   },
-  reactStrictMode: false,
+  reactStrictMode: true,
   async headers() {
     return [
       {
