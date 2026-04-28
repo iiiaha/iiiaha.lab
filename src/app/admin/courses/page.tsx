@@ -55,6 +55,7 @@ export default function AdminCourses() {
     setCourses(withCounts);
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { load(); }, []);
 
   const startEdit = (c: CourseRow) => {

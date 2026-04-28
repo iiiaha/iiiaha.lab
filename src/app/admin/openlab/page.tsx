@@ -36,6 +36,7 @@ export default function AdminOpenLab() {
     setPosts((data as unknown as Post[]) ?? []);
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { load(); }, []);
 
   const showMessage = (msg: string) => {
