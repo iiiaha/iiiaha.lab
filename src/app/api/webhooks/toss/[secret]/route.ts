@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import crypto from "crypto";
 import { limiters, getClientId, rateLimit } from "@/lib/ratelimit";
+import { sendAlert, formatError } from "@/lib/alert";
 
 const serviceSupabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -91,6 +92,11 @@ export async function POST(
   } catch (err) {
     // 처리 실패해도 200으로 받되 로그 남기기 (재시도 받을지 여부는 정책 판단)
     console.error("[toss webhook] processing error", err);
+    await sendAlert(
+      "toss-webhook-error",
+      "Toss 웹훅 처리 에러",
+      `웹훅 수신은 됐지만 DB 처리 중 에러. 환불·구독 만료 등 동기화 누락 가능성.\n\neventType: ${event.eventType ?? "unknown"}\nerror: ${formatError(err)}`
+    );
   }
 
   return NextResponse.json({ ok: true });

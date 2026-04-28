@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { createServerSupabase } from "@/lib/supabase-server";
 import { limiters, getClientId, rateLimit } from "@/lib/ratelimit";
+import { sendAlert, formatError } from "@/lib/alert";
 
 const serviceSupabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -176,6 +177,11 @@ export async function POST(req: NextRequest) {
 
   if (subErr || !subscription) {
     console.error("[billing/confirm] subscription insert failed", subErr);
+    await sendAlert(
+      `billing-confirm-sub-fail-${user.id}`,
+      "멤버십 첫 결제 후 구독 저장 실패",
+      `Toss 빌링키 발급 + 첫 결제는 됐지만 DB subscriptions 생성 실패. 수동 처리 필요.\n\nuser: ${user.id}\nplan: ${plan}\nbillingKey: ${billingKey}\npaymentKey: ${paymentKey}\namount: ${amount}\nerror: ${formatError(subErr)}`
+    );
     return NextResponse.json(
       { error: "구독 저장에 실패했습니다" },
       { status: 500 }

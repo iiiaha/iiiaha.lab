@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { createServerSupabase } from "@/lib/supabase-server";
 import { generateLicenseKey } from "@/lib/license-utils";
 import { limiters, getClientId, rateLimit } from "@/lib/ratelimit";
+import { sendAlert, formatError } from "@/lib/alert";
 
 const serviceSupabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -210,6 +211,11 @@ export async function POST(req: NextRequest) {
 
     if (orderErr || !order) {
       console.error("[payment/confirm] order insert failed", orderErr);
+      await sendAlert(
+        `payment-confirm-order-fail-${paymentKey}`,
+        "결제 후 주문 생성 실패",
+        `Toss 결제는 승인됐지만 DB orders 생성 실패. 사용자 환불 또는 수동 라이선스 발급 필요.\n\npaymentKey: ${paymentKey}\nuser: ${user.id}\nproduct: ${p.id}\nerror: ${formatError(orderErr)}`
+      );
       return NextResponse.json(
         { error: "Failed to create order" },
         { status: 500 }
@@ -228,6 +234,11 @@ export async function POST(req: NextRequest) {
 
     if (licErr) {
       console.error("[payment/confirm] license insert failed", licErr);
+      await sendAlert(
+        `payment-confirm-license-fail-${paymentKey}`,
+        "결제 후 라이선스 발급 실패",
+        `Toss 결제 + orders 생성됐지만 license INSERT 실패. 수동 라이선스 발급 필요.\n\npaymentKey: ${paymentKey}\norderId: ${order.id}\nuser: ${user.id}\nproduct: ${p.id}\nerror: ${formatError(licErr)}`
+      );
       return NextResponse.json(
         { error: "Failed to create license" },
         { status: 500 }

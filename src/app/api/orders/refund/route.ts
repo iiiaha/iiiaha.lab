@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { createServerSupabase } from "@/lib/supabase-server";
 import { limiters, getClientId, rateLimit } from "@/lib/ratelimit";
+import { sendAlert } from "@/lib/alert";
 
 const serviceSupabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -113,6 +114,11 @@ export async function POST(req: NextRequest) {
 
   if (!tossRes.ok) {
     const err = await tossRes.json().catch(() => ({}));
+    await sendAlert(
+      `refund-toss-fail-${paymentKey}`,
+      "사용자 환불 — Toss 거부",
+      `사용자가 환불 요청했으나 Toss API 거부. 수동 확인·처리 필요.\n\nuser: ${user.id}\norderId: ${order.id}\npaymentKey: ${paymentKey}\namount: ${order.amount}\ntoss response: ${JSON.stringify(err)}`
+    );
     return NextResponse.json(
       { error: err.message || "토스 환불 요청에 실패했습니다" },
       { status: 400 }

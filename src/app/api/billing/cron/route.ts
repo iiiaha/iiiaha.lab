@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
 import crypto from "crypto";
+import { sendAlert } from "@/lib/alert";
 
 function timingSafeStringEqual(a: string, b: string): boolean {
   const ab = Buffer.from(a);
@@ -161,6 +162,12 @@ export async function GET(req: NextRequest) {
       } catch {
         // 이메일 발송 실패는 cron 전체를 중단시키지 않음
       }
+
+      await sendAlert(
+        `cron-charge-fail-${sub.id}`,
+        "멤버십 자동결제 실패",
+        `cron이 멤버십 갱신 청구를 시도했으나 Toss 거부. 사용자에겐 결제수단 변경 안내 메일 발송됨. 사용자 ${sub.user_id}, plan ${sub.plan}, amount ${sub.amount}, error: ${err.message || "(no message)"}`
+      );
 
       results.push({
         id: sub.id,
