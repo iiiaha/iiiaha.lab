@@ -4,25 +4,20 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { getUser, onAuthStateChange } from "@/lib/auth";
-import { isAdmin } from "@/lib/admin";
 import { useCart } from "@/lib/cart";
 
 export default function Header() {
   const pathname = usePathname();
   const [loggedIn, setLoggedIn] = useState(false);
-  const [admin, setAdmin] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const { count: cartCount } = useCart();
 
   useEffect(() => {
-    getUser().then(async (u) => {
+    getUser().then((u) => {
       setLoggedIn(!!u);
-      if (u) setAdmin(await isAdmin());
     });
-    const { data } = onAuthStateChange(async (user) => {
+    const { data } = onAuthStateChange((user) => {
       setLoggedIn(!!user);
-      if (user) setAdmin(await isAdmin());
-      else setAdmin(false);
     });
     return () => data.subscription.unsubscribe();
   }, []);

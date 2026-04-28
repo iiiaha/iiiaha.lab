@@ -29,7 +29,6 @@ function SystemForm() {
   const [description, setDescription] = useState("");
   const [linkUrl, setLinkUrl] = useState("");
   const [images, setImages] = useState<{ file?: File; url: string; type: "image" | "youtube" }[]>([]);
-  const [newFiles, setNewFiles] = useState<File[]>([]);
   const [imgDragIdx, setImgDragIdx] = useState<number | null>(null);
   const [youtubeInput, setYoutubeInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -68,7 +67,6 @@ function SystemForm() {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
-    setNewFiles((prev) => [...prev, ...files]);
     for (const file of files) {
       const reader = new FileReader();
       reader.onload = () => setImages((prev) => [...prev, { file, url: reader.result as string, type: "image" }]);
@@ -86,11 +84,7 @@ function SystemForm() {
   };
 
   const removeImage = (idx: number) => {
-    const removed = images[idx];
     setImages((prev) => prev.filter((_, i) => i !== idx));
-    if (removed.file) {
-      setNewFiles((prev) => prev.filter((f) => f !== removed.file));
-    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -245,7 +239,6 @@ function SystemForm() {
               e.currentTarget.classList.remove("border-[#111]");
               const files = Array.from(e.dataTransfer.files).filter((f) => f.type.startsWith("image/"));
               if (files.length === 0) return;
-              setNewFiles((prev) => [...prev, ...files]);
               for (const file of files) {
                 const reader = new FileReader();
                 reader.onload = () => setImages((prev) => [...prev, { file, url: reader.result as string, type: "image" }]);

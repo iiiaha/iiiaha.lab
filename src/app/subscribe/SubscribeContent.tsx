@@ -75,13 +75,6 @@ export default function SubscribeContent({
     }
   };
 
-  const savingsVsBuy = plan === "monthly"
-    ? totalPrice - MONTHLY_PRICE
-    : totalPrice - ANNUAL_PRICE;
-
-  const sketchupCount = extensions.filter((e) => e.platform === "sketchup").length;
-  const autocadCount = extensions.filter((e) => e.platform === "autocad").length;
-
   return (
     <div>
       <div className="flex items-baseline justify-between mb-[10px]">

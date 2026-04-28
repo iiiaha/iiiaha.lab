@@ -32,7 +32,6 @@ export default function OpenLabPage() {
   const [filter, setFilter] = useState<"all" | "idea" | "bug">("all");
   const [loggedIn, setLoggedIn] = useState(false);
   const [admin, setAdmin] = useState(false);
-  const [currentUserId, setCurrentUserId] = useState("");
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
 
@@ -41,7 +40,6 @@ export default function OpenLabPage() {
       const user = await getUser();
       setLoggedIn(!!user);
       if (user) {
-        setCurrentUserId(user.id);
         const { isAdmin: checkAdmin } = await import("@/lib/admin");
         setAdmin(await checkAdmin());
       }

@@ -28,12 +28,6 @@ function getThumbnail(item: SystemItem): string | null {
   return first;
 }
 
-const STATUS_STYLE: Record<string, { bg: string; text: string }> = {
-  "Researching": { bg: "bg-[#0096D7]", text: "text-white" },
-  "Completed": { bg: "bg-[#111]", text: "text-white" },
-  "Released": { bg: "bg-[#00c9a7]", text: "text-white" },
-};
-
 export default function SystemsPage() {
   const supabase = createClient();
   const [items, setItems] = useState<SystemItem[]>([]);
