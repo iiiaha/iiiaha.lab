@@ -25,6 +25,8 @@ const eslintConfig = defineConfig([
       "react-hooks/static-components": "off",
       // exhaustive-deps는 mount-once load() 패턴과 잘 안 맞음. 의도적으로 끔.
       "react-hooks/exhaustive-deps": "off",
+      // Next Image 마이그레이션은 post-launch 점진 작업. 현재는 <img> 그대로 사용.
+      "@next/next/no-img-element": "off",
     },
   },
 ]);
