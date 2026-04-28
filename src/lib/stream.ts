@@ -28,6 +28,9 @@ export async function listVideos() {
 }
 
 // 직접 업로드 URL 생성 (TUS 업로드용)
+// requireSignedURLs는 의도적으로 false. 시청 권한은 /api/stream 라우트가
+// (로그인 + 구매 확인) 단에서 게이팅하고, 일단 URL이 발급된 후 공유되는 경우는
+// 계정 공유처럼 본질적으로 막을 수 없는 영역으로 간주.
 export async function createDirectUploadUrl(
   maxDurationSeconds: number = 3600
 ) {
@@ -36,7 +39,7 @@ export async function createDirectUploadUrl(
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       maxDurationSeconds,
-      requireSignedURLs: true,
+      requireSignedURLs: false,
     }),
   });
   return data.result as { uploadURL: string; uid: string };
