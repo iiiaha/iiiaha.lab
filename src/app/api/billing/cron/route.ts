@@ -144,19 +144,45 @@ export async function GET(req: NextRequest) {
         .update({ status: "past_due" })
         .eq("id", sub.id);
 
-      // 결제 실패 이메일 알림
+      // 결제 실패 이메일 알림 (한국어, Toss 거절 사유 포함)
       try {
         const { data: authUser } =
           await serviceSupabase.auth.admin.getUserById(sub.user_id);
         if (authUser?.user?.email) {
+          const reason: string = err?.message || "카드사로부터 거절되었습니다.";
+          const code: string | undefined = err?.code;
+          const planLabel = sub.plan === "annual" ? "연간" : "월간";
+
           await resend.emails.send({
             from: "iiiaha.lab <noreply@iiiahalab.com>",
             to: authUser.user.email,
-            subject: "Payment failed — iiiaha.lab membership",
-            html: `<p>Hi,</p>
-<p>We were unable to process your membership renewal payment.</p>
-<p>Please update your payment method at <a href="https://iiiahalab.com/mypage">your account page</a> to continue using your extensions.</p>
-<p>— iiiaha.lab</p>`,
+            subject: "[iiiaha.lab] 멤버십 자동결제가 실패했습니다",
+            html: `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;line-height:1.7;color:#333;max-width:560px">
+<p>안녕하세요,</p>
+<p>iiiaha.lab <b>${planLabel} 멤버십</b> 자동결제가 카드사에서 거절되어 안내드립니다.</p>
+
+<p style="background:#f5f5f5;padding:12px 14px;border-left:3px solid #c00;margin:16px 0">
+<b style="color:#c00">결제 거절 사유</b><br>
+${reason}${code ? ` <span style="color:#999;font-size:12px">(${code})</span>` : ""}
+</p>
+
+<p><b>가능한 원인</b></p>
+<ul style="padding-left:20px;margin:6px 0">
+  <li>카드 한도 초과 또는 잔액 부족</li>
+  <li>카드 정지·분실 신고·유효기간 만료</li>
+  <li>카드사 일시 점검</li>
+</ul>
+
+<p><b>조치 방법</b></p>
+<ol style="padding-left:20px;margin:6px 0">
+  <li>카드사에 문의하여 결제 가능 여부를 확인해 주세요.</li>
+  <li>다른 카드로 결제하시려면 <a href="https://iiiahalab.com/mypage" style="color:#111">마이페이지</a>에서 멤버십을 다시 가입해 주세요.</li>
+</ol>
+
+<p style="color:#666;font-size:13px">기타 문의: <a href="mailto:contact@iiiahalab.com" style="color:#111">contact@iiiahalab.com</a></p>
+
+<p style="color:#999;font-size:12px;margin-top:24px">— iiiaha.lab</p>
+</div>`,
           });
         }
       } catch {
