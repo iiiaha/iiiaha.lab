@@ -3,9 +3,16 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { loadTossPayments } from "@tosspayments/tosspayments-sdk";
 import { getUser, signOut } from "@/lib/auth";
 import { createClient } from "@/lib/supabase";
 import { formatPrice } from "@/lib/types";
+
+const TOSS_CLIENT_KEY = process.env.NEXT_PUBLIC_TOSS_BILLING_CLIENT_KEY!;
+const PENDING_KEY = "iiiaha_pending_billing";
+
+// cron/route.ts의 GRACE_DAYS와 일치해야 함
+const GRACE_DAYS = 3;
 
 interface Subscription {
   id: string;
@@ -259,6 +266,35 @@ export default function MyPage() {
     }
   };
 
+  const handleUpdatePaymentMethod = async () => {
+    try {
+      const user = await getUser();
+      if (!user) {
+        router.push("/login?redirect=/mypage");
+        return;
+      }
+      localStorage.setItem(
+        PENDING_KEY,
+        JSON.stringify({ mode: "update_method" })
+      );
+      const tossPayments = await loadTossPayments(TOSS_CLIENT_KEY);
+      const payment = tossPayments.payment({ customerKey: user.id });
+      await payment.requestBillingAuth({
+        method: "CARD",
+        successUrl: `${window.location.origin}/billing/success`,
+        failUrl: `${window.location.origin}/billing/fail`,
+        customerEmail: user.email,
+        customerName:
+          (user.user_metadata as { full_name?: string } | null)?.full_name ??
+          user.email?.split("@")[0],
+      });
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "결제수단 변경 창을 여는 데 실패했습니다.";
+      alert(message);
+    }
+  };
+
   if (loading)
     return (
       <div className="pt-20 text-center text-[14px] text-[#999]">
@@ -313,12 +349,21 @@ export default function MyPage() {
                   <p className="text-[13px] text-[#333]">
                     iiiahalab 멤버십 · {subscription.plan === "annual" ? "연간" : "월간"}
                   </p>
-                  <button
-                    onClick={handleCancelSubscription}
-                    className="text-[11px] text-[#999] bg-transparent border-0 cursor-pointer hover:text-red-600 shrink-0"
-                  >
-                    멤버십 해지하기
-                  </button>
+                  <div className="flex items-center gap-2 shrink-0 text-[11px]">
+                    <button
+                      onClick={handleUpdatePaymentMethod}
+                      className="text-[#999] bg-transparent border-0 cursor-pointer hover:text-[#111]"
+                    >
+                      결제수단 변경
+                    </button>
+                    <span className="text-[#ddd]">·</span>
+                    <button
+                      onClick={handleCancelSubscription}
+                      className="text-[#999] bg-transparent border-0 cursor-pointer hover:text-red-600"
+                    >
+                      멤버십 해지하기
+                    </button>
+                  </div>
                 </div>
                 <SubMetaRow label="이용 기간">
                   {new Date(subscription.started_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })}
@@ -337,6 +382,53 @@ export default function MyPage() {
                   멤버십 기간 동안 모든 익스텐션을 자유롭게 이용하실 수 있습니다.
                 </p>
               </>
+            ) : subscription.status === "past_due" ? (
+              (() => {
+                const graceEnd = new Date(subscription.expires_at);
+                graceEnd.setDate(graceEnd.getDate() + GRACE_DAYS);
+                return (
+                  <>
+                    <div className="flex items-baseline justify-between gap-3 mb-3">
+                      <p className="text-[13px] text-[#333]">
+                        iiiahalab 멤버십 · {subscription.plan === "annual" ? "연간" : "월간"}{" "}
+                        <span className="text-[11px] text-red-600 font-bold">(결제 실패)</span>
+                      </p>
+                      <button
+                        onClick={handleCancelSubscription}
+                        className="text-[11px] text-[#999] bg-transparent border-0 cursor-pointer hover:text-red-600 shrink-0"
+                      >
+                        멤버십 해지하기
+                      </button>
+                    </div>
+                    <div className="bg-[#fff8e1] border-l-[3px] border-[#f0a800] p-3 mb-3">
+                      <p className="text-[12px] text-[#7a5a00] leading-[1.7]">
+                        자동결제가 카드사에서 거절되었습니다. 앞으로 <b>{GRACE_DAYS}일간</b> 매일 자동 재시도되며, 그 사이 결제수단을 변경하시면 즉시 재시도되어 멤버십이 유지됩니다. 기간 내 결제가 성공하지 않으면 멤버십이 자동 만료됩니다.
+                      </p>
+                      <button
+                        onClick={handleUpdatePaymentMethod}
+                        className="mt-3 text-[12px] bg-[#111] text-white border-0 px-4 py-2 cursor-pointer hover:bg-[#333] transition-colors"
+                      >
+                        결제수단 변경
+                      </button>
+                    </div>
+                    <SubMetaRow label="이용 기간">
+                      {new Date(subscription.started_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })}
+                      {" — "}
+                      {new Date(subscription.expires_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })} 까지
+                    </SubMetaRow>
+                    {subscription.last_charged_at && (
+                      <SubMetaRow label="마지막 결제">
+                        {new Date(subscription.last_charged_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })}
+                      </SubMetaRow>
+                    )}
+                    <SubMetaRow label="자동 만료 예정">
+                      <span className="text-red-600">
+                        {graceEnd.toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })}
+                      </span>
+                    </SubMetaRow>
+                  </>
+                );
+              })()
             ) : subscription.status === "active" && subscription.cancel_at_period_end ? (
               <>
                 <p className="text-[13px] text-[#333] mb-3">
@@ -365,7 +457,6 @@ export default function MyPage() {
                 <div>
                   <p className="text-[13px] text-[#999]">
                     iiiahalab 멤버십 · 만료
-                    {subscription.status === "past_due" && " (결제 실패)"}
                   </p>
                   <p className="text-[12px] text-[#999] mt-0.5">
                     {new Date(subscription.expires_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })}

@@ -5,9 +5,12 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 interface PendingBilling {
-  plan: "monthly" | "annual";
-  amount: number;
+  mode?: "initial" | "update_method";
+  plan?: "monthly" | "annual";
+  amount?: number;
 }
+
+type SuccessVariant = "subscribed" | "method_updated" | "recovered";
 
 const STORAGE_KEY = "iiiaha_pending_billing";
 
@@ -15,6 +18,7 @@ function BillingSuccessInner() {
   const params = useSearchParams();
   const [state, setState] = useState<"loading" | "success" | "error">("loading");
   const [error, setError] = useState<string>("");
+  const [variant, setVariant] = useState<SuccessVariant>("subscribed");
   const ran = useRef(false);
 
   useEffect(() => {
@@ -44,16 +48,42 @@ function BillingSuccessInner() {
       return;
     }
 
+    const mode = pending.mode ?? "initial";
+
     const run = async () => {
       try {
+        if (mode === "update_method") {
+          const res = await fetch("/api/billing/update-method", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ authKey, customerKey }),
+          });
+          const data = await res.json();
+          if (!res.ok) {
+            setError(data.error || "결제수단 변경에 실패했습니다.");
+            setState("error");
+            return;
+          }
+          setVariant(data.status === "recovered" ? "recovered" : "method_updated");
+          setState("success");
+          localStorage.removeItem(STORAGE_KEY);
+          return;
+        }
+
+        // initial subscribe (default)
+        if (!pending.plan || typeof pending.amount !== "number") {
+          setError("멤버십 세션 정보가 손상되었습니다. 다시 시도해 주세요.");
+          setState("error");
+          return;
+        }
         const res = await fetch("/api/billing/confirm", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             authKey,
             customerKey,
-            plan: pending!.plan,
-            amount: pending!.amount,
+            plan: pending.plan,
+            amount: pending.amount,
           }),
         });
         const data = await res.json();
@@ -62,6 +92,7 @@ function BillingSuccessInner() {
           setState("error");
           return;
         }
+        setVariant("subscribed");
         setState("success");
         localStorage.removeItem(STORAGE_KEY);
       } catch {
@@ -108,13 +139,32 @@ function BillingSuccessInner() {
       {state === "success" && (
         <div>
           <div className="text-center py-16 mb-6">
-            <p className="text-[22px] font-bold mb-3">멤버십이 시작되었습니다</p>
-            <p className="text-[12px] text-[#999] mt-6 leading-[1.8]">
-              모든 익스텐션 라이선스가 발급되었습니다.
-              <br />
-              <strong className="text-[#111]">마이페이지</strong>에서 확인하실 수
-              있습니다.
-            </p>
+            {variant === "subscribed" && (
+              <>
+                <p className="text-[22px] font-bold mb-3">멤버십이 시작되었습니다</p>
+                <p className="text-[12px] text-[#999] mt-6 leading-[1.8]">
+                  <strong className="text-[#111]">마이페이지</strong>에서 멤버십 정보를 확인하시고,
+                  <br />
+                  <strong className="text-[#111]">익스텐션 페이지</strong>에서 원하시는 익스텐션을 추가하실 수 있습니다.
+                </p>
+              </>
+            )}
+            {variant === "method_updated" && (
+              <>
+                <p className="text-[22px] font-bold mb-3">결제수단이 변경되었습니다</p>
+                <p className="text-[12px] text-[#999] mt-6 leading-[1.8]">
+                  다음 결제일부터 새 카드로 자동 결제됩니다.
+                </p>
+              </>
+            )}
+            {variant === "recovered" && (
+              <>
+                <p className="text-[22px] font-bold mb-3">결제가 완료되었습니다</p>
+                <p className="text-[12px] text-[#999] mt-6 leading-[1.8]">
+                  새 결제수단으로 즉시 결제가 진행되어 멤버십이 정상 상태로 복원되었습니다.
+                </p>
+              </>
+            )}
           </div>
 
           <div className="flex gap-2">
@@ -124,12 +174,14 @@ function BillingSuccessInner() {
             >
               마이페이지로
             </Link>
-            <Link
-              href="/extensions"
-              className="flex-1 text-center text-[13px] border border-[#111] py-3 no-underline hover:bg-[#111] hover:text-white transition-colors"
-            >
-              익스텐션 둘러보기
-            </Link>
+            {variant === "subscribed" && (
+              <Link
+                href="/extensions"
+                className="flex-1 text-center text-[13px] border border-[#111] py-3 no-underline hover:bg-[#111] hover:text-white transition-colors"
+              >
+                익스텐션 둘러보기
+              </Link>
+            )}
           </div>
         </div>
       )}

@@ -46,6 +46,9 @@ interface Subscription {
   cancel_at_period_end: boolean;
 }
 
+// 결제 실패 후 자동 재시도 기간. expires_at이 graceCutoff보다 오래된 past_due는 expired 처리.
+const GRACE_DAYS = 3;
+
 export async function GET(req: NextRequest) {
   // Vercel Cron과 수동 호출 모두 허용 (CRON_SECRET으로 보호, timing-safe 비교)
   const auth = req.headers.get("authorization");
@@ -63,13 +66,16 @@ export async function GET(req: NextRequest) {
 
   const tossAuth = `Basic ${Buffer.from(process.env.TOSS_BILLING_SECRET_KEY + ":").toString("base64")}`;
   const now = new Date();
+  const graceCutoff = new Date(now);
+  graceCutoff.setDate(graceCutoff.getDate() - GRACE_DAYS);
 
-  // 오늘까지 만료되는 활성 구독 조회
+  // 청구 대상: 만료 도달한 active + 그레이스 기간 내 past_due (재시도)
   const { data: subs, error: subsErr } = await serviceSupabase
     .from("subscriptions")
     .select("*")
-    .eq("status", "active")
-    .lte("expires_at", now.toISOString());
+    .in("status", ["active", "past_due"])
+    .lte("expires_at", now.toISOString())
+    .gte("expires_at", graceCutoff.toISOString());
 
   if (subsErr) {
     return NextResponse.json({ error: subsErr.message }, { status: 500 });
@@ -136,34 +142,42 @@ export async function GET(req: NextRequest) {
       }
     );
 
+    const wasPastDue = sub.status === "past_due";
+
     if (!chargeRes.ok) {
       const err = await chargeRes.json().catch(() => ({}));
-      // 실패: past_due로 마킹
-      await serviceSupabase
-        .from("subscriptions")
-        .update({ status: "past_due" })
-        .eq("id", sub.id);
 
-      // 결제 실패 이메일 알림 (한국어, Toss 거절 사유 포함)
-      try {
-        const { data: authUser } =
-          await serviceSupabase.auth.admin.getUserById(sub.user_id);
-        if (authUser?.user?.email) {
-          const reason: string = err?.message || "카드사로부터 거절되었습니다.";
-          const code: string | undefined = err?.code;
-          const planLabel = sub.plan === "annual" ? "연간" : "월간";
+      // active → past_due 전이 시에만 사용자 메일 발송 (그레이스 기간 중 매일 스팸 방지)
+      if (!wasPastDue) {
+        await serviceSupabase
+          .from("subscriptions")
+          .update({ status: "past_due" })
+          .eq("id", sub.id);
 
-          await resend.emails.send({
-            from: "iiiaha.lab <noreply@iiiahalab.com>",
-            to: authUser.user.email,
-            subject: "[iiiaha.lab] 멤버십 자동결제가 실패했습니다",
-            html: `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;line-height:1.7;color:#333;max-width:560px">
+        try {
+          const { data: authUser } =
+            await serviceSupabase.auth.admin.getUserById(sub.user_id);
+          if (authUser?.user?.email) {
+            const reason: string = err?.message || "카드사로부터 거절되었습니다.";
+            const code: string | undefined = err?.code;
+            const planLabel = sub.plan === "annual" ? "연간" : "월간";
+
+            await resend.emails.send({
+              from: "iiiaha.lab <noreply@iiiahalab.com>",
+              to: authUser.user.email,
+              subject: "[iiiaha.lab] 멤버십 자동결제가 실패했습니다",
+              html: `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;line-height:1.7;color:#333;max-width:560px">
 <p>안녕하세요,</p>
 <p>iiiaha.lab <b>${planLabel} 멤버십</b> 자동결제가 카드사에서 거절되어 안내드립니다.</p>
 
 <p style="background:#f5f5f5;padding:12px 14px;border-left:3px solid #c00;margin:16px 0">
 <b style="color:#c00">결제 거절 사유</b><br>
 ${reason}${code ? ` <span style="color:#999;font-size:12px">(${code})</span>` : ""}
+</p>
+
+<p style="background:#fff8e1;padding:12px 14px;border-left:3px solid #f0a800;margin:16px 0">
+앞으로 <b>${GRACE_DAYS}일간</b> 매일 자동 재시도가 진행됩니다. 그 사이 결제수단을 변경하시면 즉시 결제가 진행되어 멤버십이 정상 유지됩니다.<br>
+${GRACE_DAYS}일이 지나도록 결제가 성공하지 못하면 멤버십이 자동으로 만료됩니다.
 </p>
 
 <p><b>가능한 원인</b></p>
@@ -176,23 +190,24 @@ ${reason}${code ? ` <span style="color:#999;font-size:12px">(${code})</span>` : 
 <p><b>조치 방법</b></p>
 <ol style="padding-left:20px;margin:6px 0">
   <li>카드사에 문의하여 결제 가능 여부를 확인해 주세요.</li>
-  <li>다른 카드로 결제하시려면 <a href="https://iiiahalab.com/mypage" style="color:#111">마이페이지</a>에서 멤버십을 다시 가입해 주세요.</li>
+  <li>다른 카드로 바꾸시려면 <a href="https://iiiahalab.com/mypage" style="color:#111">마이페이지</a> → <b>결제수단 변경</b>을 이용해 주세요. 변경과 동시에 결제가 즉시 시도됩니다.</li>
 </ol>
 
 <p style="color:#666;font-size:13px">기타 문의: <a href="mailto:contact@iiiahalab.com" style="color:#111">contact@iiiahalab.com</a></p>
 
 <p style="color:#999;font-size:12px;margin-top:24px">— iiiaha.lab</p>
 </div>`,
-          });
+            });
+          }
+        } catch {
+          // 이메일 발송 실패는 cron 전체를 중단시키지 않음
         }
-      } catch {
-        // 이메일 발송 실패는 cron 전체를 중단시키지 않음
       }
 
       await sendAlert(
-        `cron-charge-fail-${sub.id}`,
-        "멤버십 자동결제 실패",
-        `cron이 멤버십 갱신 청구를 시도했으나 Toss 거부. 사용자에겐 결제수단 변경 안내 메일 발송됨. 사용자 ${sub.user_id}, plan ${sub.plan}, amount ${sub.amount}, error: ${err.message || "(no message)"}`
+        `cron-charge-fail-${sub.id}-${wasPastDue ? "retry" : "first"}`,
+        wasPastDue ? "멤버십 자동결제 재시도 실패" : "멤버십 자동결제 실패",
+        `cron이 멤버십 갱신 청구를 시도했으나 Toss 거부. ${wasPastDue ? "그레이스 기간 중 재시도 실패." : "첫 실패 — 안내 메일 발송됨."} 사용자 ${sub.user_id}, plan ${sub.plan}, amount ${sub.amount}, error: ${err.message || "(no message)"}`
       );
 
       results.push({
@@ -206,26 +221,32 @@ ${reason}${code ? ` <span style="color:#999;font-size:12px">(${code})</span>` : 
     const chargeData = await chargeRes.json();
     const paymentKey: string = chargeData.paymentKey;
 
-    // 다음 기간으로 연장
+    // 청구 성공 → 다음 기간으로 연장 + past_due였다면 active로 복원
     const nextExpires = addPeriod(new Date(sub.expires_at), sub.plan);
     await serviceSupabase
       .from("subscriptions")
       .update({
+        status: "active",
         expires_at: nextExpires.toISOString(),
         last_payment_key: paymentKey,
         last_charged_at: now.toISOString(),
       })
       .eq("id", sub.id);
 
-    results.push({ id: sub.id, result: "charged" });
+    results.push({
+      id: sub.id,
+      result: "charged",
+      detail: wasPastDue ? "recovered from past_due" : undefined,
+    });
   }
 
-  // past_due 구독 중 만료일이 지난 것 → expired + 라이선스 revoke
+  // 그레이스 기간 만료된 past_due → expired + 라이선스 revoke
+  // expires_at < graceCutoff 인 것만. (graceCutoff = now - GRACE_DAYS, 같은 cron 실행에서 재시도 대상은 expires_at >= graceCutoff)
   const { data: pastDueSubs } = await serviceSupabase
     .from("subscriptions")
     .select("id")
     .eq("status", "past_due")
-    .lte("expires_at", now.toISOString());
+    .lt("expires_at", graceCutoff.toISOString());
 
   for (const sub of pastDueSubs ?? []) {
     await serviceSupabase
@@ -238,7 +259,7 @@ ${reason}${code ? ` <span style="color:#999;font-size:12px">(${code})</span>` : 
       .update({ status: "revoked" })
       .eq("subscription_id", sub.id);
 
-    results.push({ id: sub.id, result: "expired", detail: "past_due expired" });
+    results.push({ id: sub.id, result: "expired", detail: "grace expired" });
   }
 
   return NextResponse.json({ processed: results.length, results });
