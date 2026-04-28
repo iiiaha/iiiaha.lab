@@ -9,6 +9,13 @@ const serviceSupabase = createClient(
 
 type Plan = "monthly" | "annual";
 
+// 디버그 시즌 (~ 2026-07-31): monthly 24900. 시즌 종료 시 29000으로 환원.
+// SubscribeContent.tsx의 MONTHLY_PRICE / ANNUAL_PRICE와 반드시 일치해야 한다.
+const PLAN_PRICES: Record<Plan, number> = {
+  monthly: 24900,
+  annual: 300000,
+};
+
 interface ConfirmBody {
   authKey: string;
   customerKey: string;
@@ -54,6 +61,14 @@ export async function POST(req: NextRequest) {
   // customerKey는 user.id와 일치해야 함 (변조 방지)
   if (customerKey !== user.id) {
     return NextResponse.json({ error: "Customer key mismatch" }, { status: 403 });
+  }
+
+  // amount 서버 측 검증 (클라이언트에서 보낸 값을 그대로 신뢰하지 않음)
+  if (amount !== PLAN_PRICES[plan]) {
+    return NextResponse.json(
+      { error: "Amount mismatch", expected: PLAN_PRICES[plan] },
+      { status: 400 }
+    );
   }
 
   // 2. 이미 활성 구독이 있으면 중복 가입 금지

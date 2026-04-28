@@ -9,13 +9,9 @@ function getHmacSecret(): string {
 }
 
 export function generateLicenseKey(): string {
-  const segments = [];
-  for (let i = 0; i < 4; i++) {
-    segments.push(
-      crypto.randomBytes(2).toString("hex").toUpperCase()
-    );
-  }
-  return segments.join("-");
+  // 128-bit 엔트로피. 32 hex chars, 4 그룹 (XXXXXXXX-XXXXXXXX-XXXXXXXX-XXXXXXXX).
+  const hex = crypto.randomBytes(16).toString("hex").toUpperCase();
+  return `${hex.slice(0, 8)}-${hex.slice(8, 16)}-${hex.slice(16, 24)}-${hex.slice(24, 32)}`;
 }
 
 export function signLicenseData(data: Record<string, unknown>): string {

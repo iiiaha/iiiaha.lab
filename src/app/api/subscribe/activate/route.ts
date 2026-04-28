@@ -1,36 +1,41 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { createServerSupabase } from "@/lib/supabase-server";
 import { generateLicenseKey } from "@/lib/license-utils";
 
-const supabase = createClient(
+const serviceSupabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-export async function POST(req: NextRequest) {
-  const { subscription_id } = await req.json();
-
-  if (!subscription_id) {
-    return NextResponse.json({ error: "subscription_id is required" }, { status: 400 });
+export async function POST() {
+  const supabase = await createServerSupabase();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // 구독 조회
-  const { data: subscription, error: subError } = await supabase
+  // 본인의 활성 구독을 서버에서 조회. subscription_id를 클라이언트에서 받지 않는다.
+  const { data: subscription } = await serviceSupabase
     .from("subscriptions")
-    .select("*")
-    .eq("id", subscription_id)
-    .single();
+    .select("id, user_id, status")
+    .eq("user_id", user.id)
+    .eq("status", "active")
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
 
-  if (subError || !subscription) {
-    return NextResponse.json({ error: "Subscription not found" }, { status: 404 });
-  }
-
-  if (subscription.status !== "active") {
-    return NextResponse.json({ error: "Subscription is not active" }, { status: 400 });
+  if (!subscription) {
+    return NextResponse.json(
+      { error: "Active subscription not found" },
+      { status: 404 }
+    );
   }
 
   // 모든 활성 익스텐션 조회
-  const { data: extensions } = await supabase
+  const { data: extensions } = await serviceSupabase
     .from("products")
     .select("id")
     .eq("type", "extension")
@@ -40,28 +45,29 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "No extensions found" }, { status: 404 });
   }
 
-  // 이미 구독으로 생성된 라이센스 확인
-  const { data: existingOrders } = await supabase
+  // 이미 이 구독으로 생성된 라이선스 확인
+  const { data: existingOrders } = await serviceSupabase
     .from("orders")
     .select("product_id")
-    .eq("subscription_id", subscription_id);
+    .eq("subscription_id", subscription.id);
 
-  const existingProductIds = new Set(existingOrders?.map((o) => o.product_id) ?? []);
+  const existingProductIds = new Set(
+    existingOrders?.map((o) => o.product_id) ?? []
+  );
 
-  // 아직 없는 제품에 대해서만 주문+라이센스 생성
-  const results = [];
+  const results: { product_id: string; license_key: string }[] = [];
   for (const ext of extensions) {
     if (existingProductIds.has(ext.id)) continue;
 
-    const { data: order } = await supabase
+    const { data: order } = await serviceSupabase
       .from("orders")
       .insert({
         user_id: subscription.user_id,
         product_id: ext.id,
         amount: 0,
         status: "paid",
-        payment_key: `subscription:${subscription_id}`,
-        subscription_id: subscription_id,
+        payment_key: `subscription:${subscription.id}`,
+        subscription_id: subscription.id,
       })
       .select()
       .single();
@@ -69,12 +75,12 @@ export async function POST(req: NextRequest) {
     if (!order) continue;
 
     const licenseKey = generateLicenseKey();
-    await supabase.from("licenses").insert({
+    await serviceSupabase.from("licenses").insert({
       order_id: order.id,
       user_id: subscription.user_id,
       product_id: ext.id,
       license_key: licenseKey,
-      subscription_id: subscription_id,
+      subscription_id: subscription.id,
     });
 
     results.push({ product_id: ext.id, license_key: licenseKey });

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { createServerSupabase } from "@/lib/supabase-server";
 
 const serviceSupabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -13,6 +14,27 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Missing id" }, { status: 400 });
   }
 
+  // 인증 필수 (PII 누출 방지)
+  const supabase = await createServerSupabase();
+  const {
+    data: { user: caller },
+  } = await supabase.auth.getUser();
+  if (!caller) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // full=true는 admin이거나 본인 자신일 때만 허용
+  if (full && caller.id !== userId) {
+    const { data: admin } = await supabase
+      .from("admins")
+      .select("user_id")
+      .eq("user_id", caller.id)
+      .maybeSingle();
+    if (!admin) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+  }
+
   const { data, error } = await serviceSupabase.auth.admin.getUserById(userId);
   if (error || !data?.user?.email) {
     return NextResponse.json({ email: null });
@@ -20,7 +42,6 @@ export async function GET(req: NextRequest) {
 
   const email = data.user.email;
 
-  // full=true면 전체 이메일 반환 (관리자용)
   if (full) {
     return NextResponse.json({ name: email });
   }

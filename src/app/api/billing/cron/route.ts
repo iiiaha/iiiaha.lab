@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
+import crypto from "crypto";
+
+function timingSafeStringEqual(a: string, b: string): boolean {
+  const ab = Buffer.from(a);
+  const bb = Buffer.from(b);
+  if (ab.length !== bb.length) return false;
+  return crypto.timingSafeEqual(ab, bb);
+}
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -38,10 +46,10 @@ interface Subscription {
 }
 
 export async function GET(req: NextRequest) {
-  // Vercel Cron과 수동 호출 모두 허용 (CRON_SECRET으로 보호)
+  // Vercel Cron과 수동 호출 모두 허용 (CRON_SECRET으로 보호, timing-safe 비교)
   const auth = req.headers.get("authorization");
   const expected = `Bearer ${process.env.CRON_SECRET}`;
-  if (!process.env.CRON_SECRET || auth !== expected) {
+  if (!process.env.CRON_SECRET || !auth || !timingSafeStringEqual(auth, expected)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
