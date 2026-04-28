@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Product, Platform } from "@/lib/types";
 import ProductCard from "@/components/ProductCard";
 
@@ -54,12 +55,12 @@ export default function ExtensionsList({
               <strong className="text-white">모든 익스텐션을 20% 인하된 가격으로 배포</strong>합니다.
               <br />
               사용 중 발생되는 버그에 대하여{" "}
-              <a
+              <Link
                 href="/openlab"
                 className="text-white underline hover:no-underline"
               >
                 Open Lab
-              </a>
+              </Link>
               에 보고해 주세요.
             </p>
           </div>
