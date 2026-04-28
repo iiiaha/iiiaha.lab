@@ -93,19 +93,22 @@ function SystemForm() {
     setLoading(true);
     setError("");
 
-    // 새 파일 업로드
-    const user = await getUser();
+    // 새 파일 업로드 (서버 라우트 — magic byte 검증)
     const allUrls: string[] = [];
     for (const img of images) {
       if (img.file) {
-        const ext = img.file.name.split(".").pop();
-        const path = `systems/${user?.id}/${Date.now()}-${Math.random().toString(36).slice(2, 6)}.${ext}`;
-        const { error: uploadErr } = await supabase.storage
-          .from("uploads")
-          .upload(path, img.file, { upsert: true });
-        if (!uploadErr) {
-          const { data: { publicUrl } } = supabase.storage.from("uploads").getPublicUrl(path);
-          allUrls.push(publicUrl);
+        const fd = new FormData();
+        fd.append("file", img.file);
+        fd.append("folder", "systems");
+        const res = await fetch("/api/user-upload", { method: "POST", body: fd });
+        if (res.ok) {
+          const d = await res.json();
+          allUrls.push(d.url);
+        } else {
+          const d = await res.json().catch(() => ({}));
+          setError(d.error || "이미지 업로드 실패");
+          setLoading(false);
+          return;
         }
       } else {
         allUrls.push(img.url);

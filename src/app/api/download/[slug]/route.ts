@@ -23,15 +23,19 @@ export async function GET(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // 제품 조회 (file_key, version 포함)
+  // 제품 조회 (file_key, version 포함). 익스텐션만 다운로드 허용 — 강의는 스트리밍.
   const { data: product } = await serviceSupabase
     .from("products")
-    .select("id, file_key, platform, version")
+    .select("id, file_key, platform, version, type")
     .eq("slug", slug)
     .maybeSingle();
 
   if (!product) {
     return NextResponse.json({ error: "Product not found" }, { status: 404 });
+  }
+
+  if (product.type !== "extension") {
+    return NextResponse.json({ error: "Not downloadable" }, { status: 400 });
   }
 
   // 해당 제품 구매 확인 (paid 상태)

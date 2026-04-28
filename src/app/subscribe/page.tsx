@@ -1,7 +1,14 @@
+import type { Metadata } from "next";
 import { getProducts } from "@/lib/products";
 import SubscribeContent from "./SubscribeContent";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Membership",
+  description: "iiiaha.lab 멤버십 — 모든 익스텐션을 한 번에.",
+  alternates: { canonical: "https://iiiahalab.com/subscribe" },
+};
 
 export default async function SubscribePage() {
   const allProducts = await getProducts();

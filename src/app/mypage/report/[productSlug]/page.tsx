@@ -64,19 +64,20 @@ export default function ReportBugPage() {
 
     let imageUrl: string | null = null;
 
-    // 이미지 업로드
+    // 이미지 업로드 (서버 라우트 — magic byte 검증)
     if (imageFile) {
-      const ext = imageFile.name.split(".").pop();
-      const path = `bug-reports/${userId}/${Date.now()}.${ext}`;
-      const { error: uploadErr } = await supabase.storage
-        .from("uploads")
-        .upload(path, imageFile, { upsert: true });
-
-      if (!uploadErr) {
-        const { data: { publicUrl } } = supabase.storage
-          .from("uploads")
-          .getPublicUrl(path);
-        imageUrl = publicUrl;
+      const fd = new FormData();
+      fd.append("file", imageFile);
+      fd.append("folder", "bug-reports");
+      const res = await fetch("/api/user-upload", { method: "POST", body: fd });
+      if (res.ok) {
+        const d = await res.json();
+        imageUrl = d.url;
+      } else {
+        const d = await res.json().catch(() => ({}));
+        setError(d.error || "이미지 업로드 실패");
+        setLoading(false);
+        return;
       }
     }
 

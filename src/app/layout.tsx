@@ -6,8 +6,25 @@ import MainContainer from "@/components/MainContainer";
 import { CartProvider } from "@/lib/cart";
 
 export const metadata: Metadata = {
-  title: "iiiaha.lab",
-  description: "SketchUp Extensions & Courses by iiiaha",
+  metadataBase: new URL("https://iiiahalab.com"),
+  title: { default: "iiiaha.lab", template: "%s — iiiaha.lab" },
+  description:
+    "스케치업·오토캐드 익스텐션과 강의를 제공하는 iiiaha.lab. 멤버십으로 모든 익스텐션을 한 번에.",
+  applicationName: "iiiaha.lab",
+  openGraph: {
+    type: "website",
+    locale: "ko_KR",
+    url: "https://iiiahalab.com",
+    siteName: "iiiaha.lab",
+    title: "iiiaha.lab",
+    description: "스케치업·오토캐드 익스텐션과 강의",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "iiiaha.lab",
+    description: "스케치업·오토캐드 익스텐션과 강의",
+  },
+  robots: { index: true, follow: true },
 };
 
 export default function RootLayout({
@@ -16,7 +33,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full antialiased">
+    <html lang="ko" className="h-full antialiased">
       <head>
         <link
           rel="stylesheet"
