@@ -59,11 +59,18 @@ export async function sendAlert(
 }
 
 /**
- * Error 객체에서 메시지·스택 추출.
+ * Error 객체나 일반 에러 object(예: Supabase PostgrestError)에서 메시지 추출.
  */
 export function formatError(err: unknown): string {
   if (err instanceof Error) {
     return `${err.name}: ${err.message}\n${err.stack ?? ""}`;
+  }
+  if (err && typeof err === "object") {
+    try {
+      return JSON.stringify(err, null, 2);
+    } catch {
+      return String(err);
+    }
   }
   return String(err);
 }
