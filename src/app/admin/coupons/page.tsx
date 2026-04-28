@@ -51,17 +51,22 @@ export default function AdminCoupons() {
   const create = async () => {
     if (!code.trim() || !discountValue) return;
 
-    const { error } = await supabase.from("coupons").insert({
-      code: code.toUpperCase().trim(),
-      discount_type: discountType,
-      discount_value: Number(discountValue),
-      min_amount: minAmount ? Number(minAmount) : null,
-      max_uses: maxUses ? Number(maxUses) : null,
-      expires_at: expiresAt || null,
+    const res = await fetch("/api/admin/coupons", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        code: code.toUpperCase().trim(),
+        discount_type: discountType,
+        discount_value: Number(discountValue),
+        min_amount: minAmount ? Number(minAmount) : null,
+        max_uses: maxUses ? Number(maxUses) : null,
+        expires_at: expiresAt || null,
+      }),
     });
 
-    if (error) {
-      showMsg(`오류: ${error.message}`);
+    if (!res.ok) {
+      const { error } = await res.json().catch(() => ({ error: "요청 실패" }));
+      showMsg(`오류: ${error}`);
       return;
     }
 
@@ -76,14 +81,32 @@ export default function AdminCoupons() {
   };
 
   const toggleActive = async (id: string, active: boolean) => {
-    await supabase.from("coupons").update({ is_active: !active }).eq("id", id);
+    const res = await fetch("/api/admin/coupons", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, is_active: !active }),
+    });
+    if (!res.ok) {
+      const { error } = await res.json().catch(() => ({ error: "요청 실패" }));
+      showMsg(`오류: ${error}`);
+      return;
+    }
     showMsg(active ? "비활성화됨" : "활성화됨");
     load();
   };
 
   const deleteCoupon = async (id: string) => {
     if (!confirm("이 쿠폰을 삭제하시겠습니까?")) return;
-    await supabase.from("coupons").delete().eq("id", id);
+    const res = await fetch("/api/admin/coupons", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id }),
+    });
+    if (!res.ok) {
+      const { error } = await res.json().catch(() => ({ error: "요청 실패" }));
+      showMsg(`오류: ${error}`);
+      return;
+    }
     showMsg("삭제 완료");
     load();
   };
