@@ -31,20 +31,11 @@ export async function POST() {
     );
   }
 
-  // 1. 활성 구독 만료 처리
-  await serviceSupabase
-    .from("subscriptions")
-    .update({ status: "expired", canceled_at: new Date().toISOString() })
-    .eq("user_id", user.id)
-    .in("status", ["active", "past_due"]);
-
-  // 2. 모든 라이선스 revoke
-  await serviceSupabase
-    .from("licenses")
-    .update({ status: "revoked" })
-    .eq("user_id", user.id);
-
-  // 3. 유저 삭제 (auth.users에서 제거)
+  // FK 정책이 알아서 처리:
+  // - licenses / subscriptions / course_progress → CASCADE (삭제됨)
+  // - orders / comments / posts / bug_reports → SET NULL (영수증·UGC 익명 보존)
+  // 활성 구독의 Toss billing key는 우리 DB에서만 삭제됨.
+  // Toss 측 키는 orphan으로 남지만 우리 cron이 안 돌리니 추가 청구 불가.
   const { error } = await serviceSupabase.auth.admin.deleteUser(user.id);
 
   if (error) {

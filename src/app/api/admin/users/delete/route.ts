@@ -53,13 +53,12 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // 관련 데이터 명시적 정리 (FK 캐스케이드에 의존하지 않음)
-  await serviceSupabase.from("licenses").delete().eq("user_id", user_id);
-  await serviceSupabase.from("orders").delete().eq("user_id", user_id);
-  await serviceSupabase.from("subscriptions").delete().eq("user_id", user_id);
+  // FK 정책이 알아서 처리:
+  // - licenses / subscriptions / course_progress / admins → CASCADE (삭제됨)
+  // - orders / comments / posts / bug_reports → SET NULL (영수증·UGC 익명 보존)
+  // coupon_uses는 FK 없으니 수동 정리 (orphan 정리 차원).
   await serviceSupabase.from("coupon_uses").delete().eq("user_id", user_id);
 
-  // auth.users에서 제거 (이게 마지막)
   const { error } = await serviceSupabase.auth.admin.deleteUser(user_id);
   if (error) {
     console.error("[admin/users/delete] deleteUser failed", error);
