@@ -22,11 +22,14 @@ interface Subscription {
   expires_at: string;
   cancel_at_period_end: boolean;
   last_charged_at: string | null;
+  billing_key: string | null;
   card_company: string | null;
   card_number_masked: string | null;
 }
 
 function formatCardLabel(sub: Subscription): string | null {
+  // 관리자 무상 발급은 billing_key가 없음
+  if (!sub.billing_key) return "관리자 부여 (무상)";
   if (!sub.card_number_masked) return null;
   const digits = sub.card_number_masked.replace(/\D/g, "");
   const last4 = digits.slice(-4);
@@ -381,13 +384,17 @@ export default function MyPage() {
                     iiiahalab 멤버십 · {subscription.plan === "annual" ? "연간" : "월간"}
                   </p>
                   <div className="flex items-center gap-2 shrink-0 text-[11px]">
-                    <button
-                      onClick={handleUpdatePaymentMethod}
-                      className="text-[#999] bg-transparent border-0 cursor-pointer hover:text-[#111]"
-                    >
-                      결제수단 변경
-                    </button>
-                    <span className="text-[#ddd]">·</span>
+                    {subscription.billing_key && (
+                      <>
+                        <button
+                          onClick={handleUpdatePaymentMethod}
+                          className="text-[#999] bg-transparent border-0 cursor-pointer hover:text-[#111]"
+                        >
+                          결제수단 변경
+                        </button>
+                        <span className="text-[#ddd]">·</span>
+                      </>
+                    )}
                     <button
                       onClick={handleCancelSubscription}
                       className="text-[#999] bg-transparent border-0 cursor-pointer hover:text-red-600"
@@ -410,7 +417,11 @@ export default function MyPage() {
                   </SubMetaRow>
                 )}
                 <SubMetaRow label="다음 결제 예상">
-                  {new Date(subscription.expires_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })}
+                  {subscription.billing_key ? (
+                    new Date(subscription.expires_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })
+                  ) : (
+                    <span className="text-[#999]">없음 (만료 후 자동 종료)</span>
+                  )}
                 </SubMetaRow>
                 <p className="text-[11px] text-[#999] mt-3">
                   멤버십 기간 동안 모든 익스텐션을 자유롭게 이용하실 수 있습니다.
