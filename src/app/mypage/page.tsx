@@ -22,6 +22,16 @@ interface Subscription {
   expires_at: string;
   cancel_at_period_end: boolean;
   last_charged_at: string | null;
+  card_company: string | null;
+  card_number_masked: string | null;
+}
+
+function formatCardLabel(sub: Subscription): string | null {
+  if (!sub.card_number_masked) return null;
+  const digits = sub.card_number_masked.replace(/\D/g, "");
+  const last4 = digits.slice(-4);
+  const company = sub.card_company ? `${sub.card_company} ` : "";
+  return `${company}****${last4}`;
 }
 
 interface OrderWithProduct {
@@ -386,6 +396,9 @@ export default function MyPage() {
                     </button>
                   </div>
                 </div>
+                {formatCardLabel(subscription) && (
+                  <SubMetaRow label="결제수단">{formatCardLabel(subscription)}</SubMetaRow>
+                )}
                 <SubMetaRow label="이용 기간">
                   {new Date(subscription.started_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })}
                   {" — "}
@@ -432,6 +445,9 @@ export default function MyPage() {
                         결제수단 변경
                       </button>
                     </div>
+                    {formatCardLabel(subscription) && (
+                      <SubMetaRow label="결제수단">{formatCardLabel(subscription)}</SubMetaRow>
+                    )}
                     <SubMetaRow label="이용 기간">
                       {new Date(subscription.started_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })}
                       {" — "}
@@ -464,6 +480,9 @@ export default function MyPage() {
                     해지 취소
                   </button>
                 </div>
+                {formatCardLabel(subscription) && (
+                  <SubMetaRow label="결제수단">{formatCardLabel(subscription)}</SubMetaRow>
+                )}
                 <SubMetaRow label="이용 기간">
                   {new Date(subscription.started_at).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })}
                   {" — "}

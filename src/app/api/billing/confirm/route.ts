@@ -118,6 +118,8 @@ export async function POST(req: NextRequest) {
   }
   const billingData = await issueRes.json();
   const billingKey: string = billingData.billingKey;
+  const cardCompany: string | null = billingData.cardCompany ?? billingData.card?.company ?? null;
+  const cardNumberMasked: string | null = billingData.cardNumber ?? billingData.card?.number ?? null;
 
   // 4. 첫 결제
   const orderId = `bill_${Date.now()}_${crypto.randomUUID().replace(/-/g, "").slice(0, 16)}`;
@@ -171,6 +173,8 @@ export async function POST(req: NextRequest) {
       amount,
       last_payment_key: paymentKey,
       last_charged_at: now.toISOString(),
+      card_company: cardCompany,
+      card_number_masked: cardNumberMasked,
     })
     .select("id")
     .single();

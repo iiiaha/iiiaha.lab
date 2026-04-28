@@ -97,13 +97,17 @@ export async function POST(req: NextRequest) {
   }
   const billingData = await issueRes.json();
   const newBillingKey: string = billingData.billingKey;
+  const cardCompany: string | null = billingData.cardCompany ?? billingData.card?.company ?? null;
+  const cardNumberMasked: string | null = billingData.cardNumber ?? billingData.card?.number ?? null;
 
-  // 새 billingKey 저장 (active든 past_due든 동일)
+  // 새 billingKey + 카드 표시 정보 저장 (active든 past_due든 동일)
   await serviceSupabase
     .from("subscriptions")
     .update({
       billing_key: newBillingKey,
       customer_key: customerKey,
+      card_company: cardCompany,
+      card_number_masked: cardNumberMasked,
     })
     .eq("id", sub.id);
 
