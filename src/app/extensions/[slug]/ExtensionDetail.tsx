@@ -262,8 +262,8 @@ export default function ExtensionDetail({ product }: { product: Product }) {
             <div className="relative flex flex-col items-center">
               <span className="text-[14px] font-bold text-white tracking-[0.03em]">
                 {ownership === "membership_just_downloaded"
-                  ? "다운로드가 완료되었습니다"
-                  : "이미 다운로드한 익스텐션입니다"}
+                  ? "내 익스텐션에 추가되었습니다"
+                  : "이미 추가된 익스텐션입니다"}
               </span>
               <span className="text-[10px] text-[rgba(255,255,255,0.6)] mt-0.5">
                 <Link href="/mypage" className="underline hover:text-white">마이페이지</Link>에서 확인하세요
