@@ -103,7 +103,7 @@ export default function ProductEditPage() {
   };
 
   const uploadInstaller = async (file: File) => {
-    if (!data?.slug) return;
+    if (!data?.slug || !data.platform) return;
     const ext = (file.name.split(".").pop() || "").toLowerCase();
     if (data.platform === "sketchup" && ext !== "rbz") {
       showMessage("SketchUp 설치파일은 .rbz만 허용");
@@ -111,19 +111,34 @@ export default function ProductEditPage() {
     }
     setUploadingInstaller(true);
     try {
-      const folder = data.platform === "sketchup" ? "rbz" : "installers";
-      const fd = new FormData();
-      fd.append("file", file);
-      fd.append("slug", data.slug);
-      fd.append("folder", folder);
-      const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
-      const json = await res.json();
-      if (!res.ok) {
-        showMessage(`Upload error: ${json.error ?? res.status}`);
+      // 1) admin 권한 체크 + signed upload URL 발급
+      const urlRes = await fetch("/api/admin/installer-url", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug: data.slug, platform: data.platform, ext }),
+      });
+      const urlJson = await urlRes.json().catch(() => ({}));
+      if (!urlRes.ok) {
+        showMessage(`Upload error: ${urlJson.error ?? urlRes.status}`);
         return;
       }
-      update({ file_key: `${folder}/${data.slug}.${ext}` });
+
+      // 2) Supabase Storage에 직접 PUT (Vercel 4.5MB 한도 우회)
+      const { error: upErr } = await supabase.storage
+        .from("uploads")
+        .uploadToSignedUrl(urlJson.path, urlJson.token, file, {
+          upsert: true,
+          contentType: file.type || "application/octet-stream",
+        });
+      if (upErr) {
+        showMessage(`Upload error: ${upErr.message}`);
+        return;
+      }
+
+      update({ file_key: urlJson.path });
       showMessage("설치파일 업로드 완료 — Save 눌러야 DB 반영");
+    } catch (e) {
+      showMessage(`Upload error: ${e instanceof Error ? e.message : String(e)}`);
     } finally {
       setUploadingInstaller(false);
     }
