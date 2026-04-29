@@ -78,10 +78,16 @@ export async function GET(
 
   const arrayBuffer = await data.arrayBuffer();
 
+  // 버전 토큰: "1.0.0" / "v1.0.0" 둘 다 → "_v1.0.0", 없으면 생략
+  const versionToken = product.version
+    ? "_v" + product.version.replace(/^v/i, "").replace(/[^a-zA-Z0-9.\-]/g, "")
+    : "";
+  const downloadName = `iiiaha_${slug}${versionToken}.${ext}`;
+
   return new NextResponse(arrayBuffer, {
     headers: {
       "Content-Type": "application/octet-stream",
-      "Content-Disposition": `attachment; filename="iiiaha_${slug}.${ext}"`,
+      "Content-Disposition": `attachment; filename="${downloadName}"`,
     },
   });
 }
