@@ -13,10 +13,11 @@ import PurchaseInfo from "@/components/PurchaseInfo";
 type OwnershipState =
   | "loading"
   | "not_logged_in"
-  | "purchased"           // 영구구매
-  | "membership_owned"    // 멤버십으로 get 완료
-  | "membership_available" // 멤버십 있지만 아직 get 안 함
-  | "not_owned";          // 비회원 또는 멤버십 없음
+  | "purchased"                  // 영구구매
+  | "membership_owned"           // 멤버십으로 get 완료 (재방문 시)
+  | "membership_just_downloaded" // 방금 이 세션에서 get 직후
+  | "membership_available"        // 멤버십 있지만 아직 get 안 함
+  | "not_owned";                 // 비회원 또는 멤버십 없음
 
 export default function ExtensionDetail({ product }: { product: Product }) {
   const [ownership, setOwnership] = useState<OwnershipState>("loading");
@@ -106,7 +107,7 @@ export default function ExtensionDetail({ product }: { product: Product }) {
         body: JSON.stringify({ product_slug: product.slug }),
       });
       if (res.ok) {
-        setOwnership("membership_owned");
+        setOwnership("membership_just_downloaded");
       }
     } finally {
       setGetting(false);
@@ -253,14 +254,16 @@ export default function ExtensionDetail({ product }: { product: Product }) {
               </a>
             </div>
           </div>
-        ) : ownership === "membership_owned" ? (
-          /* 소유 중 — 같은 gradient 블록을 dim 처리 */
+        ) : ownership === "membership_owned" || ownership === "membership_just_downloaded" ? (
+          /* 소유 중 — 같은 gradient 블록을 dim 처리. 방금 받은 경우와 재방문을 메시지로만 구분 */
           <div className="sub-cta w-full py-4 rounded overflow-hidden relative opacity-60 transition-opacity">
             <div className="sub-cta-bg absolute inset-0" />
             <div className="sub-cta-aurora absolute inset-0" />
             <div className="relative flex flex-col items-center">
               <span className="text-[14px] font-bold text-white tracking-[0.03em]">
-                이미 다운로드한 익스텐션입니다
+                {ownership === "membership_just_downloaded"
+                  ? "다운로드가 완료되었습니다"
+                  : "이미 다운로드한 익스텐션입니다"}
               </span>
               <span className="text-[10px] text-[rgba(255,255,255,0.6)] mt-0.5">
                 <Link href="/mypage" className="underline hover:text-white">마이페이지</Link>에서 확인하세요
