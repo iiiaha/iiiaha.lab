@@ -24,7 +24,12 @@ export default function SignUpPage() {
     }
     setLoading(true);
     try {
-      await signUp(email, password);
+      const data = await signUp(email, password);
+      // Supabase는 보안상 중복 이메일에도 에러를 던지지 않고 빈 identities를 가진 user를 반환한다.
+      if (data?.user && (data.user.identities?.length ?? 0) === 0) {
+        setError("이미 가입된 이메일입니다. 로그인을 시도해 주세요.");
+        return;
+      }
       setSent(true);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "회원가입에 실패했습니다.");
