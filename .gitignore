@@ -45,3 +45,6 @@ update-desc*.js
 
 # claude code local config (may contain secrets in permission allowlist)
 .claude/
+
+# internal audit reports (not for public repo)
+AUDIT_REPORT*.md
