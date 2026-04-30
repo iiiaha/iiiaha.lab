@@ -241,7 +241,7 @@ module Iiiaha
 
       dlg = UI::HtmlDialog.new(
         dialog_title: "License — #{product_slug}",
-        width: 340,
+        width: 400,
         height: 200,
         resizable: false,
         style: UI::HtmlDialog::STYLE_DIALOG
@@ -261,7 +261,7 @@ module Iiiaha
       end
 
       dlg.add_action_callback('fitHeight') do |_, h|
-        dlg.set_size(340, h.to_i + 31) if h.to_i > 0
+        dlg.set_size(400, h.to_i + 31) if h.to_i > 0
       end
 
       dlg.add_action_callback('openLink') do |_, url|
@@ -294,7 +294,7 @@ module Iiiaha
       @dialog_count += 1
       vp_w = Sketchup.active_model.active_view.vpwidth
       vp_h = Sketchup.active_model.active_view.vpheight
-      left = [(vp_w - 340) / 2 + offset, 0].max
+      left = [(vp_w - 400) / 2 + offset, 0].max
       top = [(vp_h - 200) / 2 + offset, 0].max
       dlg.set_position(left, top)
 
