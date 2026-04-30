@@ -3,10 +3,8 @@ import { Product, formatPrice } from "@/lib/types";
 
 export default function ProductCard({
   product,
-  hidePrice,
 }: {
   product: Product;
-  hidePrice?: boolean;
 }) {
   const href =
     product.type === "extension"
@@ -50,18 +48,16 @@ export default function ProductCard({
       {product.subtitle && (
         <p className="text-[12px] text-[#999] mt-0.5">{product.subtitle}</p>
       )}
-      {!hidePrice && (
-        <div className="flex items-center gap-1.5 mt-0.5">
-          {(product.discount_percent ?? 0) > 0 && product.original_price ? (
-            <>
-              <span className="text-[12px] text-[#ccc] line-through">{formatPrice(product.original_price)}</span>
-              <span className="text-[13px] font-bold text-[#111]">{formatPrice(product.price)}</span>
-            </>
-          ) : (
-            <span className="text-[13px] text-[#666]">{formatPrice(product.price)}</span>
-          )}
-        </div>
-      )}
+      <div className="flex items-center gap-1.5 mt-0.5">
+        {(product.discount_percent ?? 0) > 0 && product.original_price ? (
+          <>
+            <span className="text-[12px] text-[#ccc] line-through">{formatPrice(product.original_price)}</span>
+            <span className="text-[13px] font-bold text-[#111]">{formatPrice(product.price)}</span>
+          </>
+        ) : (
+          <span className="text-[13px] text-[#666]">{formatPrice(product.price)}</span>
+        )}
+      </div>
     </Link>
   );
 }
