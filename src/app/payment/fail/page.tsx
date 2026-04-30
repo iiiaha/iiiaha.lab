@@ -21,8 +21,10 @@ function PaymentFailInner() {
         {message && <p className="text-[13px] text-red-600 mb-1">{message}</p>}
         {code && <p className="text-[11px] text-[#999] mb-6">오류 코드: {code}</p>}
         <p className="text-[12px] text-[#999] mb-6 leading-[1.7]">
-          결제가 승인되지 않았습니다. 카드 정보를 다시 확인해 주시거나 다른
-          결제 수단으로 시도해 주세요.
+          결제가 승인되지 않았습니다.
+          <br />
+          <span className="text-[#111]">현대카드·BC카드는 현재 카드사 승인이 진행 중이라 결제가 거부될 수 있습니다.</span>{" "}
+          다른 카드로 시도해 주시거나 카드 정보를 다시 확인해 주세요.
           <br />
           문제가 지속되면 contact@iiiahalab.com으로 문의해 주세요.
         </p>
