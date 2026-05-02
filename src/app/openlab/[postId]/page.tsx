@@ -23,8 +23,10 @@ interface Post {
 
 interface Comment {
   id: string;
+  user_id: string | null;
   content: string;
   is_admin: boolean;
+  is_edited: boolean;
   created_at: string;
 }
 
@@ -61,6 +63,9 @@ export default function PostDetailPage() {
   const [admin, setAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [commenting, setCommenting] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editContent, setEditContent] = useState("");
+  const [savingEdit, setSavingEdit] = useState(false);
 
   const load = async () => {
     const { data: p } = await supabase
@@ -81,7 +86,7 @@ export default function PostDetailPage() {
 
     const { data: c } = await supabase
       .from("comments")
-      .select("id, content, is_admin, created_at")
+      .select("id, user_id, content, is_admin, is_edited, created_at")
       .eq("post_id", postId)
       .order("created_at", { ascending: true });
     setComments(c ?? []);
@@ -115,6 +120,40 @@ export default function PostDetailPage() {
       return;
     }
     setNewComment("");
+    load();
+  };
+
+  const startEdit = (c: Comment) => {
+    setEditingId(c.id);
+    setEditContent(c.content);
+  };
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditContent("");
+  };
+  const saveEdit = async () => {
+    if (!editingId || !editContent.trim()) return;
+    setSavingEdit(true);
+    const res = await fetch(`/api/comments/${editingId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ content: editContent.trim() }),
+    });
+    setSavingEdit(false);
+    if (!res.ok) {
+      alert("댓글 수정에 실패했습니다.");
+      return;
+    }
+    cancelEdit();
+    load();
+  };
+  const deleteComment = async (id: string) => {
+    if (!confirm("이 댓글을 삭제할까요?")) return;
+    const res = await fetch(`/api/comments/${id}`, { method: "DELETE" });
+    if (!res.ok) {
+      alert("댓글 삭제에 실패했습니다.");
+      return;
+    }
     load();
   };
 
@@ -234,19 +273,59 @@ export default function PostDetailPage() {
         {comments.length === 0 ? (
           <p className="text-[13px] text-[#999] py-4">No replies yet.</p>
         ) : (
-          comments.map((c) => (
-            <div key={c.id} className={`border-b border-[#ddd] py-4 ${c.is_admin ? "bg-[#fafafa] px-4" : ""}`}>
-              <div className="flex items-center gap-2 mb-2">
-                {c.is_admin && (
-                  <span className="text-[10px] font-bold text-white bg-[#111] px-1.5 py-0.5">iiiaha</span>
+          comments.map((c) => {
+            const isOwner = !!userId && c.user_id === userId;
+            const canDelete = isOwner || admin;
+            const isEditing = editingId === c.id;
+            return (
+              <div key={c.id} className={`border-b border-[#ddd] py-4 ${c.is_admin ? "bg-[#fafafa] px-4" : ""}`}>
+                <div className="flex items-center gap-2 mb-2">
+                  {c.is_admin && (
+                    <span className="text-[10px] font-bold text-white bg-[#111] px-1.5 py-0.5">iiiaha</span>
+                  )}
+                  <span className="text-[11px] text-[#999]">
+                    {fmtDateTime(c.created_at)}
+                    {c.is_edited && <span className="ml-1 text-[#bbb]">(수정됨)</span>}
+                  </span>
+                  {!isEditing && (isOwner || canDelete) && (
+                    <div className="ml-auto flex gap-2">
+                      {isOwner && (
+                        <button onClick={() => startEdit(c)}
+                          className="text-[11px] text-[#999] bg-transparent border-0 cursor-pointer hover:text-[#111]">
+                          수정
+                        </button>
+                      )}
+                      {canDelete && (
+                        <button onClick={() => deleteComment(c.id)}
+                          className="text-[11px] text-[#999] bg-transparent border-0 cursor-pointer hover:text-red-600">
+                          삭제
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+                {isEditing ? (
+                  <div>
+                    <textarea value={editContent} onChange={(e) => setEditContent(e.target.value)}
+                      rows={3}
+                      className="w-full border border-[#ddd] px-3 py-2.5 text-[14px] outline-none focus:border-[#111] transition-colors resize-y font-[inherit] mb-2" />
+                    <div className="flex justify-end gap-2">
+                      <button onClick={cancelEdit} disabled={savingEdit}
+                        className="text-[12px] text-[#666] bg-transparent border border-[#ddd] px-4 py-1.5 cursor-pointer hover:border-[#111] hover:text-[#111] disabled:opacity-40">
+                        취소
+                      </button>
+                      <button onClick={saveEdit} disabled={savingEdit || !editContent.trim()}
+                        className="bg-[#111] text-white text-[12px] font-bold px-4 py-1.5 border-0 cursor-pointer hover:bg-[#333] disabled:opacity-40">
+                        {savingEdit ? "저장 중..." : "저장"}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-[13px] leading-relaxed whitespace-pre-wrap">{c.content}</p>
                 )}
-                <span className="text-[11px] text-[#999]">
-                  {fmtDateTime(c.created_at)}
-                </span>
               </div>
-              <p className="text-[13px] leading-relaxed whitespace-pre-wrap">{c.content}</p>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
 
