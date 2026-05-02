@@ -1,11 +1,22 @@
 import type { NextConfig } from "next";
 
+const isDev = process.env.NODE_ENV !== "production";
+
+// Next.js dev mode (React Refresh / HMR) evaluates strings as JS, so dev needs
+// 'unsafe-eval' in script-src. Prod stays strict.
+const scriptSrc = [
+  "'self'",
+  "'unsafe-inline'",
+  isDev && "'unsafe-eval'",
+  "https://*.tosspayments.com",
+].filter(Boolean).join(" ");
+
 const cspDirectives = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' https://*.tosspayments.com",
-  "style-src 'self' 'unsafe-inline'",
+  `script-src ${scriptSrc}`,
+  "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
   "img-src 'self' data: blob: https:",
-  "font-src 'self' data:",
+  "font-src 'self' data: https://cdn.jsdelivr.net",
   "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.tosspayments.com",
   "frame-src https://*.tosspayments.com https://*.cloudflarestream.com https://www.youtube.com https://www.youtube-nocookie.com",
   "frame-ancestors 'none'",

@@ -28,6 +28,19 @@
 | subtitle | text | NULL | |
 | badge | text | NULL | |
 
+## product_versions
+| Column | Type | Nullable | Default |
+|--------|------|----------|---------|
+| id | uuid | NOT NULL | gen_random_uuid() |
+| product_id | uuid | NOT NULL | (FK products.id, ON DELETE CASCADE) |
+| version | text | NOT NULL | (UNIQUE per product_id) |
+| file_key | text | NULL | |
+| changelog | text | NULL | |
+| released_at | timestamptz | NOT NULL | now() |
+| created_at | timestamptz | NOT NULL | now() |
+
+> 한 제품의 배포 이력. `products.version` / `products.file_key`는 가장 최근 row(released_at desc)의 캐시이며, 서버 (`/api/admin/product-versions`)가 자동 동기화한다. 직접 쓰지 말 것.
+
 ## orders
 | Column | Type | Nullable | Default |
 |--------|------|----------|---------|

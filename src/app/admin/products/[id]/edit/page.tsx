@@ -1,12 +1,22 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase";
 import { Product } from "@/lib/types";
 
 type EditState = Partial<Product> & { _discountOn?: boolean };
+
+interface ProductVersion {
+  id: string;
+  product_id: string;
+  version: string;
+  file_key: string | null;
+  changelog: string | null;
+  released_at: string;
+  created_at: string;
+}
 
 export default function ProductEditPage() {
   const params = useParams();
@@ -15,12 +25,22 @@ export default function ProductEditPage() {
   const supabase = createClient();
 
   const [data, setData] = useState<EditState | null>(null);
+  const [versions, setVersions] = useState<ProductVersion[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadingInstaller, setUploadingInstaller] = useState(false);
   const [message, setMessage] = useState("");
   const busy = uploading || uploadingInstaller || saving;
+
+  const reloadVersions = useCallback(async () => {
+    const { data: rows } = await supabase
+      .from("product_versions")
+      .select("*")
+      .eq("product_id", id)
+      .order("released_at", { ascending: false });
+    setVersions((rows ?? []) as ProductVersion[]);
+  }, [id, supabase]);
 
   useEffect(() => {
     (async () => {
@@ -34,9 +54,10 @@ export default function ProductEditPage() {
         return;
       }
       setData({ ...p, _discountOn: (p.discount_percent ?? 0) > 0 });
+      await reloadVersions();
       setLoading(false);
     })();
-  }, [id, router, supabase]);
+  }, [id, router, supabase, reloadVersions]);
 
   const showMessage = (msg: string) => {
     setMessage(msg);
@@ -63,14 +84,14 @@ export default function ProductEditPage() {
       discount_percent: disc,
       discount_start: data._discountOn ? data.discount_start ?? null : null,
       discount_end: data._discountOn ? data.discount_end ?? null : null,
-      version: data.version ?? null,
       compatibility: data.compatibility ?? null,
       description: data.description ?? "",
       description_ko: data.description_ko ?? null,
       thumbnail_url: data.thumbnail_url ?? null,
       youtube_url: data.youtube_url ?? null,
-      file_key: data.file_key ?? null,
       sort_order: data.sort_order ?? 0,
+      // version + file_key are managed by the version manager below and
+      // synced server-side; do NOT write them from this form.
     };
     const { error } = await supabase.from("products").update(payload).eq("id", id);
     setSaving(false);
@@ -102,28 +123,53 @@ export default function ProductEditPage() {
     }
   };
 
-  const uploadInstaller = async (file: File) => {
-    if (!data?.slug || !data.platform) return;
-    const ext = (file.name.split(".").pop() || "").toLowerCase();
-    if (data.platform === "sketchup" && ext !== "rbz") {
-      showMessage("SketchUp 설치파일은 .rbz만 허용");
-      return;
+  const addVersion = async (input: {
+    version: string;
+    file: File | null;
+    changelog: string;
+  }) => {
+    if (!data?.slug || !data.platform) return false;
+    const version = input.version.trim();
+    if (!version) {
+      showMessage("버전 번호를 입력해 주세요");
+      return false;
     }
+    if (versions.some((v) => v.version === version)) {
+      showMessage(`v${version}은 이미 존재합니다`);
+      return false;
+    }
+    if (!input.file) {
+      showMessage("설치파일을 선택해 주세요");
+      return false;
+    }
+
+    const file = input.file;
     setUploadingInstaller(true);
     try {
-      // 1) admin 권한 체크 + signed upload URL 발급
+      const ext = (file.name.split(".").pop() || "").toLowerCase();
+      if (data.platform === "sketchup" && ext !== "rbz") {
+        showMessage("SketchUp 설치파일은 .rbz만 허용");
+        return false;
+      }
+
+      // 1) signed upload URL 발급 (버전별 경로: {slug}_v{version}.{ext})
       const urlRes = await fetch("/api/admin/installer-url", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ slug: data.slug, platform: data.platform, ext }),
+        body: JSON.stringify({
+          slug: data.slug,
+          platform: data.platform,
+          ext,
+          version,
+        }),
       });
       const urlJson = await urlRes.json().catch(() => ({}));
       if (!urlRes.ok) {
         showMessage(`Upload error: ${urlJson.error ?? urlRes.status}`);
-        return;
+        return false;
       }
 
-      // 2) Supabase Storage에 직접 PUT (Vercel 4.5MB 한도 우회)
+      // 2) Storage 직접 PUT
       const { error: upErr } = await supabase.storage
         .from("uploads")
         .uploadToSignedUrl(urlJson.path, urlJson.token, file, {
@@ -132,35 +178,80 @@ export default function ProductEditPage() {
         });
       if (upErr) {
         showMessage(`Upload error: ${upErr.message}`);
-        return;
+        return false;
+      }
+      const fileKey: string = urlJson.path;
+
+      // 3) product_versions row INSERT (서버에서 products.version/file_key 동기화)
+      const res = await fetch("/api/admin/product-versions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          product_id: id,
+          version,
+          file_key: fileKey,
+          changelog: input.changelog.trim() || null,
+        }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        showMessage(`버전 추가 실패: ${json.error ?? res.status}`);
+        return false;
       }
 
-      update({ file_key: urlJson.path });
-      showMessage("설치파일 업로드 완료 — Save 눌러야 DB 반영");
-    } catch (e) {
-      showMessage(`Upload error: ${e instanceof Error ? e.message : String(e)}`);
+      await reloadVersions();
+      // products.version은 서버에서 갱신됐으므로 로컬 state도 맞춰둔다
+      update({ version, file_key: fileKey });
+      showMessage(`v${version} 추가됨`);
+      return true;
     } finally {
       setUploadingInstaller(false);
     }
   };
 
-  const deleteInstaller = async () => {
-    if (!data?.file_key) return;
-    if (!confirm("설치파일을 스토리지에서 삭제합니다. 제품은 유지됩니다.")) return;
+  const deleteVersion = async (v: ProductVersion) => {
+    if (!confirm(`v${v.version}을 삭제합니다. 설치파일도 스토리지에서 함께 삭제됩니다.`)) return;
     setUploadingInstaller(true);
     try {
-      const res = await fetch("/api/admin/delete-file", {
-        method: "POST",
+      const res = await fetch("/api/admin/product-versions", {
+        method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ paths: [data.file_key] }),
+        body: JSON.stringify({ id: v.id }),
       });
       if (!res.ok) {
         const j = await res.json().catch(() => ({}));
-        showMessage(`Delete error: ${j.error ?? res.status}`);
+        showMessage(`삭제 실패: ${j.error ?? res.status}`);
         return;
       }
-      update({ file_key: undefined });
-      showMessage("설치파일 삭제됨 — Save 눌러야 DB 반영");
+      await reloadVersions();
+      // 최신 버전이 바뀌었을 수 있으므로 products row를 다시 읽는다
+      const { data: p } = await supabase
+        .from("products")
+        .select("version, file_key")
+        .eq("id", id)
+        .single();
+      update({ version: p?.version ?? undefined, file_key: p?.file_key ?? undefined });
+      showMessage(`v${v.version} 삭제됨`);
+    } finally {
+      setUploadingInstaller(false);
+    }
+  };
+
+  const updateChangelog = async (v: ProductVersion, changelog: string) => {
+    setUploadingInstaller(true);
+    try {
+      const res = await fetch("/api/admin/product-versions", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: v.id, changelog }),
+      });
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        showMessage(`수정 실패: ${j.error ?? res.status}`);
+        return;
+      }
+      await reloadVersions();
+      showMessage(`v${v.version} 변경사항 저장됨`);
     } finally {
       setUploadingInstaller(false);
     }
@@ -236,7 +327,6 @@ export default function ProductEditPage() {
         <Field label="Sort Order" value={String(data.sort_order ?? 0)} onChange={(v) => update({ sort_order: parseInt(v) || 0 })} type="number" />
         <Field label="Subtitle" value={data.subtitle ?? ""} onChange={(v) => update({ subtitle: v })} />
         <Field label="Badge" value={data.badge ?? ""} onChange={(v) => update({ badge: v })} placeholder="e.g. New, Coming Soon" />
-        <Field label="Version" value={data.version ?? ""} onChange={(v) => update({ version: v })} />
         <Field label="Compatibility" value={data.compatibility ?? ""} onChange={(v) => update({ compatibility: v })} />
       </section>
 
@@ -304,32 +394,20 @@ export default function ProductEditPage() {
         <FormatHint />
       </section>
 
-      {/* Installer */}
+      {/* Installer / Versions */}
       <section className="mb-8 border border-[#ddd] p-5">
-        <SectionLabel>설치파일</SectionLabel>
-        <input
-          type="file"
-          accept={data.platform === "sketchup" ? ".rbz" : ".exe,.msi,.zip"}
-          disabled={busy}
-          onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadInstaller(f); }}
-          className="text-[12px] disabled:opacity-50 mb-2"
-        />
-        {data.file_key ? (
-          <div className="flex items-center gap-3">
-            <code className="text-[11px] text-[#666] flex-1 truncate">{data.file_key}</code>
-            <button type="button" onClick={deleteInstaller} disabled={busy}
-              className="text-[11px] text-red-500 bg-transparent border border-[#ddd] px-2 py-1 cursor-pointer hover:bg-red-50 disabled:opacity-50">
-              파일 삭제
-            </button>
-          </div>
-        ) : (
-          <p className="text-[11px] text-[#ccc]">업로드된 파일 없음</p>
-        )}
-        <p className="text-[10px] text-[#ccc] mt-2">
-          {data.platform === "sketchup"
-            ? ".rbz만 허용. uploads/rbz/{slug}.rbz로 저장됨"
-            : "uploads/installers/{slug}.{ext}로 저장됨"}
+        <SectionLabel>설치파일 · 버전 관리</SectionLabel>
+        <p className="text-[11px] text-[#999] mb-4">
+          가장 최근 배포(released_at 기준)가 자동으로 “현재 버전”이 되어 다운로드·마이페이지에 노출됩니다.
         </p>
+        <VersionManager
+          platform={data.platform ?? "sketchup"}
+          versions={versions}
+          busy={busy}
+          onAdd={addVersion}
+          onDelete={deleteVersion}
+          onSaveChangelog={updateChangelog}
+        />
       </section>
 
       {/* Bottom action bar */}
@@ -460,5 +538,213 @@ function FormatHint() {
     <p className="text-[10px] text-[#bbb] mt-1.5 leading-[1.5]">
       <code>**bold**</code> · <code>*italic*</code> · 줄 시작에 <code>• Title — Description</code> 형식은 강조 항목으로 렌더링됨
     </p>
+  );
+}
+
+function VersionManager({
+  platform,
+  versions,
+  busy,
+  onAdd,
+  onDelete,
+  onSaveChangelog,
+}: {
+  platform: "sketchup" | "autocad";
+  versions: ProductVersion[];
+  busy: boolean;
+  onAdd: (input: { version: string; file: File | null; changelog: string }) => Promise<boolean>;
+  onDelete: (v: ProductVersion) => void;
+  onSaveChangelog: (v: ProductVersion, changelog: string) => void;
+}) {
+  const [newVersion, setNewVersion] = useState("");
+  const [newFile, setNewFile] = useState<File | null>(null);
+  const [newChangelog, setNewChangelog] = useState("");
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const accept = platform === "sketchup" ? ".rbz" : ".exe,.msi,.zip";
+
+  const handleAdd = async () => {
+    const ok = await onAdd({ version: newVersion, file: newFile, changelog: newChangelog });
+    if (ok) {
+      setNewVersion("");
+      setNewFile(null);
+      setNewChangelog("");
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  };
+
+  const latestId = versions[0]?.id;
+
+  return (
+    <div className="flex flex-col gap-4">
+      {/* Version list */}
+      {versions.length === 0 ? (
+        <p className="text-[11px] text-[#ccc] py-4 text-center border border-dashed border-[#eee]">
+          등록된 버전 없음
+        </p>
+      ) : (
+        <ul className="flex flex-col gap-2">
+          {versions.map((v) => (
+            <VersionRow
+              key={v.id}
+              v={v}
+              isLatest={v.id === latestId}
+              busy={busy}
+              onDelete={() => onDelete(v)}
+              onSaveChangelog={(text) => onSaveChangelog(v, text)}
+            />
+          ))}
+        </ul>
+      )}
+
+      {/* New version form */}
+      <div className="border-t border-[#eee] pt-4">
+        <p className="text-[11px] text-[#999] tracking-[0.1em] uppercase mb-3 font-bold">새 버전 추가</p>
+        <div className="grid grid-cols-[120px_1fr] gap-x-3 gap-y-3 items-center mb-3">
+          <span className="text-[11px] text-[#999]">버전 번호</span>
+          <input
+            type="text"
+            value={newVersion}
+            onChange={(e) => setNewVersion(e.target.value)}
+            placeholder="1.0.1"
+            disabled={busy}
+            className="border border-[#ddd] px-2 py-1.5 text-[13px] outline-none focus:border-[#111] disabled:opacity-50 max-w-[200px]"
+          />
+          <span className="text-[11px] text-[#999]">설치파일</span>
+          <input
+            ref={fileRef}
+            type="file"
+            accept={accept}
+            disabled={busy}
+            onChange={(e) => setNewFile(e.target.files?.[0] ?? null)}
+            className="text-[12px] disabled:opacity-50"
+          />
+        </div>
+        <p className="text-[11px] text-[#999] mb-1.5">변경사항</p>
+        <textarea
+          value={newChangelog}
+          onChange={(e) => setNewChangelog(e.target.value)}
+          placeholder="• 버그 수정 — 어떤 상황에서 어떤 문제가 있었고, 어떻게 해결했는지&#10;• 기능 개선 — ..."
+          rows={5}
+          disabled={busy}
+          className="w-full border border-[#ddd] px-3 py-2 text-[13px] outline-none focus:border-[#111] resize-y font-mono leading-[1.6] disabled:opacity-50"
+        />
+        <div className="flex justify-end mt-3">
+          <button
+            type="button"
+            onClick={handleAdd}
+            disabled={busy || !newVersion.trim()}
+            className="text-[12px] text-white bg-[#111] px-4 py-2 border-0 cursor-pointer hover:bg-[#333] disabled:opacity-50 font-bold"
+          >
+            버전 추가
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function VersionRow({
+  v,
+  isLatest,
+  busy,
+  onDelete,
+  onSaveChangelog,
+}: {
+  v: ProductVersion;
+  isLatest: boolean;
+  busy: boolean;
+  onDelete: () => void;
+  onSaveChangelog: (text: string) => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(v.changelog ?? "");
+
+  // 외부에서 v.changelog가 reload되면 draft를 따라가게
+  useEffect(() => {
+    if (!editing) setDraft(v.changelog ?? "");
+  }, [v.changelog, editing]);
+
+  const released = new Date(v.released_at);
+  const releasedLabel = `${released.getFullYear()}.${String(released.getMonth() + 1).padStart(2, "0")}.${String(
+    released.getDate()
+  ).padStart(2, "0")}`;
+
+  return (
+    <li className="border border-[#eee] p-3">
+      <div className="flex items-center gap-3 mb-2">
+        <span className="text-[13px] font-bold">v{v.version}</span>
+        {isLatest && (
+          <span className="text-[10px] text-white bg-[#111] px-1.5 py-0.5 tracking-[0.05em]">LATEST</span>
+        )}
+        <span className="text-[11px] text-[#999]">{releasedLabel}</span>
+        {v.file_key ? (
+          <code className="text-[10px] text-[#999] truncate flex-1" title={v.file_key}>
+            {v.file_key}
+          </code>
+        ) : (
+          <span className="text-[10px] text-[#ccc] flex-1">파일 없음</span>
+        )}
+        {!editing && (
+          <button
+            type="button"
+            onClick={() => setEditing(true)}
+            disabled={busy}
+            className="text-[11px] text-[#666] bg-transparent border border-[#ddd] px-2 py-1 cursor-pointer hover:bg-[#f5f5f5] disabled:opacity-50"
+          >
+            변경사항 수정
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={onDelete}
+          disabled={busy}
+          className="text-[11px] text-red-500 bg-transparent border border-[#ddd] px-2 py-1 cursor-pointer hover:bg-red-50 disabled:opacity-50"
+        >
+          삭제
+        </button>
+      </div>
+      {editing ? (
+        <>
+          <textarea
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            rows={5}
+            disabled={busy}
+            className="w-full border border-[#ddd] px-3 py-2 text-[13px] outline-none focus:border-[#111] resize-y font-mono leading-[1.6] disabled:opacity-50"
+          />
+          <div className="flex justify-end gap-2 mt-2">
+            <button
+              type="button"
+              onClick={() => {
+                setDraft(v.changelog ?? "");
+                setEditing(false);
+              }}
+              disabled={busy}
+              className="text-[11px] text-[#666] border border-[#ddd] px-3 py-1.5 bg-white cursor-pointer hover:bg-[#f5f5f5] disabled:opacity-50"
+            >
+              취소
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                onSaveChangelog(draft);
+                setEditing(false);
+              }}
+              disabled={busy}
+              className="text-[11px] text-white bg-[#111] px-3 py-1.5 border-0 cursor-pointer hover:bg-[#333] disabled:opacity-50 font-bold"
+            >
+              저장
+            </button>
+          </div>
+        </>
+      ) : v.changelog ? (
+        <pre className="text-[12px] text-[#333] whitespace-pre-wrap font-mono leading-[1.6] m-0">
+          {v.changelog}
+        </pre>
+      ) : (
+        <p className="text-[11px] text-[#ccc] italic">변경사항 없음</p>
+      )}
+    </li>
   );
 }

@@ -74,6 +74,7 @@ interface VersionInfo {
   current: string | null;
   hasUpdate: boolean;
   notDownloaded: boolean;
+  latestChangelog: string | null;
 }
 
 function EyeIcon({ open }: { open: boolean }) {
@@ -90,6 +91,38 @@ function EyeIcon({ open }: { open: boolean }) {
       <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
       <line x1="1" y1="1" x2="23" y2="23" />
     </svg>
+  );
+}
+
+function VersionDisplay({ ver }: { ver: VersionInfo }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="flex flex-col gap-1 min-w-0 flex-1">
+      <div className="flex items-center gap-2 flex-wrap">
+        {ver.hasUpdate ? (
+          <span className="text-[12px] text-red-600 font-bold">
+            v{ver.current} → v{ver.latest} 업데이트 가능
+          </span>
+        ) : ver.notDownloaded && ver.latest ? (
+          <span className="text-[12px] text-[#999]">v{ver.latest} — 설치 전</span>
+        ) : ver.current ? (
+          <span className="text-[12px] text-[#999]">v{ver.current} — 최신 버전입니다.</span>
+        ) : null}
+        {ver.latestChangelog && ver.latest && (
+          <button
+            onClick={() => setOpen((v) => !v)}
+            className="text-[11px] text-[#666] bg-transparent border-0 p-0 cursor-pointer hover:text-[#111] underline"
+          >
+            {open ? "변경사항 접기" : "변경사항 보기"}
+          </button>
+        )}
+      </div>
+      {open && ver.latestChangelog && (
+        <pre className="text-[11px] text-[#333] whitespace-pre-wrap font-mono leading-[1.6] mt-1 bg-[#fafafa] border border-[#eee] px-3 py-2 m-0">
+          {ver.latestChangelog}
+        </pre>
+      )}
+    </div>
   );
 }
 
@@ -168,6 +201,22 @@ export default function MyPage() {
       const orderList = Array.from(seen.values());
       setOrders(orderList);
 
+      // 가장 최신 버전의 changelog 한 번에 조회 (제품당 1행)
+      const productIds = Array.from(new Set(orderList.map((o) => o.product_id)));
+      const latestChangelogByProduct = new Map<string, string | null>();
+      if (productIds.length > 0) {
+        const { data: pvRows } = await supabase
+          .from("product_versions")
+          .select("product_id, changelog, released_at")
+          .in("product_id", productIds)
+          .order("released_at", { ascending: false });
+        for (const row of pvRows ?? []) {
+          if (!latestChangelogByProduct.has(row.product_id)) {
+            latestChangelogByProduct.set(row.product_id, row.changelog ?? null);
+          }
+        }
+      }
+
       // 버전 비교: "유저가 마지막으로 다운로드한 버전(licenses.last_downloaded_version)" ↔ "제품 현재 버전(products.version)"
       const versionMap: Record<string, VersionInfo> = {};
       for (const order of orderList) {
@@ -180,6 +229,7 @@ export default function MyPage() {
           current,
           hasUpdate: !!(latest && current && latest !== current),
           notDownloaded: !current,
+          latestChangelog: latestChangelogByProduct.get(order.product_id) ?? null,
         };
       }
       setVersions(versionMap);
@@ -592,23 +642,9 @@ export default function MyPage() {
                               </div>
                             </div>
                           ))}
-                          <div className="flex items-center gap-2">
-                            <span className="text-[11px] text-[#999] w-[60px]">버전</span>
-                            {ver && (
-                              ver.hasUpdate ? (
-                                <span className="text-[12px] text-[#111] font-bold">
-                                  v{ver.current} → v{ver.latest} 업데이트 가능
-                                </span>
-                              ) : ver.notDownloaded && ver.latest ? (
-                                <span className="text-[12px] text-[#999]">
-                                  v{ver.latest} — 설치 전
-                                </span>
-                              ) : ver.current ? (
-                                <span className="text-[12px] text-[#999]">
-                                  v{ver.current} — 최신 버전입니다.
-                                </span>
-                              ) : null
-                            )}
+                          <div className="flex items-start gap-2">
+                            <span className="text-[11px] text-[#999] w-[60px] mt-[2px]">버전</span>
+                            {ver && <VersionDisplay ver={ver} />}
                           </div>
                         </>
                       )}
@@ -631,14 +667,6 @@ export default function MyPage() {
                         >
                           설치파일 다운받기
                         </button>
-                        {ver?.hasUpdate && (
-                          <button
-                            onClick={() => handleDownload(order)}
-                            className="w-full text-[12px] text-white bg-[#111] border border-[#111] px-4 py-1.5 cursor-pointer hover:bg-[#333] transition-colors text-center"
-                          >
-                            v{ver.latest} 업데이트
-                          </button>
-                        )}
                         <Link href={`/openlab/new?product=${slug}`}
                           className="w-full text-[12px] text-[#111] border border-[#111] px-4 py-1.5 no-underline hover:bg-[#111] hover:text-white transition-colors text-center">
                           버그 신고 & 제안

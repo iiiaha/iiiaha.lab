@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
   const admin = await checkAdmin();
   if (!admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-  const { slug, platform, ext } = await req.json();
+  const { slug, platform, ext, version } = await req.json();
 
   if (typeof slug !== "string" || !/^[a-z0-9-]+$/i.test(slug)) {
     return NextResponse.json({ error: "invalid slug" }, { status: 400 });
@@ -44,8 +44,21 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "invalid ext" }, { status: 400 });
   }
 
+  // Optional version suffix lets the same slug have multiple binaries side by side.
+  let versionToken = "";
+  if (version != null && version !== "") {
+    if (typeof version !== "string") {
+      return NextResponse.json({ error: "invalid version" }, { status: 400 });
+    }
+    const cleaned = version.replace(/^v/i, "").replace(/[^a-zA-Z0-9.\-]/g, "");
+    if (!cleaned) {
+      return NextResponse.json({ error: "invalid version" }, { status: 400 });
+    }
+    versionToken = `_v${cleaned}`;
+  }
+
   const folder = platform === "sketchup" ? "rbz" : "installers";
-  const path = `${folder}/${slug}.${ext.toLowerCase()}`;
+  const path = `${folder}/${slug}${versionToken}.${ext.toLowerCase()}`;
 
   const { data, error } = await serviceSupabase.storage
     .from("uploads")
