@@ -31,6 +31,11 @@ const STATUS_LABELS: Record<string, string> = {
   closed: "답변 완료",
 };
 
+const fmtDate = (iso: string) => {
+  const d = new Date(iso);
+  return `${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`;
+};
+
 const PER_PAGE = 10;
 
 export default function OpenLabPage() {
@@ -218,10 +223,7 @@ export default function OpenLabPage() {
                         </span>
                       )}
                       <span className="w-[45px] text-right">
-                        {new Date(post.created_at).toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                        })}
+                        {fmtDate(post.created_at)}
                       </span>
                       <span
                         className={`text-[10px] font-bold border px-1.5 py-0.5 w-[80px] text-center ${statusStyle(post.status)}`}

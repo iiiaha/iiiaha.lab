@@ -37,6 +37,16 @@ const STATUS_LABELS: Record<string, string> = {
   closed: "답변 완료",
 };
 
+const pad = (n: number) => String(n).padStart(2, "0");
+const fmtDateFull = (iso: string) => {
+  const d = new Date(iso);
+  return `${d.getFullYear()}.${pad(d.getMonth() + 1)}.${pad(d.getDate())}`;
+};
+const fmtDateTime = (iso: string) => {
+  const d = new Date(iso);
+  return `${pad(d.getMonth() + 1)}.${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+};
+
 export default function PostDetailPage() {
   const params = useParams();
   const router = useRouter();
@@ -179,7 +189,7 @@ export default function PostDetailPage() {
           <><span>·</span><span>AutoCAD {post.autocad_version}</span></>
         )}
         <span>·</span>
-        <span>{new Date(post.created_at).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}</span>
+        <span>{fmtDateFull(post.created_at)}</span>
         {!admin && (
           <><span>·</span><span className={post.status === "resolved" ? "text-green-600" : post.status === "closed" ? "text-[#ccc]" : ""}>{STATUS_LABELS[post.status] ?? post.status}</span></>
         )}
@@ -231,9 +241,7 @@ export default function PostDetailPage() {
                   <span className="text-[10px] font-bold text-white bg-[#111] px-1.5 py-0.5">iiiaha</span>
                 )}
                 <span className="text-[11px] text-[#999]">
-                  {new Date(c.created_at).toLocaleDateString("en-US", {
-                    month: "short", day: "numeric", hour: "2-digit", minute: "2-digit",
-                  })}
+                  {fmtDateTime(c.created_at)}
                 </span>
               </div>
               <p className="text-[13px] leading-relaxed whitespace-pre-wrap">{c.content}</p>

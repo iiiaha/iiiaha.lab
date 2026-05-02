@@ -23,6 +23,11 @@ const STATUS_LABELS: Record<string, string> = {
   closed: "답변 완료",
 };
 
+const fmtDate = (iso: string) => {
+  const d = new Date(iso);
+  return `${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`;
+};
+
 const statusStyle = (s: string) => {
   if (s === "open") return "text-red-600";
   if (s === "in_progress") return "text-yellow-600";
@@ -111,7 +116,7 @@ export default function AdminOpenLab() {
               </div>
               <div className="flex items-center gap-2 shrink-0">
                 <span className="text-[11px] text-[#999] mr-2">
-                  {new Date(p.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                  {fmtDate(p.created_at)}
                 </span>
                 {STATUS_OPTIONS.map((s) => (
                   <button
