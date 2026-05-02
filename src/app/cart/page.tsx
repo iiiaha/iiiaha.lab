@@ -27,8 +27,7 @@ export default function CartPage() {
   const [applying, setApplying] = useState(false);
   const [checkoutError, setCheckoutError] = useState("");
   const [processing, setProcessing] = useState(false);
-  const [agreedVersion, setAgreedVersion] = useState(false);
-  const [agreedOs, setAgreedOs] = useState(false);
+  const [agreed, setAgreed] = useState(false);
   const [shakeAgreement, setShakeAgreement] = useState(false);
 
   const applyCoupon = async () => {
@@ -77,7 +76,7 @@ export default function CartPage() {
       setCheckoutError("결제 금액이 올바르지 않습니다.");
       return;
     }
-    if (!agreedVersion || !agreedOs) {
+    if (!agreed) {
       setShakeAgreement(true);
       setTimeout(() => setShakeAgreement(false), 500);
       return;
@@ -250,30 +249,16 @@ export default function CartPage() {
         </div>
 
         <label
-          className={`flex items-start gap-2 mb-2 cursor-pointer select-none ${shakeAgreement && !agreedVersion ? "animate-shake" : ""}`}
+          className={`flex items-start gap-2 mb-4 cursor-pointer select-none ${shakeAgreement ? "animate-shake" : ""}`}
         >
           <input
             type="checkbox"
-            checked={agreedVersion}
-            onChange={(e) => setAgreedVersion(e.target.checked)}
+            checked={agreed}
+            onChange={(e) => setAgreed(e.target.checked)}
             className="mt-0.5 cursor-pointer"
           />
-          <span className={`text-[11px] leading-relaxed transition-colors ${shakeAgreement && !agreedVersion ? "text-red-500" : "text-[#666]"}`}>
+          <span className={`text-[11px] leading-relaxed transition-colors ${shakeAgreement ? "text-red-500" : "text-[#666]"}`}>
             익스텐션은 <b>SketchUp</b> 또는 <b>AutoCAD</b>의 특정 버전에서만 동작합니다. 상품 상세의 호환 버전을 확인하셨습니까?
-          </span>
-        </label>
-
-        <label
-          className={`flex items-start gap-2 mb-4 cursor-pointer select-none ${shakeAgreement && !agreedOs ? "animate-shake" : ""}`}
-        >
-          <input
-            type="checkbox"
-            checked={agreedOs}
-            onChange={(e) => setAgreedOs(e.target.checked)}
-            className="mt-0.5 cursor-pointer"
-          />
-          <span className={`text-[11px] leading-relaxed transition-colors ${shakeAgreement && !agreedOs ? "text-red-500" : "text-[#666]"}`}>
-            모든 익스텐션은 <b>Windows</b> 환경에서 개발·검증되었으며, <b>macOS</b>에서는 일부 또는 전체 기능이 동작하지 않을 수 있습니다.
           </span>
         </label>
 
