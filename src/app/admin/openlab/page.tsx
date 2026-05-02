@@ -15,6 +15,14 @@ interface Post {
 
 const STATUS_OPTIONS = ["open", "in_progress", "resolved", "closed"];
 
+const STATUS_LABELS: Record<string, string> = {
+  all: "전체",
+  open: "접수 완료",
+  in_progress: "해결 중",
+  resolved: "해결 완료",
+  closed: "답변 완료",
+};
+
 const statusStyle = (s: string) => {
   if (s === "open") return "text-red-600";
   if (s === "in_progress") return "text-yellow-600";
@@ -59,7 +67,7 @@ export default function AdminOpenLab() {
           {message && <span className="text-[11px] text-green-600">{message}</span>}
         </div>
         <span className="text-[12px] text-[#999]">
-          {posts.filter((p) => p.status === "open").length} open
+          접수 완료 {posts.filter((p) => p.status === "open").length}건
         </span>
       </div>
       <div className="border-t border-[#111] mb-6" />
@@ -70,11 +78,11 @@ export default function AdminOpenLab() {
           <button
             key={f}
             onClick={() => setFilter(f)}
-            className={`text-[12px] bg-transparent border-0 cursor-pointer uppercase tracking-[0.05em] ${
+            className={`text-[12px] bg-transparent border-0 cursor-pointer tracking-[0.05em] ${
               filter === f ? "font-bold text-[#111]" : "text-[#999]"
             }`}
           >
-            {f} ({f === "all" ? posts.length : posts.filter((p) => p.status === f).length})
+            {STATUS_LABELS[f] ?? f} ({f === "all" ? posts.length : posts.filter((p) => p.status === f).length})
           </button>
         ))}
       </div>
@@ -87,8 +95,8 @@ export default function AdminOpenLab() {
             <div key={p.id} className="flex items-center justify-between border-b border-[#ddd] py-3">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className={`text-[11px] font-bold uppercase ${statusStyle(p.status)}`}>
-                    {p.status}
+                  <span className={`text-[11px] font-bold ${statusStyle(p.status)}`}>
+                    {STATUS_LABELS[p.status] ?? p.status}
                   </span>
                   <span className="text-[10px] text-[#999]">
                     {p.category === "idea" ? "Idea" : "Bug"}
@@ -109,13 +117,13 @@ export default function AdminOpenLab() {
                   <button
                     key={s}
                     onClick={() => updateStatus(p.id, s)}
-                    className={`text-[10px] px-1.5 py-0.5 border cursor-pointer ${
+                    className={`text-[10px] px-1.5 py-0.5 border cursor-pointer whitespace-nowrap ${
                       p.status === s
                         ? "bg-[#111] text-white border-[#111]"
                         : "bg-white text-[#999] border-[#ddd] hover:border-[#111]"
                     }`}
                   >
-                    {s.charAt(0).toUpperCase()}
+                    {STATUS_LABELS[s] ?? s}
                   </button>
                 ))}
               </div>

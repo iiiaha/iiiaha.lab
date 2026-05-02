@@ -24,6 +24,13 @@ const statusStyle = (s: string) => {
   return "text-[#999] border-[#ddd]";
 };
 
+const STATUS_LABELS: Record<string, string> = {
+  open: "접수 완료",
+  in_progress: "해결 중",
+  resolved: "해결 완료",
+  closed: "답변 완료",
+};
+
 const PER_PAGE = 10;
 
 export default function OpenLabPage() {
@@ -219,7 +226,7 @@ export default function OpenLabPage() {
                       <span
                         className={`text-[10px] font-bold border px-1.5 py-0.5 w-[80px] text-center ${statusStyle(post.status)}`}
                       >
-                        {post.status === "in_progress" ? "Working" : post.status.charAt(0).toUpperCase() + post.status.slice(1)}
+                        {STATUS_LABELS[post.status] ?? post.status}
                       </span>
                     </div>
                   )}

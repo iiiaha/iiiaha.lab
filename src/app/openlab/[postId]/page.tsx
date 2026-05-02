@@ -30,6 +30,13 @@ interface Comment {
 
 const STATUS_OPTIONS = ["open", "in_progress", "resolved", "closed"];
 
+const STATUS_LABELS: Record<string, string> = {
+  open: "접수 완료",
+  in_progress: "해결 중",
+  resolved: "해결 완료",
+  closed: "답변 완료",
+};
+
 export default function PostDetailPage() {
   const params = useParams();
   const router = useRouter();
@@ -174,7 +181,7 @@ export default function PostDetailPage() {
         <span>·</span>
         <span>{new Date(post.created_at).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}</span>
         {!admin && (
-          <><span>·</span><span className={post.status === "resolved" ? "text-green-600" : post.status === "closed" ? "text-[#ccc]" : ""}>{post.status}</span></>
+          <><span>·</span><span className={post.status === "resolved" ? "text-green-600" : post.status === "closed" ? "text-[#ccc]" : ""}>{STATUS_LABELS[post.status] ?? post.status}</span></>
         )}
       </div>
 
@@ -206,7 +213,7 @@ export default function PostDetailPage() {
                     ? "bg-[#111] text-white border-[#111]"
                     : "bg-white text-[#ccc] border-[#ddd] hover:border-[#111] hover:text-[#111]"
                 }`}>
-                {s === "in_progress" ? "Working" : s.charAt(0).toUpperCase() + s.slice(1)}
+                {STATUS_LABELS[s] ?? s}
               </button>
             ))}
           </div>
