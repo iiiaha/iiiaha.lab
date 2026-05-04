@@ -172,7 +172,7 @@ export default function PostDetailPage() {
   return (
     <div>
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-baseline justify-between mb-[10px]">
         <Link href="/openlab" className="flex items-center gap-1.5 text-[16px] font-bold tracking-[0.03em] no-underline hover:underline">
           Open Lab
           <svg width="14" height="14" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6L8 10" stroke="#111" strokeWidth="1.5"/></svg>
@@ -184,7 +184,7 @@ export default function PostDetailPage() {
           </Link>
         )}
       </div>
-      <div className="border-b border-[#111] mb-6" />
+      <div className="border-b border-[#111] mb-4 sticky-divider" />
 
       {/* Title + actions */}
       <div className="flex items-center justify-between gap-4 mb-2">
