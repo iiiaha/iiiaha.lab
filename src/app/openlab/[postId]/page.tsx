@@ -179,8 +179,8 @@ export default function PostDetailPage() {
         </Link>
         {userId && (
           <Link href="/openlab/new"
-            className="text-[12px] text-[#111] border border-[#111] px-4 py-2 no-underline hover:bg-[#111] hover:text-white transition-colors font-bold">
-            New Post
+            className="text-[12px] text-[#999] no-underline hover:underline">
+            + 글 쓰기
           </Link>
         )}
       </div>
