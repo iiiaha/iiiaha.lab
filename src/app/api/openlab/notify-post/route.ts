@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
   const { data: post } = await serviceSupabase
     .from("posts")
     .select(
-      "id, user_id, category, title, description, sketchup_version, autocad_version, created_at, products(name)"
+      "id, user_id, category, title, description, os, sketchup_version, autocad_version, created_at, products(name)"
     )
     .eq("id", post_id)
     .maybeSingle();
@@ -86,6 +86,7 @@ export async function POST(req: NextRequest) {
     <tr><td style="color:#666; padding: 2px 12px 2px 0;">작성자</td><td>${escapeHtml(authorEmail)}</td></tr>
     <tr><td style="color:#666; padding: 2px 12px 2px 0;">카테고리</td><td>${escapeHtml(categoryLabel)}</td></tr>
     <tr><td style="color:#666; padding: 2px 12px 2px 0;">관련 익스텐션</td><td>${escapeHtml(productName)}</td></tr>
+    <tr><td style="color:#666; padding: 2px 12px 2px 0;">운영체제</td><td>${escapeHtml(post.os ?? "—")}</td></tr>
     <tr><td style="color:#666; padding: 2px 12px 2px 0;">SketchUp</td><td>${escapeHtml(post.sketchup_version ?? "—")}</td></tr>
     <tr><td style="color:#666; padding: 2px 12px 2px 0;">AutoCAD</td><td>${escapeHtml(post.autocad_version ?? "—")}</td></tr>
   </table>

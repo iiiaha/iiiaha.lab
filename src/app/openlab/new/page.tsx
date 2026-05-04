@@ -14,6 +14,7 @@ interface ProductOption {
 
 const SKETCHUP_VERSIONS = ["2026", "2025", "2024", "2023", "2022", "2021", "2020", "2019", "2018", "2017"];
 const AUTOCAD_YEARS = ["2026", "2025", "2024", "2023", "2022", "2021", "2020", "2019", "2018"];
+const OS_OPTIONS = ["Windows", "Mac"];
 
 export default function NewPostPage() {
   return (
@@ -36,6 +37,7 @@ function PostForm() {
   const [category, setCategory] = useState<"idea" | "bug" | "notice">("bug");
   const [isAdmin, setIsAdmin] = useState(false);
   const [productId, setProductId] = useState("");
+  const [os, setOs] = useState("");
   const [sketchupVersion, setSketchupVersion] = useState("");
   const [autocadVersion, setAutocadVersion] = useState("");
   const [title, setTitle] = useState("");
@@ -73,6 +75,7 @@ function PostForm() {
         if (post) {
           setCategory(post.category);
           setProductId(post.product_id || "");
+          setOs(post.os || "");
           setSketchupVersion(post.sketchup_version || "");
           setAutocadVersion(post.autocad_version || "");
           setTitle(post.title);
@@ -152,6 +155,7 @@ function PostForm() {
         .update({
           category,
           product_id: productId || null,
+          os: os || null,
           sketchup_version: sketchupVersion || null,
           autocad_version: autocadVersion || null,
           title: title.trim(),
@@ -173,6 +177,7 @@ function PostForm() {
         .insert({
           user_id: userId,
           product_id: productId || null,
+          os: os || null,
           sketchup_version: sketchupVersion || null,
           autocad_version: autocadVersion || null,
           category,
@@ -269,7 +274,15 @@ function PostForm() {
         </div>
 
         {/* Program Versions */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-3 gap-3">
+          <div>
+            <label className="block text-[12px] text-[#666] font-bold mb-1 tracking-[0.05em] uppercase">운영체제</label>
+            <select value={os} onChange={(e) => setOs(e.target.value)}
+              className="w-full border border-[#ddd] px-3 py-2.5 text-[14px] outline-none focus:border-[#111] transition-colors bg-white">
+              <option value="">사용 안 함</option>
+              {OS_OPTIONS.map((v) => <option key={v} value={v}>{v}</option>)}
+            </select>
+          </div>
           <div>
             <label className="block text-[12px] text-[#666] font-bold mb-1 tracking-[0.05em] uppercase">SketchUp 버전</label>
             <select value={sketchupVersion} onChange={(e) => setSketchupVersion(e.target.value)}

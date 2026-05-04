@@ -16,6 +16,7 @@ interface Post {
   image_url: string | null;
   status: string;
   created_at: string;
+  os: string | null;
   sketchup_version: string | null;
   autocad_version: string | null;
   products: { name: string } | null;
@@ -220,6 +221,9 @@ export default function PostDetailPage() {
         {authorName && <span>{authorName}</span>}
         {post.products && (
           <><span>·</span><span>{post.products.name}</span></>
+        )}
+        {post.os && (
+          <><span>·</span><span>{post.os}</span></>
         )}
         {post.sketchup_version && (
           <><span>·</span><span>SketchUp {post.sketchup_version}</span></>
