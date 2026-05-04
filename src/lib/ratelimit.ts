@@ -36,6 +36,7 @@ export const limiters = {
   comments: makeLimiter(10, "1 m"),
   billingConfirm: makeLimiter(5, "1 m"),
   webhook: makeLimiter(100, "1 m"),
+  openlabNotify: makeLimiter(10, "1 m"),
 };
 
 // 식별자: 인증된 사용자가 있으면 user.id, 없으면 IP.

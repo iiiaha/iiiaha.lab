@@ -6,6 +6,7 @@ import { Resend } from "resend";
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const ALERT_FROM = "iiiaha.lab alerts <noreply@iiiahalab.com>";
+const NOTIFY_FROM = "iiiaha.lab <noreply@iiiahalab.com>";
 const ALERT_TO = "iiiaha@naver.com";
 
 // 5분 dedup. 같은 key는 5분 내에 1번만 발송.
@@ -57,6 +58,29 @@ export async function sendAlert(
     console.error("[alert] failed to send", e);
   }
 }
+
+/**
+ * 운영자에게 일반 알림(에러 아님) 메일 발송. dedup·prefix 없음.
+ * @param subject 메일 제목 (그대로 사용)
+ * @param html HTML 본문 (호출자가 직접 작성, 신뢰 입력만 넣을 것 — 사용자 입력은 escapeHtml 적용)
+ */
+export async function sendOperatorMail(
+  subject: string,
+  html: string
+): Promise<void> {
+  try {
+    await resend.emails.send({
+      from: NOTIFY_FROM,
+      to: ALERT_TO,
+      subject,
+      html,
+    });
+  } catch (e) {
+    console.error("[notify] failed to send", e);
+  }
+}
+
+export { escapeHtml };
 
 /**
  * Error 객체나 일반 에러 object(예: Supabase PostgrestError)에서 메시지 추출.

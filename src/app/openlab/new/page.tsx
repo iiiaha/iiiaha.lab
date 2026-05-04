@@ -188,6 +188,14 @@ function PostForm() {
         setLoading(false);
         return;
       }
+      // 운영자 알림 (실패해도 사용자 흐름 막지 않음 — fire & forget).
+      // keepalive로 redirect 후에도 요청 완주 보장.
+      fetch("/api/openlab/notify-post", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ post_id: post.id }),
+        keepalive: true,
+      }).catch(() => {});
       router.push(`/openlab/${post.id}`);
     }
   };
