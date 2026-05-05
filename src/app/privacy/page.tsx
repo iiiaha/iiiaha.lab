@@ -72,7 +72,7 @@ export default function PrivacyPage() {
             <li>Vercel Inc. — 웹사이트 호스팅 및 운영</li>
             <li>Cloudflare, Inc. — 영상 콘텐츠 스트리밍</li>
             <li>㈜토스페이먼츠 — 전자결제 처리</li>
-            <li>Google LLC — Google 계정 로그인 연동</li>
+            <li>Google LLC — Google 계정 로그인 연동, 서비스 이용 통계 분석(Google Analytics 4)</li>
             <li>Resend, Inc. — 회원·서비스 알림 이메일 발송</li>
           </ul>
           <p className="mt-3 font-bold">개인정보의 국외 이전</p>
@@ -114,11 +114,43 @@ export default function PrivacyPage() {
         <section>
           <h2 className="font-bold mb-2">제8조 (쿠키 등 자동 수집 장치의 운영)</h2>
           <p>
-            회사는 서비스 제공을 위해 필수적인 쿠키(인증·세션)만 사용합니다.
-            광고·추적 쿠키는 사용하지 않습니다. 이용자는 브라우저 설정을 통해
-            쿠키 저장을 거부할 수 있으나, 이 경우 일부 서비스 이용에 제한이
-            있을 수 있습니다.
+            회사는 서비스 제공과 이용 통계 분석을 위해 다음과 같은 쿠키 및
+            자동 수집 장치를 운영합니다. 광고·마케팅 목적의 추적 쿠키는
+            사용하지 않습니다.
           </p>
+          <ul className="list-disc pl-5 flex flex-col gap-1 mt-2">
+            <li>
+              필수 쿠키: 로그인 세션 유지, 장바구니 상태 보존 등 서비스 이용에
+              반드시 필요한 쿠키
+            </li>
+            <li>
+              분석 쿠키: Google Analytics 4(GA4)를 이용해 페이지 방문·체류시간·
+              유입경로 등 익명화된 이용 통계를 수집합니다. 개인을 식별할 수
+              있는 정보는 수집하지 않습니다.
+            </li>
+          </ul>
+          <p className="mt-3 font-bold">분석 쿠키 거부 방법</p>
+          <ul className="list-disc pl-5 flex flex-col gap-1 mt-2">
+            <li>
+              브라우저 설정에서 쿠키 저장을 거부하거나 개별 사이트의 쿠키를
+              차단할 수 있습니다.
+            </li>
+            <li>
+              Google Analytics 거부:{" "}
+              <a
+                href="https://tools.google.com/dlpage/gaoptout"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline"
+              >
+                Google Analytics 차단 부가 기능
+              </a>
+              을 브라우저에 설치하시면 GA4 추적을 거부할 수 있습니다.
+            </li>
+            <li>
+              쿠키를 거부하실 경우 일부 서비스 이용에 제한이 있을 수 있습니다.
+            </li>
+          </ul>
         </section>
 
         <section>
@@ -151,7 +183,7 @@ export default function PrivacyPage() {
           </p>
         </section>
 
-        <p className="text-[11px] text-[#999] mt-4">시행일: 2026년 4월 13일</p>
+        <p className="text-[11px] text-[#999] mt-4">시행일: 2026년 5월 5일</p>
       </div>
     </div>
   );

@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import MainContainer from "@/components/MainContainer";
 import { CartProvider } from "@/lib/cart";
+
+const GA_MEASUREMENT_ID = "G-7E6Z5E2HVZ";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://iiiahalab.com"),
@@ -48,6 +51,19 @@ export default function RootLayout({
           <MainContainer>{children}</MainContainer>
           <Footer />
         </CartProvider>
+
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+          strategy="afterInteractive"
+        />
+        <Script id="ga4-init" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${GA_MEASUREMENT_ID}');
+          `}
+        </Script>
       </body>
     </html>
   );
