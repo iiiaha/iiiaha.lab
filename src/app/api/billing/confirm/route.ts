@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { createServerSupabase } from "@/lib/supabase-server";
 import { limiters, getClientId, rateLimit } from "@/lib/ratelimit";
-import { sendAlert, formatError } from "@/lib/alert";
+import { sendAlert, sendOperatorMail, escapeHtml, formatError } from "@/lib/alert";
 
 const serviceSupabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -207,6 +207,38 @@ export async function POST(req: NextRequest) {
     .eq("user_id", user.id)
     .eq("status", "active")
     .not("subscription_id", "is", null);
+
+  // 7. 운영자 알림 (본인 가입은 스킵)
+  const { data: adminRow } = await serviceSupabase
+    .from("admins")
+    .select("user_id")
+    .eq("user_id", user.id)
+    .maybeSingle();
+  if (!adminRow) {
+    const planLabel = plan === "annual" ? "연간" : "월간";
+    const cardLine = cardCompany || cardNumberMasked
+      ? `<tr><td style="color:#666; padding: 2px 12px 2px 0;">카드</td><td>${escapeHtml(cardCompany ?? "—")} ${escapeHtml(cardNumberMasked ?? "")}</td></tr>`
+      : "";
+    const html = `
+<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; line-height: 1.7; color: #111;">
+  <h2 style="font-size: 16px; margin: 0 0 16px;">[멤버십] 신규 ${planLabel} 가입 · ₩${amount.toLocaleString("ko-KR")}</h2>
+  <table style="border-collapse: collapse; font-size: 13px; margin-bottom: 16px;">
+    <tr><td style="color:#666; padding: 2px 12px 2px 0;">가입자</td><td>${escapeHtml(user.email ?? "(unknown)")}</td></tr>
+    <tr><td style="color:#666; padding: 2px 12px 2px 0;">플랜</td><td><strong>${planLabel}</strong></td></tr>
+    <tr><td style="color:#666; padding: 2px 12px 2px 0;">첫 결제 금액</td><td><strong>₩${amount.toLocaleString("ko-KR")}</strong></td></tr>
+    <tr><td style="color:#666; padding: 2px 12px 2px 0;">다음 결제일</td><td>${expiresAt.toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}</td></tr>
+    ${cardLine}
+    <tr><td style="color:#666; padding: 2px 12px 2px 0;">결제 키</td><td style="font-family: monospace; font-size: 11px;">${escapeHtml(paymentKey)}</td></tr>
+    <tr><td style="color:#666; padding: 2px 12px 2px 0;">가입 시각</td><td>${now.toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}</td></tr>
+  </table>
+  <p><a href="https://iiiahalab.com/admin" style="color:#111; font-weight: bold;">→ 어드민 대시보드</a></p>
+</div>
+    `.trim();
+    await sendOperatorMail(
+      `[멤버십] 신규 ${planLabel} 가입 · ${user.email ?? user.id.slice(0, 8)}`,
+      html
+    );
+  }
 
   return NextResponse.json({
     status: "success",

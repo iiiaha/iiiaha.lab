@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { createServerSupabase } from "@/lib/supabase-server";
 import { generateLicenseKey } from "@/lib/license-utils";
 import { limiters, getClientId, rateLimit } from "@/lib/ratelimit";
-import { sendAlert, formatError } from "@/lib/alert";
+import { sendAlert, sendOperatorMail, escapeHtml, formatError } from "@/lib/alert";
 
 const serviceSupabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -258,6 +258,48 @@ export async function POST(req: NextRequest) {
     await serviceSupabase.rpc("increment_coupon_used", {
       coupon_id: couponRow.id,
     });
+  }
+
+  // 10. 운영자 알림 (본인 결제는 스킵)
+  const { data: adminRow } = await serviceSupabase
+    .from("admins")
+    .select("user_id")
+    .eq("user_id", user.id)
+    .maybeSingle();
+  if (!adminRow) {
+    const productNames = products.map((p) => p.name).join(", ");
+    const productList = products
+      .map(
+        (p, i) =>
+          `<tr><td style="padding: 2px 12px 2px 0; color: #666;">${i + 1}</td><td>${escapeHtml(p.name)}</td><td style="text-align: right;">₩${orderAmounts[i].toLocaleString("ko-KR")}</td></tr>`
+      )
+      .join("");
+    const couponNote = couponRow
+      ? `<tr><td style="color:#666; padding: 2px 12px 2px 0;">쿠폰</td><td colspan="2">적용됨 (할인 ₩${discount.toLocaleString("ko-KR")})</td></tr>`
+      : "";
+    const html = `
+<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; line-height: 1.7; color: #111;">
+  <h2 style="font-size: 16px; margin: 0 0 16px;">[결제] ${escapeHtml(productNames)} · ₩${computedAmount.toLocaleString("ko-KR")}</h2>
+  <table style="border-collapse: collapse; font-size: 13px; margin-bottom: 16px;">
+    <tr><td style="color:#666; padding: 2px 12px 2px 0;">구매자</td><td colspan="2">${escapeHtml(user.email ?? "(unknown)")}</td></tr>
+    <tr><td style="color:#666; padding: 2px 12px 2px 0;">결제 금액</td><td colspan="2"><strong>₩${computedAmount.toLocaleString("ko-KR")}</strong></td></tr>
+    ${couponNote}
+    <tr><td style="color:#666; padding: 2px 12px 2px 0;">결제 키</td><td colspan="2" style="font-family: monospace; font-size: 11px;">${escapeHtml(paymentKey)}</td></tr>
+    <tr><td style="color:#666; padding: 2px 12px 2px 0;">결제 시각</td><td colspan="2">${new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}</td></tr>
+  </table>
+  <table style="border-collapse: collapse; font-size: 13px; margin-bottom: 16px; width: 100%;">
+    <thead>
+      <tr style="border-bottom: 1px solid #eee;"><th style="text-align: left; padding: 4px 8px 4px 0; color: #999; font-weight: normal;">#</th><th style="text-align: left; padding: 4px 8px 4px 0; color: #999; font-weight: normal;">상품</th><th style="text-align: right; padding: 4px 0; color: #999; font-weight: normal;">금액</th></tr>
+    </thead>
+    <tbody>${productList}</tbody>
+  </table>
+  <p><a href="https://iiiahalab.com/admin/orders" style="color:#111; font-weight: bold;">→ 주문 관리</a></p>
+</div>
+    `.trim();
+    await sendOperatorMail(
+      `[결제] ${productNames} · ₩${computedAmount.toLocaleString("ko-KR")}`,
+      html
+    );
   }
 
   return NextResponse.json({
