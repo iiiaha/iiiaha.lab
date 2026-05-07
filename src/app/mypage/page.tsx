@@ -617,8 +617,8 @@ export default function MyPage() {
               </span>
             </div>
             <p className="text-[13px] text-[rgba(255,255,255,0.85)] leading-[1.6] mb-4">
-              보유 중인 모든 iiiaha 익스텐션을 PC 앱에서{" "}
-              <strong className="text-white">한 번에 설치/업데이트</strong>합니다. 인터넷 연결이 필요합니다.
+              이아하랩의 모든 익스텐션을{" "}
+              <strong className="text-white">한 번에 설치하고 업데이트</strong> 할 수 있습니다.
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="flex-1">
