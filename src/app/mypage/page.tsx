@@ -399,6 +399,39 @@ export default function MyPage() {
       </div>
       <div className="border-b border-[#111] mb-5 sticky-divider" />
 
+      {orders.length > 0 && (
+        <div className="border border-[#ddd] p-5 mb-10">
+          <h2 className="text-[13px] font-bold tracking-[0.03em] mb-3">iiiahalab 다운로더</h2>
+          <p className="text-[12px] text-[#666] leading-[1.7] mb-4">
+            PC에 다운받아 실행하면 보유 중인 모든 iiiaha 익스텐션을 한 번에 설치/업데이트할 수 있습니다. 인터넷 연결이 필요합니다.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex-1">
+              <a
+                href="https://github.com/iiiaha/iiiahalabdownloader/releases/latest/download/iiiahalab-downloader.exe"
+                className="block w-full text-[12px] text-[#111] border border-[#111] bg-white px-4 py-2 no-underline hover:bg-[#111] hover:text-white transition-colors text-center"
+              >
+                Windows 다운로드
+              </a>
+              <p className="text-[11px] text-[#999] mt-1.5 leading-[1.6]">
+                처음 실행 시 Windows SmartScreen이 차단할 수 있습니다 → ‘추가 정보’ → ‘실행’.
+              </p>
+            </div>
+            <div className="flex-1">
+              <a
+                href="https://github.com/iiiaha/iiiahalabdownloader/releases/latest/download/iiiahalab-downloader.dmg"
+                className="block w-full text-[12px] text-[#111] border border-[#111] bg-white px-4 py-2 no-underline hover:bg-[#111] hover:text-white transition-colors text-center"
+              >
+                macOS 다운로드
+              </a>
+              <p className="text-[11px] text-[#999] mt-1.5 leading-[1.6]">
+                처음 실행 시 우클릭 → ‘열기’로 한 번 띄우면 이후엔 그냥 더블클릭 가능합니다.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Account info — 이메일 + 멤버십 상태 통합 */}
       <div className="border border-[#ddd] p-5 mb-10">
         <h2 className="text-[13px] font-bold tracking-[0.03em] mb-4">계정 정보</h2>
