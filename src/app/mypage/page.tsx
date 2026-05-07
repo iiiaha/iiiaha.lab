@@ -617,8 +617,9 @@ export default function MyPage() {
               </span>
             </div>
             <p className="text-[13px] text-[rgba(255,255,255,0.85)] leading-[1.6] mb-4">
-              이아하랩의 모든 익스텐션을{" "}
-              <strong className="text-white">한 번에 설치하고 업데이트</strong> 할 수 있습니다.
+              전용 다운로더를 통해 이아하랩의 모든 익스텐션을{" "}
+              <strong className="text-white">쉽고 빠르게 설치하고 업데이트</strong> 할 수 있습니다.{" "}
+              <span className="text-[11px] text-[rgba(255,255,255,0.55)]">(포터블 · 설치 불필요)</span>
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="flex-1">
