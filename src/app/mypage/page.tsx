@@ -109,6 +109,11 @@ function VersionDisplay({ ver }: { ver: VersionInfo }) {
   return (
     <div className="flex flex-col gap-1 min-w-0 flex-1">
       <div className="flex items-center gap-2 flex-wrap">
+        {ver.isNew && (
+          <span className="text-[10px] font-bold tracking-[0.05em] text-[#008a75] bg-[#00c9a7]/15 px-1.5 py-0.5">
+            NEW
+          </span>
+        )}
         <span className={`text-[12px] ${ver.isNew ? "font-bold text-[#008a75]" : "text-[#999]"}`}>
           v{ver.latest}
           {ver.releasedAt && (
@@ -118,11 +123,6 @@ function VersionDisplay({ ver }: { ver: VersionInfo }) {
             </span>
           )}
         </span>
-        {ver.isNew && (
-          <span className="text-[10px] font-bold tracking-[0.05em] text-[#008a75] bg-[#00c9a7]/15 px-1.5 py-0.5">
-            NEW
-          </span>
-        )}
         {ver.latestChangelog && (
           <button
             onClick={() => setOpen((v) => !v)}
