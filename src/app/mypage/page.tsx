@@ -110,7 +110,7 @@ function VersionDisplay({ ver }: { ver: VersionInfo }) {
     <div className="flex flex-col gap-1 min-w-0 flex-1">
       <div className="flex items-center gap-2 flex-wrap">
         {ver.isNew && (
-          <span className="text-[10px] font-bold tracking-[0.05em] text-[#008a75] bg-[#00c9a7]/15 px-1.5 py-0.5">
+          <span className="text-[10px] font-bold tracking-[0.05em] text-[#008a75] bg-[#00c9a7]/15 px-1.5 py-[2px] leading-none">
             NEW
           </span>
         )}
