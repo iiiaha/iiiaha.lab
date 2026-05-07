@@ -52,7 +52,7 @@ interface OrderWithProduct {
     version: string | null;
     thumbnail_url: string | null;
   };
-  licenses: { license_key: string; hwid: string | null; status: string; last_downloaded_version: string | null }[];
+  licenses: { license_key: string; hwid: string | null; status: string }[];
 }
 
 const REFUND_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
@@ -71,10 +71,19 @@ function refundDisabledReason(order: OrderWithProduct): string | null {
 
 interface VersionInfo {
   latest: string | null;
-  current: string | null;
-  hasUpdate: boolean;
-  notDownloaded: boolean;
+  releasedAt: string | null;
+  isNew: boolean;
   latestChangelog: string | null;
+}
+
+const NEW_WINDOW_MS = 14 * 24 * 60 * 60 * 1000;
+
+function formatReleasedAt(iso: string): string {
+  return new Date(iso).toLocaleDateString("ko-KR", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
 }
 
 function EyeIcon({ open }: { open: boolean }) {
@@ -96,19 +105,25 @@ function EyeIcon({ open }: { open: boolean }) {
 
 function VersionDisplay({ ver }: { ver: VersionInfo }) {
   const [open, setOpen] = useState(false);
+  if (!ver.latest) return null;
   return (
     <div className="flex flex-col gap-1 min-w-0 flex-1">
       <div className="flex items-center gap-2 flex-wrap">
-        {ver.hasUpdate ? (
-          <span className="text-[12px] text-red-600 font-bold">
-            v{ver.current} → v{ver.latest} 업데이트 가능
+        <span className={`text-[12px] ${ver.isNew ? "font-bold text-[#008a75]" : "text-[#999]"}`}>
+          v{ver.latest}
+          {ver.releasedAt && (
+            <span className={ver.isNew ? "text-[#008a75]" : "text-[#999]"}>
+              {" · "}
+              {formatReleasedAt(ver.releasedAt)}
+            </span>
+          )}
+        </span>
+        {ver.isNew && (
+          <span className="text-[10px] font-bold tracking-[0.05em] text-[#008a75] bg-[#00c9a7]/15 px-1.5 py-0.5">
+            NEW
           </span>
-        ) : ver.notDownloaded && ver.latest ? (
-          <span className="text-[12px] text-[#999]">v{ver.latest} — 설치 전</span>
-        ) : ver.current ? (
-          <span className="text-[12px] text-[#999]">v{ver.current} — 최신 버전입니다.</span>
-        ) : null}
-        {ver.latestChangelog && ver.latest && (
+        )}
+        {ver.latestChangelog && (
           <button
             onClick={() => setOpen((v) => !v)}
             className="text-[11px] text-[#666] bg-transparent border-0 p-0 cursor-pointer hover:text-[#111] underline"
@@ -177,7 +192,7 @@ export default function MyPage() {
       const { data } = await supabase
         .from("orders")
         .select(
-          "id, amount, status, created_at, product_id, subscription_id, payment_key, download_acknowledged_at, products(slug, name, version, thumbnail_url), licenses(license_key, hwid, status, last_downloaded_version)"
+          "id, amount, status, created_at, product_id, subscription_id, payment_key, download_acknowledged_at, products(slug, name, version, thumbnail_url), licenses(license_key, hwid, status)"
         )
         .eq("user_id", user.id)
         .eq("status", "paid")
@@ -201,9 +216,10 @@ export default function MyPage() {
       const orderList = Array.from(seen.values());
       setOrders(orderList);
 
-      // 가장 최신 버전의 changelog 한 번에 조회 (제품당 1행)
+      // 가장 최신 버전의 changelog + released_at 한 번에 조회 (제품당 1행).
+      // 사용자 설치 여부는 다운로더가 관리하므로 마이페이지는 "내가 릴리즈한 최신 버전"만 표시.
       const productIds = Array.from(new Set(orderList.map((o) => o.product_id)));
-      const latestChangelogByProduct = new Map<string, string | null>();
+      const latestPvByProduct = new Map<string, { changelog: string | null; releasedAt: string | null }>();
       if (productIds.length > 0) {
         const { data: pvRows } = await supabase
           .from("product_versions")
@@ -211,25 +227,29 @@ export default function MyPage() {
           .in("product_id", productIds)
           .order("released_at", { ascending: false });
         for (const row of pvRows ?? []) {
-          if (!latestChangelogByProduct.has(row.product_id)) {
-            latestChangelogByProduct.set(row.product_id, row.changelog ?? null);
+          if (!latestPvByProduct.has(row.product_id)) {
+            latestPvByProduct.set(row.product_id, {
+              changelog: row.changelog ?? null,
+              releasedAt: row.released_at ?? null,
+            });
           }
         }
       }
 
-      // 버전 비교: "유저가 마지막으로 다운로드한 버전(licenses.last_downloaded_version)" ↔ "제품 현재 버전(products.version)"
+      const now = Date.now();
       const versionMap: Record<string, VersionInfo> = {};
       for (const order of orderList) {
         const slug = order.products?.slug;
         if (!slug) continue;
         const latest = order.products?.version ?? null;
-        const current = order.licenses?.[0]?.last_downloaded_version ?? null;
+        const pv = latestPvByProduct.get(order.product_id);
+        const releasedAt = pv?.releasedAt ?? null;
+        const isNew = !!(releasedAt && now - new Date(releasedAt).getTime() <= NEW_WINDOW_MS);
         versionMap[order.id] = {
           latest,
-          current,
-          hasUpdate: !!(latest && current && latest !== current),
-          notDownloaded: !current,
-          latestChangelog: latestChangelogByProduct.get(order.product_id) ?? null,
+          releasedAt,
+          isNew,
+          latestChangelog: pv?.changelog ?? null,
         };
       }
       setVersions(versionMap);
