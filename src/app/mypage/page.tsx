@@ -399,51 +399,6 @@ export default function MyPage() {
       </div>
       <div className="border-b border-[#111] mb-5 sticky-divider" />
 
-      {orders.length > 0 && (
-        <div className="sub-cta relative overflow-hidden mb-10">
-          <div className="sub-cta-bg absolute inset-0" />
-          <div className="sub-cta-aurora absolute inset-0" />
-          <div className="relative px-6 py-5">
-            <div className="flex items-baseline gap-2 mb-1.5">
-              <span className="text-[11px] font-bold tracking-[0.1em] uppercase text-white">
-                iiiahalab Downloader
-              </span>
-              <span className="text-[11px] text-[rgba(255,255,255,0.5)]">
-                Win · Mac
-              </span>
-            </div>
-            <p className="text-[13px] text-[rgba(255,255,255,0.85)] leading-[1.6] mb-4">
-              보유 중인 모든 iiiaha 익스텐션을 PC 앱에서{" "}
-              <strong className="text-white">한 번에 설치/업데이트</strong>합니다. 인터넷 연결이 필요합니다.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3">
-              <div className="flex-1">
-                <a
-                  href="https://github.com/iiiaha/iiiahalabdownloader/releases/latest/download/iiiahalab-downloader.exe"
-                  className="block w-full text-[12px] text-white border border-white/70 px-4 py-2 no-underline hover:bg-white hover:text-[#080810] transition-colors text-center"
-                >
-                  Windows 다운로드
-                </a>
-                <p className="text-[11px] text-[rgba(255,255,255,0.55)] mt-1.5 leading-[1.6]">
-                  처음 실행 시 SmartScreen 차단 → ‘추가 정보’ → ‘실행’.
-                </p>
-              </div>
-              <div className="flex-1">
-                <a
-                  href="https://github.com/iiiaha/iiiahalabdownloader/releases/latest/download/iiiahalab-downloader.dmg"
-                  className="block w-full text-[12px] text-white border border-white/70 px-4 py-2 no-underline hover:bg-white hover:text-[#080810] transition-colors text-center"
-                >
-                  macOS 다운로드
-                </a>
-                <p className="text-[11px] text-[rgba(255,255,255,0.55)] mt-1.5 leading-[1.6]">
-                  처음 실행 시 우클릭 → ‘열기’로 한 번 띄우면 끝.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Account info — 이메일 + 멤버십 상태 통합 */}
       <div className="border border-[#ddd] p-5 mb-10">
         <h2 className="text-[13px] font-bold tracking-[0.03em] mb-4">계정 정보</h2>
@@ -627,6 +582,51 @@ export default function MyPage() {
           </div>
         </div>
       </div>
+
+      {orders.length > 0 && (
+        <div className="sub-cta relative overflow-hidden mb-10">
+          <div className="sub-cta-bg absolute inset-0" />
+          <div className="sub-cta-aurora absolute inset-0" />
+          <div className="relative px-6 py-5">
+            <div className="flex items-baseline gap-2 mb-1.5">
+              <span className="text-[11px] font-bold tracking-[0.1em] uppercase text-white">
+                iiiahalab Downloader
+              </span>
+              <span className="text-[11px] text-[rgba(255,255,255,0.5)]">
+                Win · Mac
+              </span>
+            </div>
+            <p className="text-[13px] text-[rgba(255,255,255,0.85)] leading-[1.6] mb-4">
+              보유 중인 모든 iiiaha 익스텐션을 PC 앱에서{" "}
+              <strong className="text-white">한 번에 설치/업데이트</strong>합니다. 인터넷 연결이 필요합니다.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex-1">
+                <a
+                  href="https://github.com/iiiaha/iiiahalabdownloader/releases/latest/download/iiiahalab-downloader.exe"
+                  className="block w-full text-[12px] text-white border border-white/70 px-4 py-2 no-underline hover:bg-white hover:text-[#080810] transition-colors text-center"
+                >
+                  Windows 다운로드
+                </a>
+                <p className="text-[11px] text-[rgba(255,255,255,0.55)] mt-1.5 leading-[1.6]">
+                  처음 실행 시 SmartScreen 차단 → ‘추가 정보’ → ‘실행’.
+                </p>
+              </div>
+              <div className="flex-1">
+                <a
+                  href="https://github.com/iiiaha/iiiahalabdownloader/releases/latest/download/iiiahalab-downloader.dmg"
+                  className="block w-full text-[12px] text-white border border-white/70 px-4 py-2 no-underline hover:bg-white hover:text-[#080810] transition-colors text-center"
+                >
+                  macOS 다운로드
+                </a>
+                <p className="text-[11px] text-[rgba(255,255,255,0.55)] mt-1.5 leading-[1.6]">
+                  처음 실행 시 우클릭 → ‘열기’로 한 번 띄우면 끝.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <h2 className="text-[12px] font-bold text-[#999] tracking-[0.05em] uppercase mb-4">
         구매내역
