@@ -626,7 +626,7 @@ export default function MyPage() {
                   href="https://github.com/iiiaha/iiiahalabdownloader/releases/latest/download/iiiahalab-downloader.exe"
                   className="block w-full text-[12px] text-white border border-white/70 px-4 py-2 no-underline hover:bg-white hover:text-[#080810] transition-colors text-center"
                 >
-                  Windows 다운로드
+                  Windows용 다운로드
                 </a>
                 <p className="text-[11px] text-[rgba(255,255,255,0.55)] mt-1.5 leading-[1.6]">
                   처음 실행 시 SmartScreen 차단 → ‘추가 정보’ → ‘실행’.
@@ -637,7 +637,7 @@ export default function MyPage() {
                   href="https://github.com/iiiaha/iiiahalabdownloader/releases/latest/download/iiiahalab-downloader.dmg"
                   className="block w-full text-[12px] text-white border border-white/70 px-4 py-2 no-underline hover:bg-white hover:text-[#080810] transition-colors text-center"
                 >
-                  macOS 다운로드
+                  macOS용 다운로드
                 </a>
                 <p className="text-[11px] text-[rgba(255,255,255,0.55)] mt-1.5 leading-[1.6]">
                   처음 실행 시 우클릭 → ‘열기’로 한 번 띄우면 끝.
