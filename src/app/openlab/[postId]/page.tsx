@@ -59,6 +59,7 @@ export default function PostDetailPage() {
   const [post, setPost] = useState<Post | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
   const [authorName, setAuthorName] = useState("");
+  const [commentNames, setCommentNames] = useState<Record<string, string>>({});
   const [newComment, setNewComment] = useState("");
   const [userId, setUserId] = useState("");
   const [admin, setAdmin] = useState(false);
@@ -90,7 +91,25 @@ export default function PostDetailPage() {
       .select("id, user_id, content, is_admin, is_edited, created_at")
       .eq("post_id", postId)
       .order("created_at", { ascending: true });
-    setComments(c ?? []);
+    const list = c ?? [];
+    setComments(list);
+
+    const uniqueIds = Array.from(
+      new Set(
+        list
+          .filter((row) => !row.is_admin && row.user_id)
+          .map((row) => row.user_id as string),
+      ),
+    );
+    const entries = await Promise.all(
+      uniqueIds.map(async (uid) => {
+        const r = await fetch(`/api/user-email?id=${uid}`);
+        if (!r.ok) return [uid, ""] as const;
+        const d = await r.json();
+        return [uid, (d.name as string) ?? ""] as const;
+      }),
+    );
+    setCommentNames(Object.fromEntries(entries));
 
     setLoading(false);
   };
@@ -284,10 +303,15 @@ export default function PostDetailPage() {
             return (
               <div key={c.id} className={`border-b border-[#ddd] py-4 ${c.is_admin ? "bg-[#fafafa] px-4" : ""}`}>
                 <div className="flex items-center gap-2 mb-2">
-                  {c.is_admin && (
+                  {c.is_admin ? (
                     <span className="text-[10px] font-bold text-white bg-[#111] px-1.5 py-0.5">iiiaha</span>
+                  ) : (
+                    c.user_id && commentNames[c.user_id] && (
+                      <span className="text-[11px] text-[#999]">{commentNames[c.user_id]}</span>
+                    )
                   )}
                   <span className="text-[11px] text-[#999]">
+                    {!c.is_admin && c.user_id && commentNames[c.user_id] && <span className="mr-1">·</span>}
                     {fmtDateTime(c.created_at)}
                     {c.is_edited && <span className="ml-1 text-[#bbb]">(수정됨)</span>}
                   </span>
